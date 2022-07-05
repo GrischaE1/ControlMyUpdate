@@ -1,0 +1,15 @@
+Upload CustomUpdateSolution.zip to Workspace ONE 
+
+Use the following installation command: 
+powershell -executionpolicy bypass -file install.ps1 -LogPath "C:\Temp\Logs" -UpdateInterval 30
+
+As installation detection use a custom script and upload 
+Detection.ps1 
+as command use: 
+powershell -executionpolicy bypass -file detection.ps1 -FileHash "F16B60CF330FDC9C7A030917C401A34616F29E08C37640636F4D267A815488E4" -ScriptExpectedVersion "2.0"
+
+uninstall
+powershell -executionpolicy bypass -file uninstall.ps1 -InstallDir "C:\Windows\ControlMyUpdate"
+
+
+   
