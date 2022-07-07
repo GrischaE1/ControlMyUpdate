@@ -164,11 +164,9 @@ $GenerateButton.Add_Click({
 				}
 
 				#Restart config
-				if($ToolCheckBox.IsChecked -eq $true -or $TabWSUSBT.IsEnabled -eq $True)
-				{
-					$WUProfileParams["RestartSlider"] = $RestartSlider.Value
-					$WUProfileParams["RestartGraceSlider"] = $RestartGraceSlider.Value
-				}
+				$WUProfileParams["RestartSlider"] = $RestartSlider.Value
+				$WUProfileParams["RestartGraceSlider"] = $RestartGraceSlider.Value
+				
 
 				#Update Interval config
 				if($ToolCheckBox.IsChecked -eq $true -or $TabWSUSBT.IsEnabled -eq $True)

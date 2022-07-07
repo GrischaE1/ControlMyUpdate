@@ -76,33 +76,29 @@ Function New-WUProfile
     # Timing
         #Quality Updates deferral (days)
         #$CUSlider
-        if($CUSlider)
+        if($CUSlider -ge '0')
         { 
             Get-JSONData -JSONFile $JsonInformation  -SettingName 'CUDeferral' -SettingValue $CUSlider
         }
 
         #Feature Updates deferral (days)
         #$FUSlider 
-        if($FUSlider)
+        if($FUSlider  -ge '0')
         { 
             Get-JSONData -JSONFile $JsonInformation  -SettingName 'FUDeferral' -SettingValue $FUSlider
         }
     
         #Restart deferral (days)"
         #$RestartSlider 
-        if($RestartSlider)
-        {
             Get-JSONData -JSONFile $JsonInformation  -SettingName 'RestartDeadlineFU' -SettingValue $RestartSlider
             Get-JSONData -JSONFile $JsonInformation  -SettingName 'RestartDeadlineCU' -SettingValue $RestartSlider
-        }
+        
 
         #Restart grace period (days)"
-        #$RestartGraceSlider
-        if($RestartGraceSlider)
-        {
+        #$RestartGraceSlider      
             Get-JSONData -JSONFile $JsonInformation  -SettingName 'DeadlineGracePeriod' -SettingValue $RestartGraceSlider
             Get-JSONData -JSONFile $JsonInformation  -SettingName 'DeadlineGracePeriodFU' -SettingValue $RestartGraceSlider
-        }
+        
 
         #Update Scan frequency  
         #$UpdateIntervalSlider 

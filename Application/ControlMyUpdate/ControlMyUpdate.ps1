@@ -15,7 +15,7 @@
 
 ##########################################################################################
 # Name: ControlMyUpdate.ps1
-# Version: 2.0
+# Version: 2.1
 # Date: 18.05.2021
 # Created by: Grischa Ernst gernst@vmware.com
 # Contributor: Camille Debay
@@ -92,9 +92,12 @@
 #
 # Update Source   MU,WSUS or Default             Will set the update source to the selected option 
 #
+# Retry count     0-99                           Configure how often updates getting downloaded and installed if an error appears 
+#
 ##########################################################################################
 #                                    Changelog 
 #
+# 2.1 - added retry count for error handling
 # 2.0 - removed the requirement of PSWindowsUpdate Module - now using native Windows Update API
 # 1.2 - Bugfixes 
 # 1.1 - Added delivery optimization statistics
@@ -114,7 +117,7 @@ param(
     [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Verbosity of logging. Default: Info")][ValidateSet("Info", "Debug", "Trace")][String] $ScriptLogLevel = "Info"
 )
 
-$ScriptCurrentVersion = "2.0"
+$ScriptCurrentVersion = "2.1"
 
 if ($ScriptVersion.IsPresent) {
     Return $ScriptCurrentVersion
