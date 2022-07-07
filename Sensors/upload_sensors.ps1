@@ -24,7 +24,7 @@
 # How To
 # - Run the script with the parameter
 #
-# upload_sensors.ps1 -SourcePath "C:\Temp" -APIEndpoint "as137.awmdm.com" -APIUser "APIAdmin"-APIPassword "Password" -APIKey "123412341234" -orgGUID "1234-123-12312-312"
+# upload_sensors.ps1 -SourcePath "C:\Temp" -APIEndpoint "as137.awmdm.com" -APIUser "APIAdmin" -APIPassword 'Password' -APIKey '123412341234' -OGID "1234"
 #
 ##########################################################################################
 #                                    Changelog 
@@ -140,11 +140,11 @@ foreach($file in $AllFiles)
     {
         $body = Create-APIApplicationBody -sensorname $($file.BaseName.ToLower()) -orgGUID $OGGUID -scriptcontent $Script -responsetype "DATETIME"
     }
-    if($file.BaseName -like "*bool*")
+    elseif($file.BaseName -like "*bool*")
     {
         $body = Create-APIApplicationBody -sensorname $($file.BaseName.ToLower()) -orgGUID $OGGUID -scriptcontent $Script -responsetype "BOOLEAN"
     }
-    if($file.BaseName -like "*count*")
+    elseif($file.BaseName -like "*count*")
     {
         $body = Create-APIApplicationBody -sensorname $($file.BaseName.ToLower()) -orgGUID $OGGUID -scriptcontent $Script -responsetype "INTEGER"
     }
