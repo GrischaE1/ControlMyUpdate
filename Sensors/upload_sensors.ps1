@@ -136,15 +136,15 @@ foreach($file in $AllFiles)
     $Script = [Convert]::ToBase64String($Bytes)
     
     #create JSON body
-    if($file.BaseName -like "*date*")
+    if($file.BaseName -like "*_date*")
     {
         $body = Create-APIApplicationBody -sensorname $($file.BaseName.ToLower()) -orgGUID $OGGUID -scriptcontent $Script -responsetype "DATETIME"
     }
-    elseif($file.BaseName -like "*bool*")
+    elseif($file.BaseName -like "*_bool*")
     {
         $body = Create-APIApplicationBody -sensorname $($file.BaseName.ToLower()) -orgGUID $OGGUID -scriptcontent $Script -responsetype "BOOLEAN"
     }
-    elseif($file.BaseName -like "*count*")
+    elseif($file.BaseName -like "*_count*")
     {
         $body = Create-APIApplicationBody -sensorname $($file.BaseName.ToLower()) -orgGUID $OGGUID -scriptcontent $Script -responsetype "INTEGER"
     }
