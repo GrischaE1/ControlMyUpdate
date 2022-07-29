@@ -97,7 +97,7 @@
 ##########################################################################################
 #                                    Changelog 
 #
-# 2.1 - added retry count for error handling
+# 2.1 - added retry count for error handling + pending reboot detection bugfix
 # 2.0 - removed the requirement of PSWindowsUpdate Module - now using native Windows Update API
 # 1.2 - Bugfixes 
 # 1.1 - Added delivery optimization statistics
