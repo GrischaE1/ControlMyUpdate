@@ -265,7 +265,6 @@
 					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Toast Notification text" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,640,0,0" Name="ToastTextTextBox"/>
 					<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="60" Width="400" TextWrapping="Wrap" Margin="350,640,0,0" Name="ToastText" Text="A reboot is required to finish updating, please save your work and reboot at your convenience. If no action is taken reboot will happen automatically" />
 
-
 					<Button Content="Generate Profile" HorizontalAlignment="center" VerticalAlignment="bottom" Width="200" Name="GenerateCustomScriptProfile" Height="38" />
 
 

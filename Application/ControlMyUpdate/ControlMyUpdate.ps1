@@ -459,28 +459,39 @@ function Save-WindowsUpdate {
         #Add update to download collection
         $updatesToDownload.Add($Update) | Out-Null
         
-        #Initialize download
-        Write-Log -LogLevel Debug -LogMessage "Initializing download"
-        $downloader = $updateSession.CreateUpdateDownloader()
-        $downloader.Updates = $updatesToDownload
-        
-        Write-Log -LogLevel Info -LogMessage "Downloading $($Update.Title)"
-        Write-UpdateStatus -CurrentUpdate "KB$($Update.KBArticleIDs)" -Status "Download started" -StatusChange $True
+        $a = 0
+        do
+        {  
+              $a++
 
-        #Start download
-        Write-Log -LogLevel Debug -LogMessage "Starting download"
-        $downloadResult = $downloader.Download()
+            #Initialize download
+            Write-Log -LogLevel Debug -LogMessage "Initializing download"
+            $downloader = $updateSession.CreateUpdateDownloader()
+            $downloader.Updates = $updatesToDownload
         
-        #Writing logs
-        if ($downloadResult.ResultCode -eq 2) {
-            Write-Log -LogLevel Info -LogMessage "Download successful for KB$($Update.KBArticleIDs)"
-            Write-UpdateStatus -CurrentUpdate "KB$($Update.KBArticleIDs)" -Status "Download completed" -StatusChange $True
-        }
-        else {
-            Write-Log -LogLevel Error -LogMessage "Download error for KB$($Update.KBArticleIDs)"
-            Write-UpdateStatus -CurrentUpdate "KB$($Update.KBArticleIDs)" -Status "Download failed" -StatusChange $True
-        }
+            Write-Log -LogLevel Info -LogMessage "Downloading $($Update.Title)"
+            Write-UpdateStatus -CurrentUpdate "KB$($Update.KBArticleIDs)" -Status "Download started" -StatusChange $True
 
+            #Start download        
+             
+          
+            
+            Write-Log -LogLevel Info -LogMessage "Starting ($($a).) download"            
+            $downloadResult = $downloader.Download()
+
+            #Writing logs
+            if ($downloadResult.ResultCode -eq 2) {
+                Write-Log -LogLevel Info -LogMessage "Download successful for KB$($Update.KBArticleIDs)"
+                Write-UpdateStatus -CurrentUpdate "KB$($Update.KBArticleIDs)" -Status "Download completed" -StatusChange $True
+            }
+            else {
+                Write-Log -LogLevel Error -LogMessage "Download error for KB$($Update.KBArticleIDs)"
+                Write-UpdateStatus -CurrentUpdate "KB$($Update.KBArticleIDs)" -Status "Download failed" -StatusChange $True
+            }
+        
+        } Until ($a -ge $retrycount -or $downloadResult.ResultCode -eq 2)  
+        
+        
         Clear-Variable updatesToDownload -Force -ErrorAction SilentlyContinue
     }
     Write-Log -LogLevel Trace -LogMessage "Foreach available update: End"
@@ -887,6 +898,12 @@ if ($RegistryTest) {
     if ( Test-Path -Path $SettingsRegistryPath ) {
         Write-Log -LogLevel Info -LogMessage "Registry settings successfully detected"
         $Settings = Get-ItemProperty -Path "$($RegistryRootPath)\Settings" -ErrorAction SilentlyContinue
+
+        if(!$settings.retrycount)
+        {
+            $retrycount = '3'
+        }
+        else{ $retrycount = $settings.retrycount }
     }
     else {
         Write-Log -LogLevel Error -LogMessage "No registry settings detected"
