@@ -1,0 +1,15 @@
+URL,Port,Usecase
+geover-prod.do.dsp.mp.microsoft.com,443,DO
+geo-prod.do.dsp.mp.microsoft.com,443,DO
+geo.prod.do.dsp.mp.microsoft.com,443,DO
+geover.prod.do.dsp.mp.microsoft.com,443,DO
+dl.delivery.mp.microsoft.com,80,DO
+dl.delivery.mp.microsoft.com,443,DO
+emdl.ws.microsoft.com,80,DO
+update.microsoft.com,80,WU
+update.microsoft.com,443,WU
+tsfe.trafficshaping.dsp.mp.microsoft.com,443,WU
+download.windowsupdate.com,80,WU
+download.microsoft.com,80,WU
+download.microsoft.com,443,WU
+catalog.update.microsoft.com,80,WU

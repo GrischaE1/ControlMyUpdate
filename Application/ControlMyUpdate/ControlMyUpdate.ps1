@@ -30,7 +30,7 @@
 # - Registry values in the "HKLM:\SOFTWARE\ControlMyUpdate" hive are used to configure the script
 #
 # Caution
-# 1. Please use the GUI version 2.0 or higher with the script version 1.0 or higher.
+# 1. Please use the GUI version 2.0 or higher with the script version 2.0 or higher.
 #
 ###################################
 # Registry values:
@@ -147,9 +147,8 @@ Function Write-Log {
     }
 }
 
-
 function Test-MaintenanceWindow {
-    
+    $Component = "TEST MAINTENANCE WINDOW"
     Write-Log -LogLevel Trace -LogMessage "Function: Test-MaintenanceWindow: Start"
     Write-Log -LogLevel Info -LogMessage "Check if device is in maintenance window"
 	
@@ -268,12 +267,14 @@ function Test-PendingReboot {
     param(
         [Parameter(Mandatory = $False, ValueFromPipeline = $false, HelpMessage = "Enable Automatic Reboot")][bool]$AutomaticReboot = $false
     )
+    $Component = "TEST PENDING REBOOT"
     Write-Log -LogLevel Trace -LogMessage "Function: Test-PendingReboot: Start"
     Write-Log -LogLevel Debug -LogMessage "AutomaticReboot: $($AutomaticReboot)"
 
     $PendingRestart = $false
     if (Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending" -EA Ignore) { $PendingRestart = $true }
     if (Get-Item "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired" -EA Ignore) { $PendingRestart = $true }
+    if ((New-Object -ComObject Microsoft.Update.SystemInfo).RebootRequired -eq $true) { $PendingRestart = $true }
 
     Write-Log -LogLevel Debug -LogMessage "PendingRestart: $($PendingRestart)"
 
@@ -297,6 +298,8 @@ function Write-UpdateStatus {
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Force status change update")][String] $UpdateTitle,
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "Status of the update to recorded")][String] $Status
     )
+    $Component = "WRITE UPDATE STATUS"
+
     Write-Log -LogLevel Trace -LogMessage "Function: Write-UpdateStatus: Start"
     Write-Log -LogLevel Debug -LogMessage "CurrentUpdate: $($CurrentUpdate)"
     Write-Log -LogLevel Debug -LogMessage "Status: $($Status)"
@@ -304,7 +307,7 @@ function Write-UpdateStatus {
     $LastUpdate = Get-Date -Format s
     
     if (!(Test-Path "$($RegistryRootPath)\Status\KBs\$($CurrentUpdate)")) {
-        New-Item "$($RegistryRootPath)\Status\KBs\$($CurrentUpdate)" -Force
+        New-Item "$($RegistryRootPath)\Status\KBs\$($CurrentUpdate)" -Force | Out-Null
     }
 
     if ($UpdateTitle) {
@@ -319,41 +322,32 @@ function Write-UpdateStatus {
 }
 
 function Get-InstalledWindowsUpdates {
+    $Component = "INSTALLED UPDATE VALIDATION"
+    
     Write-Log -LogLevel Trace -LogMessage "Function: Get-InstalledWindowsUpdates: Start"
     Write-Log -LogLevel Info -LogMessage "Searching for installed updates"
 
-    $UpdateCollection = [System.Collections.ArrayList]@()
-    $RegExKB = "KB(\d+)"
+    #Get WUA installation status
+    $WUAUpdateKBs = ($allupdates | Where-Object { $_.IsInstalled -eq $false }).KBArticleIDs
 
-    $MUSession = New-Object -ComObject "Microsoft.Update.Session"
-    $UpdateSearcher = $MUSession.CreateUpdateSearcher()
-    $TotalHistoryCount = $UpdateSearcher.GetTotalHistoryCount()
+    $UpdateCollection = @()
+    foreach ($temp in $WUAUpdateKBs) {    
+        $KBName = "KB$($temp)"
+        $UpdateCollection += $KBName
+    }  
 
-    Write-Log -LogLevel Debug -LogMessage "Found $($TotalHistoryCount) with Update Searcher"   
-    If ($TotalHistoryCount -gt 0) {
-        Write-Log -LogLevel Debug -LogMessage "Query History for each update"
-        $QueryHistory = $UpdateSearcher.QueryHistory(0, $TotalHistoryCount)
-
-        foreach ($item in $QueryHistory) {
-            $RegExResult = [regex]::Match($item.Title, $RegExKB)
-            if ( $RegExResult.Success ) {
-                Write-Log -LogLevel Debug -LogMessage "Found KB Number: $($RegExResult.Value)"
-                $UpdateCollection.Add($RegExResult.Value) | Out-Null
-            }
-        }
-    }
-   
     #Get Windows Updates from WMI
     $WMIKBs = Get-WmiObject win32_quickfixengineering |  Select-Object HotFixID -ExpandProperty HotFixID
     Write-log -LogLevel Debug -LogMessage "WMI KB List: $($WMIKBs)"
    
+    
     #Get Windows Updates from DISM
-    $DISMKBList = dism /online /get-packages | findstr KB
-   
+    $DISMKBList = dism /online /get-packages | findstr KB   
     $DISMKBNumbers = [regex]::Matches($DISMKBList, $RegExKB).Value
-
     Write-log -LogLevel Debug -LogMessage "DISM KB:$($DISMKBNumbers)"
-   
+       #Get Windows Updates from get-hotfix
+    $HotFixUpdates = (Get-HotFix).HotFixID 
+
     $InstalledKBs = ($UpdateCollection + $WMIKBs + $DISMKBNumbers) | Sort-Object -Unique
 
     Write-Log -LogLevel Info -LogMessage "Following updates are installed: $($InstalledKBs)"
@@ -366,6 +360,7 @@ function Search-AllUpdates {
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Define Windows Update Source")][ValidateSet("Default", "MU", "WSUS")] $UpdateSource = "Default",
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Ignore Hide/UnHide Status to get a full list")][Switch] $IgnoreHideStatus
     )
+    $Component = "SEARCH ALL UPDATES"
     Write-Log -LogLevel Trace -LogMessage "Function: Search-AllUpdates: Start"
     Write-Log -LogLevel Debug -LogMessage "Update Source: $($UpdateSource)"
 
@@ -436,7 +431,7 @@ function Save-WindowsUpdate {
     param(
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "Windows Update ComObject from Search-AllUpdates")] $DownloadUpdateList
     )
-    $Component = "Update Download"
+    $Component = "DOWNLOAD UPDATE"
     Write-Log -LogLevel Trace -LogMessage "Function: Save-WindowsUpdate: Start"
     Write-Log -LogLevel Debug -LogMessage "DownloadUpdateList: $($DownloadUpdateList.KBArticleIDs)"
 
@@ -460,9 +455,8 @@ function Save-WindowsUpdate {
         $updatesToDownload.Add($Update) | Out-Null
         
         $a = 0
-        do
-        {  
-              $a++
+        do {  
+            $a++
 
             #Initialize download
             Write-Log -LogLevel Debug -LogMessage "Initializing download"
@@ -502,9 +496,10 @@ function Update-InstallationStatus {
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "Windows Update ComObject from Search-AllUpdates")]$AvailableUpdates
     )
-    
+    $Component = "UPDATE INSTALLATION STATUS"
     Write-Log -LogLevel Trace -LogMessage "Function: Get-NonInstalledUpdates: Start"
     Write-Log -LogLevel Debug -LogMessage "AvailableUpdates: $($AvailableUpdates)"
+
 
     Write-Log -LogLevel Trace -LogMessage "Get-InstalledWindowsUpdates"
     $InstalledKBs = Get-InstalledWindowsUpdates
@@ -515,41 +510,58 @@ function Update-InstallationStatus {
     $RegistryKBList = Get-ChildItem "$($RegistryRootPath)\Status\KBs"
     Write-Log -LogLevel Debug -LogMessage "Item from registry: $($RegistryKBList)"
 
-    foreach ($RegKey in $RegistryKBList) {
-        $StatusKeys = $RegKey | Where-Object { $_.property -like "Installation Status*" -and $_.property -ne "Installation Status : Installed" }
-       
-        if ($statuskeys) {           
-            $NonInstalledKB = $StatusKeys.name.Split('\')[-1]
-            $KBCheck = $InstalledKBs | Where-Object { $_ -eq $NonInstalledKB }
-            $AvailableKBCheck = $AvailableKBs | Where-Object { $_ -eq $($NonInstalledKB.replace("KB", "")) }
+    foreach ($RegKey in $RegistryKBList) {  
+                 
+        $DetectedKBs = $RegKey.name.Split('\')[-1]
+        $KBCheck = $InstalledKBs | Where-Object { $_ -eq $DetectedKBs }
+        $AvailableKBCheck = $AvailableKBs | Where-Object { $_ -eq $($DetectedKBs.replace("KB", "")) }
             
 
-            $KeyNames = $StatusKeys.property | Where-Object { $_ -like "Installation Status*" -and $_ -ne "Installation Status : Installed" }
+        $KeyNames = $RegKey.property | Where-Object { $_ -like "Installation Status*" }
             
-            foreach ($Item in $KeyNames) {
-                Remove-ItemProperty "$($RegistryRootPath)\Status\KBs\$($NonInstalledKB)" -Name $Item -Force
-            }
-
-            if ($KBCheck) {
-                Write-UpdateStatus -CurrentUpdate "$($NonInstalledKB)" -Status "Installation Status : Installed" -StatusChange $True
-                Write-Log -LogLevel Info -LogMessage "Status Change for $($NonInstalledKB) - now Installed"
-
-            }
-            elseif ($AvailableKBCheck) {
-                Write-UpdateStatus -CurrentUpdate "$($NonInstalledKB)" -Status "Installation Status : Pending Installation" -StatusChange $True
-                Write-Log -LogLevel Info -LogMessage "Status Change for $($NonInstalledKB) - now pending for installation"
-
-            }
-            elseif (!$KBCheck -and !$AvailableKBCheck) {
-                Write-UpdateStatus -CurrentUpdate "$($NonInstalledKB)" -Status "Installation Status : Not Applicable" -StatusChange $True
-                Write-Log -LogLevel Info -LogMessage "Status Change for $($NonInstalledKB) - not applicable anymore"
-            }
-            Clear-Variable KBCheck, AvailableKBCheck -Force
+        foreach ($Item in $KeyNames) {
+            Remove-ItemProperty "$($RegistryRootPath)\Status\KBs\$($DetectedKBs)" -Name $Item -Force
         }
+
+        if ($KBCheck) {
+            Write-UpdateStatus -CurrentUpdate "$($DetectedKBs)" -Status "Installation Status : Installed" -StatusChange $True
+            # Write-Log -LogLevel Info -LogMessage "Status Change for $($DetectedKBs) - now Installed"
+        }
+        elseif ($AvailableKBCheck) {
+            Write-UpdateStatus -CurrentUpdate "$($DetectedKBs)" -Status "Installation Status : Pending Installation" -StatusChange $True
+            # Write-Log -LogLevel Info -LogMessage "Status Change for $($DetectedKBs) - now pending for installation"
+        }
+        elseif (!$KBCheck -and !$AvailableKBCheck -and $RegKey.property -notcontains "Installation Status : Installed" ) {
+            Write-UpdateStatus -CurrentUpdate "$($DetectedKBs)" -Status "Installation Status : Not Applicable" -StatusChange $True
+            # Write-Log -LogLevel Info -LogMessage "Status Change for $($DetectedKBs) - not applicable anymore"
+        }
+        elseif (!$KBCheck -and !$AvailableKBCheck -and $RegKey.property -contains "Installation Status : Installed" ) {
+            Write-UpdateStatus -CurrentUpdate "$($DetectedKBs)" -Status "Installation Status : Uninstalled" -StatusChange $True
+            # Write-Log -LogLevel Info -LogMessage "Status Change for $($DetectedKBs) - Uninstalled"
+        }
+
+
+        Clear-Variable KBCheck, AvailableKBCheck -Force
+    }
+
+    #Write installed updates to registry
+    $Reglist = @()
+    foreach($RegKB in $RegistryKBList)
+    {
+        $RegName = $RegKB.name.Split('\')[-1]
+        $Reglist += $RegName
+    }
+
+    foreach($KB in ($InstalledKBs | Where-Object {$_}))
+    {        
+        if($Reglist -notcontains $KB)
+        {
+            Write-UpdateStatus -CurrentUpdate $KB -Status "Installation Status : Installed"  -StatusChange $True   
+        }        
     }
 
     Write-Log -LogLevel Trace -LogMessage "Function: Get-NonInstalledUpdates: End"
-    return $NoninstalledUpdates
+    # return $DetectedKBs
 }
 
 function Set-WindowsUpdateBlockStatus {
@@ -558,7 +570,7 @@ function Set-WindowsUpdateBlockStatus {
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "Status of the update")][ValidateSet("Blocked", "UnBlocked")][String] $Status,
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "Windows Update ComObject from Search-AllUpdates")] $AllUpdates
     )
-
+    $Component = "SET BLOCK STATUS"
     Write-Log -LogLevel Trace -LogMessage "Function: Set-WindowsUpdateBlockStatus: Start"
     Write-Log -LogLevel Debug -LogMessage "ArticleID: $($KBArticleID)"
     Write-Log -LogLevel Debug -LogMessage "Status: $($Status)"
@@ -595,6 +607,7 @@ function Set-WindowsUpdateBlockStatus {
 }
 
 function Update-DeliveryOptimizationStats {
+    $Component = "DO STATISTICS"
     Write-Log -LogLevel Trace -LogMessage "Function: Update-DeliveryOptimizationStats: Start"
     Write-Log -LogLevel Info -LogMessage "Writing delivery optimization statistics to registry"
 
@@ -728,6 +741,64 @@ function Update-DeliveryOptimizationStats {
 
     Write-Log -LogLevel Trace -LogMessage "Function: Update-DeliveryOptimizationStats: End"
 }
+function Test-UpdateConnectivity {
+    $Component = "TEST CONNECTIVITY"
+    $DOConnected = $True
+    $WUConnected = $True
+
+    if ((Test-Path "$RegistryRootPath\Status\Connection") -eq $false) {
+        New-Item -Path "$RegistryRootPath\Status\Connection" -Force
+        New-Item -Path "$RegistryRootPath\Status\Connection\Delivery Optimization" -Force
+        New-Item -Path "$RegistryRootPath\Status\Connection\Microsoft Update" -Force
+        New-Item -Path "$RegistryRootPath\Status\Connection\Other" -Force
+    }
+
+    $ConnectionURLs = Import-Csv "$PSScriptRoot\ConnectionCheck.csv"  
+
+    foreach ($Url in $ConnectionURLs) {
+        try {
+            $testPort = [System.Net.Sockets.TCPClient]::new()
+            $testPort.SendTimeout = 5
+            $testPort.Connect($Url.url, $Url.Port)
+            $result = $testPort.Connected
+        }
+        catch {
+            $result = $_.Exception.InnerException.Message
+        }
+            
+        Write-Log -LogLevel Debug -LogMessage  $result
+
+        if ($url.UseCase -eq "WU") { $ConnectionRegPath = "Microsoft Update" }
+        elseif ($url.UseCase -eq "DO") { $ConnectionRegPath = "Delivery Optimization" }
+        else { $ConnectionRegPath = "Other" } 
+
+        New-ItemProperty -Path "$RegistryRootPath\Status\Connection\$($ConnectionRegPath)" -Name "$($Url.URL):$($Url.Port)" -PropertyType String -Value $result -Force | Out-Null
+        
+        $testPort.Close()
+    }
+  
+    $DOResults = Get-Item -Path "$RegistryRootPath\Status\Connection\Delivery Optimization"
+   
+    foreach ($Item in $DOResults.Property) {
+        if ((Get-ItemPropertyValue -Path "$RegistryRootPath\Status\Connection\Delivery Optimization" -Name $Item) -ne $True) { $DOConnected = $False }
+    }
+
+    $WUResults = Get-Item -Path "$RegistryRootPath\Status\Connection\Microsoft Update"
+   
+    foreach ($Item in $WUResults.Property) {
+        if ((Get-ItemPropertyValue -Path "$RegistryRootPath\Status\Connection\Microsoft Update" -Name $Item) -ne $True) { $WUConnected = $False }
+    }
+
+    New-ItemProperty -Path "$RegistryRootPath\Status\Connection" -Name "Delivery Optimization Status" -PropertyType String -Value $DOConnected -Force | Out-Null
+    New-ItemProperty -Path "$RegistryRootPath\Status\Connection" -Name "Windows Update Status" -PropertyType String -Value $WUConnected -Force | Out-Null
+
+    Write-Log -LogLevel Info -LogMessage "Delivery Optimization connection status: $($DOConnected)"
+    Write-Log -LogLevel Info -LogMessage "Microsoft Update connection status: $($WUConnected)"
+
+
+    Return $DOConnected, $WUConnected
+    
+}
 
 function Install-SpecificWindowsUpdate {
     param(
@@ -747,22 +818,29 @@ function Install-SpecificWindowsUpdate {
         $updatesToInstall = New-Object -ComObject 'Microsoft.Update.UpdateColl'
         $updatesToInstall.Add($InstallUpdate) | Out-Null 
 
-        $installer = New-Object -ComObject 'Microsoft.Update.Installer'
-        $installer.Updates = $updatesToInstall        
-        $installResult = $installer.Install()
-        
-        Write-Log -LogLevel Debug -LogMessage "Install result code: $($installResult.ResultCode)"
-        switch -exact ($installResult.ResultCode) {
-            0 { $InstallStatus = 'NotStarted' }
-            1 { $InstallStatus = 'InProgress' }
-            2 { $InstallStatus = 'Installed' }
-            3 { $InstallStatus = 'InstalledWithErrors' }
-            4 { $InstallStatus = 'Failed' }
-            5 { $InstallStatus = 'Aborted' }
-            6 { $InstallStatus = 'NoUpdatesNeeded' }
-            7 { $InstallStatus = 'RebootRequired' }
-            default { $InstallStatus = "Unknown result code [$($_)]" }
-        }
+        $b = 0
+        do {
+            $b++
+
+            #start update installation
+            $installer = New-Object -ComObject 'Microsoft.Update.Installer'
+            $installer.Updates = $updatesToInstall        
+            $installResult = $installer.Install()
+            
+            Write-Log -LogLevel Info -LogMessage "Install result code: $($installResult.ResultCode)"
+            switch -exact ($installResult.ResultCode) {
+                0 { $InstallStatus = 'NotStarted' }
+                1 { $InstallStatus = 'InProgress' }
+                2 { $InstallStatus = 'Installed' }
+                3 { $InstallStatus = 'InstalledWithErrors' }
+                4 { $InstallStatus = 'Failed' }
+                5 { $InstallStatus = 'Aborted' }
+                6 { $InstallStatus = 'NoUpdatesNeeded' }
+                7 { $InstallStatus = 'RebootRequired' }
+                default { $InstallStatus = "Unknown result code [$($_)]" }
+            }
+    
+        }Until($b -ge $retrycount -or $installResult.ResultCode -eq 2 -or $installResult.ResultCode -eq 7)
 
         if ($($installResult.ResultCode) -ne 2) {
             Write-Log -LogLevel Error -LogMessage "Update Status: $($InstallStatus)"
@@ -788,6 +866,9 @@ function New-WindowsUpdateScan {
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "Last Scan Time")][DateTime] $LastScanTime
     )
+
+    $Component = "NEW WINDOWS UPDATE SCAN"
+
     Write-Log -LogLevel Trace -LogMessage "Function: New-WindowsUpdateScan: Start"
     if ($Settings.ScanRandomization -ge "1") {
         $NextScanTimeTemp = $LastScanTime.AddHours($Settings.ScanInterval).AddMinutes((Get-Random -Minimum 0 -Maximum $Settings.ScanRandomization))
@@ -810,35 +891,6 @@ function New-WindowsUpdateScan {
     return $AllUpdatesFound
 }
 
-function Show-Notification {
-    [cmdletbinding()]
-    Param (
-        [string]
-        $ToastTitle,
-        [string]
-        [parameter(ValueFromPipeline)]
-        $ToastText
-    )
-
-    [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > $null
-    $Template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02)
-
-    $RawXml = [xml] $Template.GetXml()
-    ($RawXml.toast.visual.binding.text | Where-Object { $_.id -eq "1" }).AppendChild($RawXml.CreateTextNode($ToastTitle)) > $null
-    ($RawXml.toast.visual.binding.text | Where-Object { $_.id -eq "2" }).AppendChild($RawXml.CreateTextNode($ToastText)) > $null
-
-    $SerializedXml = New-Object Windows.Data.Xml.Dom.XmlDocument
-    $SerializedXml.LoadXml($RawXml.OuterXml)
-
-    $Toast = [Windows.UI.Notifications.ToastNotification]::new($SerializedXml)
-    $Toast.Tag = "Windows Update"
-    $Toast.Group = "Windows Update"
-
-    $toast.Priority = "High"
-
-    $Notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("Windows Update")
-    $Notifier.Show($Toast);
-}
 
 ##########################################################################################
 #                                   Define variables
@@ -899,11 +951,10 @@ if ($RegistryTest) {
         Write-Log -LogLevel Info -LogMessage "Registry settings successfully detected"
         $Settings = Get-ItemProperty -Path "$($RegistryRootPath)\Settings" -ErrorAction SilentlyContinue
 
-        if(!$settings.retrycount)
-        {
+        if (!$settings.retrycount) {
             $retrycount = '3'
         }
-        else{ $retrycount = $settings.retrycount }
+        else { $retrycount = $settings.retrycount }
     }
     else {
         Write-Log -LogLevel Error -LogMessage "No registry settings detected"
@@ -925,6 +976,8 @@ if (!$settings.LastScanTime) {
     Write-Log -LogLevel Debug -LogMessage "No LastScanTime defined. Set LastScanTime to now"
     Set-ItemProperty -Path "$($RegistryRootPath)\Settings" -Name 'LastScanTime' -Value $(Get-Date -Format s)
 }
+
+$ConnectionTest = Test-UpdateConnectivity
 
 
 $Component = "Emergency update installation"
@@ -961,6 +1014,10 @@ if ($settings.EmergencyKB) {
     
 }
 
+#restart the device if pending reboot and in MW
+if (Test-MaintenanceWindow -eq $true) {
+    Test-PendingReboot -AutomaticReboot $true
+}
 
 
 $Component = "UPDATE HIDE/UNHIDE"
@@ -1010,11 +1067,39 @@ else {
     }
 }
 
+#Checking if device was rebooted
+$bootuptime = (Get-CimInstance -ClassName Win32_OperatingSystem).LastBootUpTime
+$CurrentDate = Get-Date
+$uptime = $CurrentDate - $bootuptime
+$Uptime = New-TimeSpan -Start $bootuptime  -End $CurrentDate 
+
+
 #Check detected but not installed updates
 if ($AllUpdates) {
-    Write-Log -LogLevel Info -LogMessage "Pending Update count: $($AllUpdates.Count)"
-    Update-InstallationStatus -AvailableUpdates $AllUpdates
+    $Updates = $AllUpdates | Where-Object { $_.IsInstalled -eq $false }
+    Write-Log -LogLevel Info -LogMessage "Pending Update count: $($Updates.Count)"
+    Update-InstallationStatus -AvailableUpdates $Updates
 }
+
+# Check if Maintenance Window is enabled
+elseif ($Settings.MaintenanceWindow -eq $true) {
+    "Test"
+    Write-Log -LogLevel Info -LogMessage "Maintenance Window Setting detected"
+    if ((Test-MaintenanceWindow) -eq $true) {
+        $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date)
+        $Updates = $AllUpdates | Where-Object { $_.IsInstalled -eq $false }
+        Update-InstallationStatus -AvailableUpdates $Updates
+    }
+}
+
+elseif ($Uptime.Days -eq 0 -and $uptime.Hours -eq 0 -and $uptime.Minutes -le "15") {
+    "Test2"
+    $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date)
+    $Updates = $AllUpdates | Where-Object { $_.IsInstalled -eq $false }
+    Update-InstallationStatus -AvailableUpdates $Updates
+    Clear-Variable AllUpdates, Updates
+}
+
 
 # Check if Maintenance Window is enabled
 if ($Settings.MaintenanceWindow -eq $true) {
@@ -1078,7 +1163,8 @@ if ( ($AllUpdates.Count -gt 0) -and ($Settings.ReportOnly -ne "True") ) {
             Write-Log -LogLevel Debug -LogMessage "Device outside maintenance window"
         }
     }
-    else { # If no maintenance window is configured, just install the updates at any time
+    else {
+        # If no maintenance window is configured, just install the updates at any time
         Write-Log -LogLevel Info -LogMessage "Starting installation without Maintenance Window"
 
         Write-Log -LogLevel Debug -LogMessage "Trigger update download"
@@ -1097,7 +1183,9 @@ if ( ($AllUpdates.Count -gt 0) -and ($Settings.ReportOnly -ne "True") ) {
 $Component = "REBOOT CHECK"
 #Check if  Reboot pending   
 $RebootRequired = Test-PendingReboot -AutomaticReboot $false
-Write-Log -LogLevel Debug -LogMessage "RebootRequired: $($RebootRequired)"
+Write-Log -LogLevel Info -LogMessage "RebootRequired: $($RebootRequired)"
+
+
 
 if ($RebootRequired -eq $true) {
     Write-Log -LogLevel Trace -LogMessage "RebootRequired: True"
@@ -1107,9 +1195,21 @@ if ($RebootRequired -eq $true) {
         Write-Log -LogLevel Info -LogMessage "Notifying User of pending reboot"
         $RebootNotification = Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootNotificationCreated' -ErrorAction Ignore 
 
-        if ($RebootNotification -eq $False -or !($RebootNotification)) {
-            Show-Notification -ToastTitle $Settings.ToastTitle -ToastText $Settings.ToastText 
+        if ($RebootNotification -eq $False -or !($RebootNotification)) { 
+            $NotificationDate = Get-Date -Format s                    
+            Start-ScheduledTask -TaskName "Control My Update - Reboot Notification" 
             New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootNotificationCreated" -Value "True" -Force | Out-Null    
+            New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootNotificationDate" -Value $NotificationDate -Force | Out-Null   
+        }
+        elseif ($RebootNotification -eq $True) {
+            $LastNotificationTime = Get-Date (Get-ItemPropertyValue -Path "$($RegistryRootPath)\Status" -Name "RebootNotificationDate") -Format s
+            $IntervalTimerTemp = (Get-Date).AddHours(-8)
+            $IntervalTimer = Get-Date ($IntervalTimerTemp) -format s
+            if ($LastNotificationTime -le $IntervalTimer) {
+                $NotificationDate = Get-Date -Format s   
+                Start-ScheduledTask -TaskName "Control My Update - Reboot Notification" 
+                New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootNotificationDate" -Value $NotificationDate -Force | Out-Null  
+            }
         }
     }
 }
