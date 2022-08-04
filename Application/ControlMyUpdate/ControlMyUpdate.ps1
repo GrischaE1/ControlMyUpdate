@@ -81,12 +81,6 @@
 #                 True                           Will generate a toast notification
 #                 False                          Will not notify the end-user 
 #
-# ToastTitle
-#                 e.g. Windows Update            Provides a title for the toast notification
-#
-# ToastText
-#                 e.g. Restart required          Provides a description in the notification
-#
 # EmergencyKB
 #                 e.g. KB12345                   This update will be installed even if the device is outside of the maintenance window and if the device is outside of the scan interval
 #
@@ -97,7 +91,13 @@
 ##########################################################################################
 #                                    Changelog 
 #
-# 2.1 - added retry count for error handling + pending reboot detection bugfix
+# 2.1 - added the following features:
+#       - retry count for error handling (for download and installation of updates) 
+#       - pending reboot detection bugfix (if no update was pending, reboot was not triggered during the MW)
+#       - New toast notification feature from Damien van Baeys - https://github.com/damienvanrobaeys/Intune-Proactive-Remediation-scripts/tree/main/Reboot%20warning
+#           - Removed toast title and text
+#       - Improved update detection and reporting
+#       - Added Windows Update and Delivery Optimization service connection test
 # 2.0 - removed the requirement of PSWindowsUpdate Module - now using native Windows Update API
 # 1.2 - Bugfixes 
 # 1.1 - Added delivery optimization statistics
@@ -328,7 +328,7 @@ function Get-InstalledWindowsUpdates {
     Write-Log -LogLevel Info -LogMessage "Searching for installed updates"
 
     #Get WUA installation status
-    $WUAUpdateKBs = ($allupdates | Where-Object { $_.IsInstalled -eq $false }).KBArticleIDs
+    $WUAUpdateKBs = ($allupdates | Where-Object { $_.IsInstalled -eq $true }).KBArticleIDs
 
     $UpdateCollection = @()
     foreach ($temp in $WUAUpdateKBs) {    
@@ -345,8 +345,6 @@ function Get-InstalledWindowsUpdates {
     $DISMKBList = dism /online /get-packages | findstr KB   
     $DISMKBNumbers = [regex]::Matches($DISMKBList, $RegExKB).Value
     Write-log -LogLevel Debug -LogMessage "DISM KB:$($DISMKBNumbers)"
-       #Get Windows Updates from get-hotfix
-    $HotFixUpdates = (Get-HotFix).HotFixID 
 
     $InstalledKBs = ($UpdateCollection + $WMIKBs + $DISMKBNumbers) | Sort-Object -Unique
 
@@ -812,8 +810,6 @@ function Install-SpecificWindowsUpdate {
 
 
     foreach ($InstallUpdate in $SelectedUpdate) {
-        Write-Log -LogLevel Info -LogMessage "Starting installation of $($InstallUpdate.Title)"
-        Write-UpdateStatus -CurrentUpdate "KB$($InstallUpdate.KBArticleIDs)" -Status "Start installation" -StatusChange $True
 
         $updatesToInstall = New-Object -ComObject 'Microsoft.Update.UpdateColl'
         $updatesToInstall.Add($InstallUpdate) | Out-Null 
@@ -821,7 +817,9 @@ function Install-SpecificWindowsUpdate {
         $b = 0
         do {
             $b++
-
+            Write-Log -LogLevel Info -LogMessage "Starting ($($b).) installation of $($InstallUpdate.Title)"
+            Write-UpdateStatus -CurrentUpdate "KB$($InstallUpdate.KBArticleIDs)" -Status "Start installation" -StatusChange $True
+    
             #start update installation
             $installer = New-Object -ComObject 'Microsoft.Update.Installer'
             $installer.Updates = $updatesToInstall        

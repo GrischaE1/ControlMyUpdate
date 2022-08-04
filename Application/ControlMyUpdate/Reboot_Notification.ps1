@@ -160,4 +160,4 @@ $Load = [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, Con
 $ToastXml = New-Object -TypeName Windows.Data.Xml.Dom.XmlDocument
 $ToastXml.LoadXml($Toast.OuterXml)	
 # Display the Toast
-[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppID).Show($ToastXml)<
+[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppID).Show($ToastXml)
