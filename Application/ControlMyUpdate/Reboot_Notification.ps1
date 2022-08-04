@@ -78,11 +78,11 @@ Function Register-NotificationApp($AppID,$AppDisplayName) {
         if (-NOT(Test-Path $RegPath)) {
             New-Item -Path $AppRegPath -Name $AppID -Force | Out-Null
         }
-        $DisplayName = Get-ItemProperty -Path $RegPath -Name DisplayName -ErrorAction SilentlyContinue | Select -ExpandProperty DisplayName -ErrorAction SilentlyContinue
+        $DisplayName = Get-ItemProperty -Path $RegPath -Name DisplayName -ErrorAction SilentlyContinue | Select-Object -ExpandProperty DisplayName -ErrorAction SilentlyContinue
         if ($DisplayName -ne $AppDisplayName) {
             New-ItemProperty -Path $RegPath -Name DisplayName -Value $AppDisplayName -PropertyType String -Force | Out-Null
         }
-        $ShowInSettingsValue = Get-ItemProperty -Path $RegPath -Name ShowInSettings -ErrorAction SilentlyContinue | Select -ExpandProperty ShowInSettings -ErrorAction SilentlyContinue
+        $ShowInSettingsValue = Get-ItemProperty -Path $RegPath -Name ShowInSettings -ErrorAction SilentlyContinue | Select-Object -ExpandProperty ShowInSettings -ErrorAction SilentlyContinue
         if ($ShowInSettingsValue -ne $ShowInSettings) {
             New-ItemProperty -Path $RegPath -Name ShowInSettings -Value $ShowInSettings -PropertyType DWORD -Force | Out-Null
         }
@@ -160,4 +160,4 @@ $Load = [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, Con
 $ToastXml = New-Object -TypeName Windows.Data.Xml.Dom.XmlDocument
 $ToastXml.LoadXml($Toast.OuterXml)	
 # Display the Toast
-[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppID).Show($ToastXml)
+[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppID).Show($ToastXml)<
