@@ -328,7 +328,7 @@ function Get-InstalledWindowsUpdates {
     Write-Log -LogLevel Info -LogMessage "Searching for installed updates"
 
     #Get WUA installation status
-    $WUAUpdateKBs = ($allupdates | Where-Object { $_.IsInstalled -eq $true }).KBArticleIDs
+    $WUAUpdateKBs = ($AllUpdates | Where-Object { $_.IsInstalled -eq $true}).KBArticleIDs
 
     $UpdateCollection = @()
     foreach ($temp in $WUAUpdateKBs) {    
@@ -342,6 +342,7 @@ function Get-InstalledWindowsUpdates {
    
     
     #Get Windows Updates from DISM
+    $RegExKB = "KB(\d+)"
     $DISMKBList = dism /online /get-packages | findstr KB   
     $DISMKBNumbers = [regex]::Matches($DISMKBList, $RegExKB).Value
     Write-log -LogLevel Debug -LogMessage "DISM KB:$($DISMKBNumbers)"
@@ -1081,7 +1082,7 @@ if ($AllUpdates) {
 
 # Check if Maintenance Window is enabled
 elseif ($Settings.MaintenanceWindow -eq $true) {
-    "Test"
+
     Write-Log -LogLevel Info -LogMessage "Maintenance Window Setting detected"
     if ((Test-MaintenanceWindow) -eq $true) {
         $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date)
@@ -1091,7 +1092,8 @@ elseif ($Settings.MaintenanceWindow -eq $true) {
 }
 
 elseif ($Uptime.Days -eq 0 -and $uptime.Hours -eq 0 -and $uptime.Minutes -le "15") {
-    "Test2"
+    Write-Log -LogLevel Info -LogMessage "Update installation status after reboot"
+
     $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date)
     $Updates = $AllUpdates | Where-Object { $_.IsInstalled -eq $false }
     Update-InstallationStatus -AvailableUpdates $Updates
