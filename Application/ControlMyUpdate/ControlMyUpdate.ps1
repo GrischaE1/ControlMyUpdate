@@ -515,7 +515,7 @@ function Update-InstallationStatus {
     $InstalledKBs = Get-InstalledWindowsUpdates
     Write-Log -LogLevel Debug -LogMessage "Installed KBs returned: $($InstalledKBs)"
 
-    $AvailableKBs = $AllUpdates.KBArticleIDs
+    $AvailableKBs = ($AllUpdates | Where-Object { $_.IsInstalled -eq $false -and $_.IsHidden -eq $false}).KBArticleIDs
 
     $RegistryKBList = Get-ChildItem "$($RegistryRootPath)\Status\KBs"
     Write-Log -LogLevel Debug -LogMessage "Item from registry: $($RegistryKBList)"
@@ -560,6 +560,14 @@ function Update-InstallationStatus {
     {
         $RegName = $RegKB.name.Split('\')[-1]
         $Reglist += $RegName
+    }
+
+    foreach($WUAUpdate in $AllUpdates)
+    {
+        if($Reglist -contains "KB$($WUAUpdate.KBArticleIDs)")
+        {
+             Write-UpdateStatus -CurrentUpdate $WUAUpdate.KBArticleIDs -UpdateTitle $WUAUpdate.Title   
+        }
     }
 
     foreach($KB in ($InstalledKBs | Where-Object {$_}))
@@ -1299,7 +1307,7 @@ New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Nam
  
 
 #Report all installed updates 
-$InstalledUpdates = Get-InstalledWindowsUpdates -AllUpdates $FullUpdateList
+$InstalledUpdates = Update-InstallationStatus -AllUpdates $FullUpdateList
 Write-Log -LogLevel Debug -LogMessage "Write installed update list in registry"
 New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "Installed KBs" -Value $InstalledUpdates -Force | Out-Null
 New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "Total Installed KBs" -Value $($InstalledUpdates.Count) -Force | Out-Null
