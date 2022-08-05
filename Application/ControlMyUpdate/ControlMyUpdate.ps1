@@ -324,6 +324,9 @@ function Write-UpdateStatus {
 }
 
 function Get-InstalledWindowsUpdates {
+ param (
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Windows Update ComObject from Search-AllUpdates")]$AllUpdates
+    )
     $Component = "INSTALLED UPDATE VALIDATION"
     
     Write-Log -LogLevel Trace -LogMessage "Function: Get-InstalledWindowsUpdates: Start"
@@ -501,7 +504,7 @@ function Save-WindowsUpdate {
 
 function Update-InstallationStatus {
     param (
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Windows Update ComObject from Search-AllUpdates")]$AvailableUpdates
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Windows Update ComObject from Search-AllUpdates")]$AllUpdates
     )
     $Component = "UPDATE INSTALLATION STATUS"
     Write-Log -LogLevel Trace -LogMessage "Function: Get-NonInstalledUpdates: Start"
@@ -512,7 +515,7 @@ function Update-InstallationStatus {
     $InstalledKBs = Get-InstalledWindowsUpdates
     Write-Log -LogLevel Debug -LogMessage "Installed KBs returned: $($InstalledKBs)"
 
-    $AvailableKBs = $AvailableUpdates.KBArticleIDs
+    $AvailableKBs = $AllUpdates.KBArticleIDs
 
     $RegistryKBList = Get-ChildItem "$($RegistryRootPath)\Status\KBs"
     Write-Log -LogLevel Debug -LogMessage "Item from registry: $($RegistryKBList)"
@@ -1023,8 +1026,11 @@ if ($settings.EmergencyKB) {
 }
 
 #restart the device if pending reboot and in MW
-if (Test-MaintenanceWindow -eq $true) {
-    Test-PendingReboot -AutomaticReboot $true
+if($Settings.MaintenanceWindow -eq $True)
+{
+    if (Test-MaintenanceWindow -eq $true) {
+        Test-PendingReboot -AutomaticReboot $true
+    }
 }
 
 
@@ -1059,10 +1065,9 @@ $Component = "UPDATE SCAN"
 if (!$Settings.NextScanTime) {
     Write-Log -LogLevel Info -LogMessage "Script First Run - Searching for updates"
     $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date)
-    if ($AllUpdates) {
-        $Updates = $AllUpdates | Where-Object { $_.IsInstalled -eq $false }
+    if ($AllUpdates) {        
         Write-Log -LogLevel Info -LogMessage "Pending Update count: $($Updates.Count)"
-        Update-InstallationStatus -AvailableUpdates $Updates
+        Update-InstallationStatus -AvailableUpdates $AllUpdates
     }
 
 }
@@ -1077,10 +1082,9 @@ else {
         $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date $Settings.LastScanTime)
 
         #Check detected but not installed updates
-        if ($AllUpdates) {
-            $Updates = $AllUpdates | Where-Object { $_.IsInstalled -eq $false }
+        if ($AllUpdates) {           
             Write-Log -LogLevel Info -LogMessage "Pending Update count: $($Updates.Count)"
-            Update-InstallationStatus -AvailableUpdates $Updates
+            Update-InstallationStatus -AvailableUpdates $AllUpdates
         }
 
     }
@@ -1106,17 +1110,15 @@ if(!$AllUpdates)
         Write-Log -LogLevel Info -LogMessage "Maintenance Window Setting detected"
         if ((Test-MaintenanceWindow) -eq $true) {
             $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date)
-            $Updates = $AllUpdates | Where-Object { $_.IsInstalled -eq $false }
-            Update-InstallationStatus -AvailableUpdates $Updates
+            Update-InstallationStatus -AvailableUpdates $AllUpdates
         }
     }
 
     elseif ($Uptime.Days -eq 0 -and $uptime.Hours -eq 0 -and $uptime.Minutes -le "15") {
         Write-Log -LogLevel Info -LogMessage "Update installation status after reboot"
 
-        $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date)
-        $Updates = $AllUpdates | Where-Object { $_.IsInstalled -eq $false }
-        Update-InstallationStatus -AvailableUpdates $Updates
+        $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date)       
+        Update-InstallationStatus -AvailableUpdates $AllUpdates
         Clear-Variable AllUpdates, Updates
     }
 }
@@ -1297,7 +1299,7 @@ New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Nam
  
 
 #Report all installed updates 
-$InstalledUpdates = Get-InstalledWindowsUpdates
+$InstalledUpdates = Get-InstalledWindowsUpdates -AllUpdates $FullUpdateList
 Write-Log -LogLevel Debug -LogMessage "Write installed update list in registry"
 New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "Installed KBs" -Value $InstalledUpdates -Force | Out-Null
 New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "Total Installed KBs" -Value $($InstalledUpdates.Count) -Force | Out-Null
