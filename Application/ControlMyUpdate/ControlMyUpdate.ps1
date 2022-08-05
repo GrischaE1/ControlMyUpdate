@@ -296,7 +296,7 @@ function Write-UpdateStatus {
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "KB Number to update")][String] $CurrentUpdate,
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Force status change update")][String] $StatusChange,
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Force status change update")][String] $UpdateTitle,
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "Status of the update to recorded")][String] $Status
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Status of the update to recorded")][String] $Status
     )
     $Component = "WRITE UPDATE STATUS"
 
@@ -314,10 +314,12 @@ function Write-UpdateStatus {
         New-ItemProperty -Path "$($RegistryRootPath)\Status\KBs\$($CurrentUpdate)" -PropertyType "String" -Name "Title" -Value $UpdateTitle -Force | Out-Null
     }
 
-    if (!(Get-Item "$($RegistryRootPath)\Status\KBs\$($CurrentUpdate)\$($Status)" -ErrorAction SilentlyContinue) -or $StatusChange -eq $True) {
-        New-ItemProperty -Path "$($RegistryRootPath)\Status\KBs\$($CurrentUpdate)" -PropertyType "String" -Name "$Status" -Value $LastUpdate -Force | Out-Null
+    if($Status)
+    {
+        if (!(Get-Item "$($RegistryRootPath)\Status\KBs\$($CurrentUpdate)\$($Status)" -ErrorAction SilentlyContinue) -or $StatusChange -eq $True) {
+            New-ItemProperty -Path "$($RegistryRootPath)\Status\KBs\$($CurrentUpdate)" -PropertyType "String" -Name "$Status" -Value $LastUpdate -Force | Out-Null
+        }
     }
-
     Write-Log -LogLevel Trace -LogMessage "Function: Write-UpdateStatus: End"
 }
 
@@ -412,13 +414,19 @@ function Search-AllUpdates {
         5 { $Status = 'Aborted' }
         default { $Status = "Unknown result code [$($_)]" }
     }
-    Write-Log -LogLevel Trace -LogMessage "Update search result status: $($Status)"
+    Write-Log -LogLevel Info -LogMessage "Update search result status: $($Status)"
 
     
     foreach ($item in $Updates.Updates) {
-        if ($item.IsDownloaded -eq $false -and $item.IsInstalled -eq $False) {
-            Write-UpdateStatus -CurrentUpdate "KB$($item.KBArticleIDs)" -Status "Available" -UpdateTitle ($item.title) | Out-Null
+        if ($item.IsDownloaded -eq $false -and $item.IsInstalled -eq $False) 
+        {
+            $Status = "Available"
+             Write-UpdateStatus -CurrentUpdate "KB$($item.KBArticleIDs)" -Status $Status -UpdateTitle ($item.title) | Out-Null
         }
+        else{Write-UpdateStatus -CurrentUpdate "KB$($item.KBArticleIDs)" -UpdateTitle ($item.title) | Out-Null }
+
+            Clear-Variable Status -Force -ErrorAction SilentlyContinue
+        
     }
 
 
@@ -493,7 +501,7 @@ function Save-WindowsUpdate {
 
 function Update-InstallationStatus {
     param (
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "Windows Update ComObject from Search-AllUpdates")]$AvailableUpdates
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Windows Update ComObject from Search-AllUpdates")]$AvailableUpdates
     )
     $Component = "UPDATE INSTALLATION STATUS"
     Write-Log -LogLevel Trace -LogMessage "Function: Get-NonInstalledUpdates: Start"
@@ -881,7 +889,8 @@ function New-WindowsUpdateScan {
     
     #Get all updates with the configured update source
     Write-Log -LogLevel Debug -LogMessage "Scan for all updates with the configured update source"
-    $AllUpdatesFound = Search-AllUpdates -UpdateSource $($Settings.UpdateSource)
+    $FullUpdateList = Search-AllUpdates -UpdateSource $($Settings.UpdateSource) -IgnoreHideStatus
+    $AllUpdatesFound = $FullUpdateList | Where-Object {$_.IsHidden -eq $False}
 
     Set-ItemProperty -Path "$($RegistryRootPath)\Settings" -Name 'LastScanTime' -Value $(Get-Date -Format s) | Out-Null
     Set-ItemProperty -Path "$($RegistryRootPath)\Settings" -Name 'NextScanTime' -Value $NextScanTime | Out-Null
@@ -1050,6 +1059,12 @@ $Component = "UPDATE SCAN"
 if (!$Settings.NextScanTime) {
     Write-Log -LogLevel Info -LogMessage "Script First Run - Searching for updates"
     $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date)
+    if ($AllUpdates) {
+        $Updates = $AllUpdates | Where-Object { $_.IsInstalled -eq $false }
+        Write-Log -LogLevel Info -LogMessage "Pending Update count: $($Updates.Count)"
+        Update-InstallationStatus -AvailableUpdates $Updates
+    }
+
 }
 else {
     $CurrentTime = Get-Date -Format s
@@ -1060,59 +1075,60 @@ else {
     if ($CurrentTime -ge $NextScanTime -or (($Settings.MaintenanceWindow -eq $true) -and [bool](Test-MaintenanceWindow) -eq $true)) {
         Write-Log -LogLevel Info -LogMessage "Scan Interval reached - Searching for updates"
         $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date $Settings.LastScanTime)
+
+        #Check detected but not installed updates
+        if ($AllUpdates) {
+            $Updates = $AllUpdates | Where-Object { $_.IsInstalled -eq $false }
+            Write-Log -LogLevel Info -LogMessage "Pending Update count: $($Updates.Count)"
+            Update-InstallationStatus -AvailableUpdates $Updates
+        }
+
     }
     else {
         Write-Log -LogLevel Info -LogMessage "Scan Interval not reached"
     }
 }
 
+
+if(!$AllUpdates)
+{
 #Checking if device was rebooted
-$bootuptime = (Get-CimInstance -ClassName Win32_OperatingSystem).LastBootUpTime
-$CurrentDate = Get-Date
-$uptime = $CurrentDate - $bootuptime
-$Uptime = New-TimeSpan -Start $bootuptime  -End $CurrentDate 
+    $bootuptime = (Get-CimInstance -ClassName Win32_OperatingSystem).LastBootUpTime
+    $CurrentDate = Get-Date
+    $uptime = $CurrentDate - $bootuptime
+    $Uptime = New-TimeSpan -Start $bootuptime  -End $CurrentDate 
 
+    Update-InstallationStatus
 
-#Check detected but not installed updates
-if ($AllUpdates) {
-    $Updates = $AllUpdates | Where-Object { $_.IsInstalled -eq $false }
-    Write-Log -LogLevel Info -LogMessage "Pending Update count: $($Updates.Count)"
-    Update-InstallationStatus -AvailableUpdates $Updates
-}
+    # Check if Maintenance Window is enabled
+    if ($Settings.MaintenanceWindow -eq $true) {
 
-# Check if Maintenance Window is enabled
-elseif ($Settings.MaintenanceWindow -eq $true) {
+        Write-Log -LogLevel Info -LogMessage "Maintenance Window Setting detected"
+        if ((Test-MaintenanceWindow) -eq $true) {
+            $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date)
+            $Updates = $AllUpdates | Where-Object { $_.IsInstalled -eq $false }
+            Update-InstallationStatus -AvailableUpdates $Updates
+        }
+    }
 
-    Write-Log -LogLevel Info -LogMessage "Maintenance Window Setting detected"
-    if ((Test-MaintenanceWindow) -eq $true) {
+    elseif ($Uptime.Days -eq 0 -and $uptime.Hours -eq 0 -and $uptime.Minutes -le "15") {
+        Write-Log -LogLevel Info -LogMessage "Update installation status after reboot"
+
         $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date)
         $Updates = $AllUpdates | Where-Object { $_.IsInstalled -eq $false }
         Update-InstallationStatus -AvailableUpdates $Updates
+        Clear-Variable AllUpdates, Updates
     }
 }
 
-elseif ($Uptime.Days -eq 0 -and $uptime.Hours -eq 0 -and $uptime.Minutes -le "15") {
-    Write-Log -LogLevel Info -LogMessage "Update installation status after reboot"
-
-    $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date)
-    $Updates = $AllUpdates | Where-Object { $_.IsInstalled -eq $false }
-    Update-InstallationStatus -AvailableUpdates $Updates
-    Clear-Variable AllUpdates, Updates
-}
-
-
-# Check if Maintenance Window is enabled
-if ($Settings.MaintenanceWindow -eq $true) {
-    Write-Log -LogLevel Info -LogMessage "Maintenance Window Setting detected"
-    if ((Test-MaintenanceWindow) -eq $true) {
-        $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date)
-    }
-}
-    
+if($AllUpdates)
+{
+    $AllAvailableUpdates = $AllUpdates | Where-Object { $_.IsInstalled -eq $false -and $_.IsHidden -eq $false}
+}    
 
 # run download and installation if updates are available 
-if ( ($AllUpdates.Count -gt 0) -and ($Settings.ReportOnly -ne "True") ) {
-    $NotDownloadedUpdates = $AllUpdates | Where-Object IsDownloaded -eq $false
+if ( ($AllAvailableUpdates.Count -gt 0) -and ($Settings.ReportOnly -ne "True") ) {
+    $NotDownloadedUpdates = $AllAvailableUpdates | Where-Object IsDownloaded -eq $false
     # If Download is independent of installation - Download all Updates
     If ($Settings.DirectDownload -eq $True) {
         Write-Log -LogLevel Debug -LogMessage "Direct Download Enabled"
@@ -1138,8 +1154,9 @@ if ( ($AllUpdates.Count -gt 0) -and ($Settings.ReportOnly -ne "True") ) {
 
             Write-Log -LogLevel Debug -LogMessage "Trigger update download"
             Save-WindowsUpdate -DownloadUpdateList $NotDownloadedUpdates
+            
 
-            foreach ($Update in $AllUpdates) {
+            foreach ($Update in $AllAvailableUpdates) {
                 if ((Test-MaintenanceWindow) -eq $true) {
                     Write-Log -LogLevel Debug -LogMessage "Device in MW. Installing Update: $($Update.Title)"
                     Install-SpecificWindowsUpdate -SelectedUpdate $Update    
@@ -1171,8 +1188,9 @@ if ( ($AllUpdates.Count -gt 0) -and ($Settings.ReportOnly -ne "True") ) {
         Save-WindowsUpdate -DownloadUpdateList $NotDownloadedUpdates
 
         Clear-Variable Update -Force -ErrorAction SilentlyContinue
+       
 
-        foreach ($Update in $AllUpdates) {
+        foreach ($Update in $AllAvailableUpdates) {
             Write-Log -LogLevel Debug -LogMessage "Installing Update: $($Update.Title)"
             Install-SpecificWindowsUpdate -SelectedUpdate $Update
             Set-ItemProperty -Path "$($RegistryRootPath)\Settings" -Name 'LastInstallationDate' -Value $(Get-Date -Format s)                   
@@ -1230,7 +1248,8 @@ $NextInstallationDate = Get-Date (Get-ItemPropertyValue -Path "$($RegistryRootPa
 
 
 if ((Get-Date $LastInstallationDate) -lt (Get-Date $NextInstallationDate)) {
-    $AllUpdates = Search-AllUpdates -UpdateSource ($Settings.UpdateSource)
+    $FullUpdateList = Search-AllUpdates -UpdateSource ($Settings.UpdateSource) -IgnoreHideStatus
+    $AllAvailableUpdates = $FullUpdateList | Where-Object {$_.IsInstalled -eq $False -and $_.IsHidden -eq $False}
 }
 
 
@@ -1242,8 +1261,8 @@ $UpgradesCount = 0
 $SecurityUpdatesCount = 0
 $CriticalUpdatesCount = 0 
 
-if ($AllUpdates.Count -gt 0) {
-    foreach ($update in $AllUpdates) {
+if ($AllAvailableUpdates.Count -gt 0) {
+    foreach ($update in $AllAvailableUpdates) {
         $UpdateCategory = $Update.Categories._NewEnum.name | Select-Object -First 1
 
         switch ($UpdateCategory) {
@@ -1258,7 +1277,7 @@ if ($AllUpdates.Count -gt 0) {
         Write-UpdateStatus -CurrentUpdate "KB$($update.KBArticleIDs)" -Status "Available"
     }
       
-    New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "Total Missing Updates" -Value $($AllUpdates.count) -Force | Out-Null
+    New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "Total Missing Updates" -Value $($AllAvailableUpdates.count) -Force | Out-Null
     New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "Open Pending Updates" -Value "True" -Force | Out-Null
 }
 else {

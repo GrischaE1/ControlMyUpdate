@@ -42,7 +42,7 @@ Function Set_Action
 	}
 
 $Restart_Script = @'
-shutdown /r /f /t 300
+shutdown /r /f /t 120
 '@
 
 $Script_Export_Path = "C:\Windows\Temp"
