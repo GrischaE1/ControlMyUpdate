@@ -86,8 +86,16 @@
 #
 # Update Source   MU,WSUS or Default             Will set the update source to the selected option 
 #
-# Retry count     0-99                           Configure how often updates getting downloaded and installed if an error appears 
+# Retry count     
+#0-99                           Configure how often updates getting downloaded and installed if an error appears 
 #
+# AutomaticReboot
+#               True                            Will reboot the device automatic if a pending reboot is detected and device is in MW
+#               False                           Will not reboot the device automatic during the MW
+#
+# ForceRebootNoMW
+#               1-24                            If no MW is configured the device will force a reboot after X days - only possible if "NotifyUser" is set to true
+#               0                               Disabled
 ##########################################################################################
 #                                    Changelog 
 #
@@ -295,7 +303,8 @@ function Write-UpdateStatus {
     param(
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "KB Number to update")][String] $CurrentUpdate,
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Force status change update")][String] $StatusChange,
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Force status change update")][String] $UpdateTitle,
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Update Title")][String] $UpdateTitle,
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Update Category")][String] $UpdateCategory,
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Status of the update to recorded")][String] $Status
     )
     $Component = "WRITE UPDATE STATUS"
@@ -313,8 +322,12 @@ function Write-UpdateStatus {
     if ($UpdateTitle) {
         New-ItemProperty -Path "$($RegistryRootPath)\Status\KBs\$($CurrentUpdate)" -PropertyType "String" -Name "Title" -Value $UpdateTitle -Force | Out-Null
     }
+    if ($UpdateCategory) {
+        New-ItemProperty -Path "$($RegistryRootPath)\Status\KBs\$($CurrentUpdate)" -PropertyType "String" -Name "Category" -Value $UpdateCategory -Force | Out-Null
+    }
 
-    if ($Status) {
+    if($Status)
+    {
         if (!(Get-Item "$($RegistryRootPath)\Status\KBs\$($CurrentUpdate)\$($Status)" -ErrorAction SilentlyContinue) -or $StatusChange -eq $True) {
             New-ItemProperty -Path "$($RegistryRootPath)\Status\KBs\$($CurrentUpdate)" -PropertyType "String" -Name "$Status" -Value $LastUpdate -Force | Out-Null
         }
@@ -323,7 +336,7 @@ function Write-UpdateStatus {
 }
 
 function Get-InstalledWindowsUpdates {
-    param (
+ param (
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Windows Update ComObject from Search-AllUpdates")]$AllUpdates
     )
     $Component = "INSTALLED UPDATE VALIDATION"
@@ -332,7 +345,7 @@ function Get-InstalledWindowsUpdates {
     Write-Log -LogLevel Info -LogMessage "Searching for installed updates"
 
     #Get WUA installation status
-    $WUAUpdateKBs = ($AllUpdates | Where-Object { $_.IsInstalled -eq $true }).KBArticleIDs
+    $WUAUpdateKBs = ($AllUpdates | Where-Object { $_.IsInstalled -eq $true}).KBArticleIDs
 
     $UpdateCollection = @()
     foreach ($temp in $WUAUpdateKBs) {    
@@ -420,16 +433,16 @@ function Search-AllUpdates {
 
     
     foreach ($item in $Updates.Updates) {
-        if ($item.IsDownloaded -eq $false -and $item.IsInstalled -eq $False) {
+        if ($item.IsDownloaded -eq $false -and $item.IsInstalled -eq $False) 
+        {
             $Status = "Available"
-            Write-UpdateStatus -CurrentUpdate "KB$($item.KBArticleIDs)" -Status $Status -UpdateTitle ($item.title) | Out-Null
+             Write-UpdateStatus -CurrentUpdate "KB$($item.KBArticleIDs)" -Status $Status -UpdateTitle ($item.title) -UpdateCategory ($item.Categories._NewEnum.name)| Out-Null
         }
-        else { Write-UpdateStatus -CurrentUpdate "KB$($item.KBArticleIDs)" -UpdateTitle ($item.title) | Out-Null }
+        else{Write-UpdateStatus -CurrentUpdate "KB$($item.KBArticleIDs)" -UpdateTitle ($item.title) -UpdateCategory ($item.Categories._NewEnum.name) | Out-Null }
 
-        Clear-Variable Status -Force -ErrorAction SilentlyContinue
+            Clear-Variable Status -Force -ErrorAction SilentlyContinue
         
     }
-
 
     Write-Log -LogLevel Trace -LogMessage "Function: Search-AllUpdates: End"
     return $($Updates.Updates)
@@ -513,7 +526,7 @@ function Update-InstallationStatus {
     $InstalledKBs = Get-InstalledWindowsUpdates
     Write-Log -LogLevel Debug -LogMessage "Installed KBs returned: $($InstalledKBs)"
 
-    $AvailableKBs = ($AllUpdates | Where-Object { $_.IsInstalled -eq $false -and $_.IsHidden -eq $false }).KBArticleIDs
+    $AvailableKBs = ($AllUpdates | Where-Object { $_.IsInstalled -eq $false -and $_.IsHidden -eq $false}).KBArticleIDs
 
     $RegistryKBList = Get-ChildItem "$($RegistryRootPath)\Status\KBs"
     Write-Log -LogLevel Debug -LogMessage "Item from registry: $($RegistryKBList)"
@@ -554,19 +567,24 @@ function Update-InstallationStatus {
 
     #Write installed updates to registry
     $Reglist = @()
-    foreach ($RegKB in $RegistryKBList) {
+    foreach($RegKB in $RegistryKBList)
+    {
         $RegName = $RegKB.name.Split('\')[-1]
         $Reglist += $RegName
     }
 
-    foreach ($WUAUpdate in $AllUpdates) {
-        if ($Reglist -contains "KB$($WUAUpdate.KBArticleIDs)") {
-            Write-UpdateStatus -CurrentUpdate "KB$($WUAUpdate.KBArticleIDs)" -UpdateTitle $WUAUpdate.Title   
+    foreach($WUAUpdate in $AllUpdates)
+    {
+        if($Reglist -contains "KB$($WUAUpdate.KBArticleIDs)")
+        {
+             Write-UpdateStatus -CurrentUpdate "KB$($WUAUpdate.KBArticleIDs)" -UpdateTitle $WUAUpdate.Title   
         }
     }
 
-    foreach ($KB in ($InstalledKBs | Where-Object { $_ })) {        
-        if ($Reglist -notcontains $KB) {
+    foreach($KB in ($InstalledKBs | Where-Object {$_}))
+    {        
+        if($Reglist -notcontains $KB)
+        {
             Write-UpdateStatus -CurrentUpdate $KB -Status "Installation Status : Installed"  -StatusChange $True   
         }        
     }
@@ -894,7 +912,7 @@ function New-WindowsUpdateScan {
     #Get all updates with the configured update source
     Write-Log -LogLevel Debug -LogMessage "Scan for all updates with the configured update source"
     $FullUpdateList = Search-AllUpdates -UpdateSource $($Settings.UpdateSource) -IgnoreHideStatus
-    $AllUpdatesFound = $FullUpdateList | Where-Object { $_.IsHidden -eq $False }
+    $AllUpdatesFound = $FullUpdateList | Where-Object {$_.IsHidden -eq $False}
 
     Set-ItemProperty -Path "$($RegistryRootPath)\Settings" -Name 'LastScanTime' -Value $(Get-Date -Format s) | Out-Null
     Set-ItemProperty -Path "$($RegistryRootPath)\Settings" -Name 'NextScanTime' -Value $NextScanTime | Out-Null
@@ -1027,7 +1045,8 @@ if ($settings.EmergencyKB) {
 }
 
 #restart the device if pending reboot and in MW
-if ($Settings.MaintenanceWindow -eq $True) {
+if($Settings.MaintenanceWindow -eq $True)
+{
     if (Test-MaintenanceWindow -eq $true) {
         Test-PendingReboot -AutomaticReboot $true
     }
@@ -1082,8 +1101,9 @@ else {
 }
 
 
-if (!$AllUpdates) {
-    #Checking if device was rebooted
+if(!$AllUpdates)
+{
+#Checking if device was rebooted
     $bootuptime = (Get-CimInstance -ClassName Win32_OperatingSystem).LastBootUpTime
     $CurrentDate = Get-Date
     $uptime = $CurrentDate - $bootuptime
@@ -1110,8 +1130,9 @@ if (!$AllUpdates) {
     }
 }
 
-if ($AllUpdates) {
-    $AllAvailableUpdates = $AllUpdates | Where-Object { $_.IsInstalled -eq $false -and $_.IsHidden -eq $false }
+if($AllUpdates)
+{
+    $AllAvailableUpdates = $AllUpdates | Where-Object { $_.IsInstalled -eq $false -and $_.IsHidden -eq $false}
     Write-Log -LogLevel Info -LogMessage "Pending Update count: $($AllAvailableUpdates.Count)"
     Update-InstallationStatus -AvailableUpdates $AllUpdates
 }    
@@ -1193,7 +1214,7 @@ $Component = "REBOOT CHECK"
 $RebootRequired = Test-PendingReboot -AutomaticReboot $false
 Write-Log -LogLevel Info -LogMessage "RebootRequired: $($RebootRequired)"
 
-
+ #$Settings = Get-ItemProperty -Path "$($RegistryRootPath)\Settings" -ErrorAction SilentlyContinue
 
 if ($RebootRequired -eq $true) {
     Write-Log -LogLevel Trace -LogMessage "RebootRequired: True"
@@ -1202,6 +1223,28 @@ if ($RebootRequired -eq $true) {
     if ( $Settings.NotifyUser ) {
         Write-Log -LogLevel Info -LogMessage "Notifying User of pending reboot"
         $RebootNotification = Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootNotificationCreated' -ErrorAction Ignore 
+        New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "True" -Force | Out-Null   
+
+
+        if(!(Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore))
+        {
+                New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootDetectionDate" -Value (Get-Date -Format s) -Force | Out-Null   
+        }
+        else
+        {
+            
+           $RebootDetectionDate = Get-Date (Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)
+    
+           if($RebootDetectionDate -le (Get-Date).AddDays(-($Settings.ForceRebootNoMW)))
+           {
+                Write-Log -LogLevel Info -LogMessage "Force reboot"
+
+                New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
+                Test-PendingReboot -AutomaticReboot $true
+                $RebootNotification = $false
+           }
+        }
+
 
         if ($RebootNotification -eq $False -or !($RebootNotification)) { 
             $NotificationDate = Get-Date -Format s                    
@@ -1227,7 +1270,17 @@ else {
     if ( $Settings.NotifyUser ) {
         New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootNotificationCreated" -Value "False" -Force | Out-Null
     }
+
+    if((Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore))
+    {
+        Remove-ItemProperty -Path "$($RegistryRootPath)\Status" -Name "RebootDetectionDate" -Force | Out-Null  
+    }
+    if((Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'ShowDismissButton' -ErrorAction Ignore))
+    {
+        Remove-ItemProperty -Path "$($RegistryRootPath)\Status" -Name "ShowDismissButton" -Force | Out-Null     
+    } 
 }
+
 
 $Component = "UPDATE STATISTICS"
 Write-Log -LogLevel Info -LogMessage "Update statistics"
@@ -1239,7 +1292,7 @@ $NextInstallationDate = Get-Date (Get-ItemPropertyValue -Path "$($RegistryRootPa
 
 if ((Get-Date $LastInstallationDate) -lt (Get-Date $NextInstallationDate)) {
     $AllUpdates = Search-AllUpdates -UpdateSource ($Settings.UpdateSource) -IgnoreHideStatus
-    $AllAvailableUpdates = $AllUpdates | Where-Object { $_.IsInstalled -eq $False -and $_.IsHidden -eq $False }
+    $AllAvailableUpdates = $AllUpdates | Where-Object {$_.IsInstalled -eq $False -and $_.IsHidden -eq $False}
 }
 
 
@@ -1269,10 +1322,18 @@ if ($AllAvailableUpdates.Count -gt 0) {
       
     New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "Total Missing Updates" -Value $($AllAvailableUpdates.count) -Force | Out-Null
     New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "Open Pending Updates" -Value "True" -Force | Out-Null
+
+    $AvailableUpdates = @()
+    foreach ($KB in ($AllAvailableUpdates.KBArticleIDs))
+    {
+        $AvailableUpdates += "KB$($KB)"
+    }
+    New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "Available Update KBs" -Value $AvailableUpdates -Force | Out-Null
 }
 else {
     New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "Total Missing Updates" -Value 0 -Force | Out-Null
     New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "Open Pending Updates" -Value "False" -Force | Out-Null
+    New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "Available Update KBs" -Value "none" -Force | Out-Null
 }
 
 #Reporting the current installation count to the registry
