@@ -1223,7 +1223,7 @@ if ($RebootRequired -eq $true) {
             
             $RebootDetectionDate = Get-Date (Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)
     
-            if ($RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.ForceRebootNoMW))) {
+            if ($RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.ForceRebootNoMW)) -and ($Settings.ForceRebootNoMW) -ne 0) {
                 Write-Log -LogLevel Info -LogMessage "Force reboot"
 
                 New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
