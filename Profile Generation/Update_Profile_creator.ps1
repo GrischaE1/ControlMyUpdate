@@ -70,6 +70,14 @@ $Tab3BT.Add_Click( { Tab3Click $this $_ })
 $TabWSUSBT.Add_Click( { TabWSUSClick $this $_ })
 
 
+# Side Nav bindings
+$CMUTab1BT.Add_Click( { CMUTab1Click $this $_ })
+$CMUTab2BT.Add_Click( { CMUTab2Click $this $_ })
+$CMUTab3BT.Add_Click( { CMUTab3Click $this $_ })
+$CMUTab4BT.Add_Click( { CMUTab4Click $this $_ })
+
+
+
 #Next and previous button bindings
 #Next
 $NextTab1.Add_Click( { NextTab1Click $this $_ })
@@ -343,7 +351,7 @@ $GenerateButton.Add_Click({
 $GenerateCustomScriptProfile.Add_Click( { $MenuNavigation.SelectedItem = $TABGenerate })
 
 $EnableMaintenanceWindow.Add_Checked({ $MWStartTime.IsEnabled = $true; $MWEndTime.IsEnabled = $true; $MWDays.IsEnabled = $true; $StartTimeHelpText.Visibility = "Visible"; $StopTimeHelpText.Visibility = "Visible" })
-$EnableMaintenanceWindow.Add_UnChecked({ $MWStartTime.IsEnabled = $false; $MWEndTime.IsEnabled = $false; $MWDays.IsEnabled = $false; $StartTimeHelpText.Visibility = "Hidden"; $StartTimeHelpText.Visibility = "Hidden"})
+$EnableMaintenanceWindow.Add_UnChecked({ $MWStartTime.IsEnabled = $false; $MWEndTime.IsEnabled = $false; $MWDays.IsEnabled = $false; $StartTimeHelpText.Visibility = "Hidden"; $StopTimeHelpText.Visibility = "Hidden"})
 
 $ReportOnly.Add_Checked({
 	$ToolUpdateSource.IsEnabled = $false
@@ -360,6 +368,12 @@ $ReportOnly.Add_Checked({
 	$RebootNotificationCheckBox.IsEnabled = $false
 	$ToastTitle.IsEnabled = $false
 	$ToastText.IsEnabled = $false
+	$CMUTab2BT.IsEnabled = $false
+	$CMUTab2BT.Foreground="#5b5a5c"
+	$CMUTab3BT.IsEnabled = $false
+	$CMUTab3BT.Foreground="#5b5a5c"
+	$CMUTab4BT.IsEnabled = $false
+	$CMUTab4BT.Foreground="#5b5a5c"
 })
 
 $ReportOnly.Add_UnChecked({
@@ -374,6 +388,13 @@ $ReportOnly.Add_UnChecked({
 	$RebootNotificationCheckBox.IsEnabled = $true
 	$ToastTitle.IsEnabled = $true
 	$ToastText.IsEnabled = $true
+	$CMUTab2BT.IsEnabled = $true
+	$CMUTab2BT.Foreground="#ffffff"
+	$CMUTab3BT.IsEnabled = $true
+	$CMUTab3BT.Foreground="#ffffff"
+	$CMUTab4BT.IsEnabled = $true
+	$CMUTab4BT.Foreground="#ffffff"
+
 })
 
 $RebootNotificationCheckBox.Add_UnChecked({

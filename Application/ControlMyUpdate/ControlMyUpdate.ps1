@@ -1040,7 +1040,7 @@ if ($settings.EmergencyKB) {
 #restart the device if pending reboot and in MW
 if ($Settings.MaintenanceWindow -eq $True) {
     if (Test-MaintenanceWindow -eq $true) {
-        Test-PendingReboot -AutomaticReboot $true
+        Test-PendingReboot -AutomaticReboot $Settings.AutomaticReboot
     }
 }
 
@@ -1151,7 +1151,7 @@ if ( ($AllAvailableUpdates.Count -gt 0) -and ($Settings.ReportOnly -ne "True") )
 
         if ((Test-MaintenanceWindow) -eq $true) {
             Write-Log -LogLevel Debug -LogMessage "Device in maintenance window"
-            Test-PendingReboot -AutomaticReboot $true | Out-Null
+            Test-PendingReboot -AutomaticReboot $Settings.AutomaticReboot | Out-Null
 
             Write-Log -LogLevel Debug -LogMessage "Trigger update download"
             Save-WindowsUpdate -DownloadUpdateList $NotDownloadedUpdates
@@ -1171,7 +1171,7 @@ if ( ($AllAvailableUpdates.Count -gt 0) -and ($Settings.ReportOnly -ne "True") )
 
             if ((Test-MaintenanceWindow) -eq $true) {
                 Write-Log -LogLevel Debug -LogMessage "Device in MW. Reboot processing."
-                Test-PendingReboot -AutomaticReboot $true | Out-Null
+                Test-PendingReboot -AutomaticReboot $Settings.AutomaticReboot | Out-Null
             }
             else {
                 Write-Log -LogLevel Debug -LogMessage "Device outside maintenance window. Skipping reboot"
@@ -1227,7 +1227,7 @@ if ($RebootRequired -eq $true) {
                 Write-Log -LogLevel Info -LogMessage "Force reboot"
 
                 New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
-                Test-PendingReboot -AutomaticReboot $true
+                Test-PendingReboot -AutomaticReboot $Settings.AutomaticReboot
                 $RebootNotification = $false
             }
         }

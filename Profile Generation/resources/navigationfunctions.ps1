@@ -120,3 +120,29 @@ Function PreviousTab2Click() {
 	Function GenerateCustomScriptProfileClick() {
 			$MenuNavigation.SelectedItem = $TABGenerate
 	}
+
+
+
+
+	#####################
+	#Control My Update Tab
+
+	Function CMUTab1Click() {
+		$CMUTabNav.SelectedItem = $CMUTab1
+		$CMUTab1BT.Background = "#8c4803"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#002f54"; $CMUTabWSUSBT.Background = "#002f54"
+	}
+
+	Function CMUTab2Click() {
+		$CMUTabNav.SelectedItem = $CMUTab2
+		$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#8c4803"; $CMUTab3BT.Background = "#002f54"; $CMUTabWSUSBT.Background = "#002f54"
+	}
+
+	Function CMUTab3Click() {
+		$CMUTabNav.SelectedItem = $CMUTab3
+		$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#8c4803"; $CMUTabWSUSBT.Background = "#002f54"
+	}
+
+	Function CMUTab4Click() {
+		$CMUTabNav.SelectedItem = $CMUTab4
+		$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#002f54"; $CMUTabWSUSBT.Background = "#8c4803"
+	}

@@ -337,7 +337,7 @@ function New-CustomUpdateProfile {
                     'Thursday'  { $TargetDay =  4   }
                     'Friday'    { $TargetDay =  5   }           
                     'Saturday'  { $TargetDay =  6   }
-                    'Sunday'    { $TargetDay =  7   }
+                    'Sunday'    { $TargetDay =  0   }
                     default { 'None' }
                 }
                

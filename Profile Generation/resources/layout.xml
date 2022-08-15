@@ -1,4 +1,5 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Width="900" Height="800" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" Background="#35333a" BorderBrush="#666374" Foreground="#514e5d" OpacityMask="#5b586d" Name="TestWPF1" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Title="Windows Update Custom Profile Generator" WindowChrome.IsHitTestVisibleInChrome="True">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Width="900" Height="800" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" Background="#35333a" BorderBrush="#666374" Foreground="#514e5d" OpacityMask="#5b586d" Name="TestWPF1" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Title="Windows Update Custom Profile Generator" WindowChrome.IsHitTestVisibleInChrome="True">
 
 
 	<Grid>
@@ -96,11 +97,11 @@
 								<TextBox Text="{Binding ElementName=FUSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,150,0,0" Name="FUSliderTextBox"/>
 
 								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Restart deferral (days)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,200,0,0" Name="RestartDeferralLabel"/>
-								<Slider  Minimum="2" Maximum="30" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,200,0,0" Name="RestartSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
+								<Slider Minimum="2" Maximum="30" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,200,0,0" Name="RestartSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
 								<TextBox Text="{Binding ElementName=RestartSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,200,0,0" Name="RestartDeferralTextBox"/>
 
 								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Restart grace period (days)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,230,0,0" Name="RestartGraceabel"/>
-								<Slider  Minimum="0" Maximum="7" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,230,0,0" Name="RestartGraceSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
+								<Slider Minimum="0" Maximum="7" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,230,0,0" Name="RestartGraceSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
 								<TextBox Text="{Binding ElementName=RestartGraceSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,230,0,0" Name="RestartGraceTextBox"/>
 
 
@@ -192,7 +193,7 @@
 
 
 							</Grid>
-						</TabItem>					
+						</TabItem>
 					</TabControl>
 				</Grid>
 			</TabItem>
@@ -200,77 +201,131 @@
 
 			<TabItem Header="Control My Update" Name="TABCustomToolConfig">
 
-			
-				<Grid Background="#2e628c">
-					<TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Text="Control My Update configuration settings" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff" />
 
-					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Report only" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,50,0,0" />
-					<CheckBox HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,53,0,0" Name="ReportOnly" />
+				<Grid ShowGridLines="False">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="150"></ColumnDefinition>
+						<ColumnDefinition></ColumnDefinition>
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition></RowDefinition>
+					</Grid.RowDefinitions>
 
-					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Update Source" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,80,0,0" />
-					<ComboBox HorizontalAlignment="Left" VerticalAlignment="Top" Margin="350,83,0,0"  Name="ToolUpdateSource">
-						<ComboBoxItem IsSelected="True">Default</ComboBoxItem>
-						<ComboBoxItem>Microsoft Update</ComboBoxItem>
-						<ComboBoxItem>WSUS</ComboBoxItem>
-					</ComboBox>
+					<StackPanel Background="#002f54" SnapsToDevicePixels="True" Grid.Row="0" Grid.Column="0">
+						<!-- Change the Source path in the Image to display your icon -->
+						<Button Content="General" VerticalAlignment="Top" Height="40" Background="#8c4803" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#ffffff" Name="CMUTab1BT" />
+						<Button Content="Maintenance Window" VerticalAlignment="Top" Height="40" Background="#002f54" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#ffffff" Name="CMUTab2BT" />
+						<Button Content="Reboot settings" VerticalAlignment="Top" Height="40" Background="#002f54" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#ffffff" Name="CMUTab3BT" />
+						<Button Content="Special KB's" VerticalAlignment="Top" Height="40" Background="#002f54" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#ffffff" Name="CMUTab4BT" />
+					</StackPanel>
 
-					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Download update before installation" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,110,0,0" />
-					<CheckBox IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,113,0,0" Name="DirectDownload" />
+					<TabControl Grid.Row="0" Grid.Column="1" Padding="-1" Name="CMUTabNav" SelectedIndex="0">
 
-					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Enable maintenance Window" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,140,0,0" />
-					<CheckBox HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,143,0,0" Name="EnablemaintenanceWindow" />
+						<TabItem Header="General" Visibility="Collapsed" Name="CMUTab1">
+							<Grid Background="#2e628c">
+								<TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Text="General" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff" />
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Report only" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,50,0,0" />
+								<CheckBox HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,53,0,0" Name="ReportOnly" />
 
-					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Maintenance Window Start Time" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,170,0,0" />
-					<TextBox IsEnabled="False" MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="350,170,0,0" Name="MWStartTime" />
-					<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="24 hour format 00:00 - 24:00" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="400,170,0,0" Name="StartTimeHelpText"/>
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Update Source" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,80,0,0" />
+								<ComboBox HorizontalAlignment="Left" VerticalAlignment="Top" Margin="350,83,0,0"  Name="ToolUpdateSource">
+									<ComboBoxItem IsSelected="True">Default</ComboBoxItem>
+									<ComboBoxItem>Microsoft Update</ComboBoxItem>
+									<ComboBoxItem>WSUS</ComboBoxItem>
+								</ComboBox>
 
-					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Maintenance Window End Time" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,200,0,0" />
-					<TextBox IsEnabled="False" MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="350,200,0,0" Name="MWEndTime" />
-					<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="24 hour format 00:00 - 24:00" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="400,200,0,0" Name="StopTimeHelpText"/>
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Download update before installation" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,110,0,0" />
+								<CheckBox IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,113,0,0" Name="DirectDownload" />
 
+								<TextBlock  HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Update Scan randomization (in minutes)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,140,0,0"/>
+								<Slider  Minimum="0" Maximum="240" TickPlacement="BottomRight" TickFrequency="10" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,140,0,0" Name="ScanRandomizationSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
+								<TextBox  Text="{Binding ElementName=ScanRandomizationSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,140,0,0" Name="ScanRandomizationTextBox"/>
 
-					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Maintenance Window Day(s)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,230,0,0" />
-					<ListView IsEnabled="False" SelectionMode="Multiple" HorizontalAlignment="Left" BorderBrush="Black" BorderThickness="1" Height="145" VerticalAlignment="Top" Width="100" Margin="350,230,0,0" Name="MWDays">
-						<ListView.Items>
-							<TextBlock>Monday</TextBlock>
-							<TextBlock>Tuesday</TextBlock>
-							<TextBlock>Wednesday</TextBlock>
-							<TextBlock>Thursday</TextBlock>
-							<TextBlock>Friday</TextBlock>
-							<TextBlock>Saturday</TextBlock>
-							<TextBlock>Sunday</TextBlock>
-						</ListView.Items>
-					</ListView>
-
-					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Blocked KB(s)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,400,0,0" />
-					<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="200" TextWrapping="NoWrap" Margin="350,400,0,0" Name="BlockedKBs" ToolTip="KB123;KB456;KB789" />
-
-					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Un-Blocked KB(s)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,440,0,0" />
-					<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="200" TextWrapping="NoWrap" Margin="350,440,0,0" Name="UnBlockedKBs" ToolTip="KB123;KB456;KB789" />
-
-					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Emergency Patch KB" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,480,0,0" />
-					<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="200" TextWrapping="NoWrap" Margin="350,480,0,0" Name="EmergencyKB" ToolTip="KB123" />
-					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="This KB gets installed ASAP and ignores maintenance window and scan interval" FontSize="12" FontWeight="Bold" Height="42" Foreground="#b30000" Margin="570,470,0,0" />
-
-					<TextBlock  HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Update Scan randomization (in minutes)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,520,0,0"/>
-					<Slider  Minimum="0" Maximum="240" TickPlacement="BottomRight" TickFrequency="10" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,520,0,0" Name="ScanRandomizationSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
-					<TextBox  Text="{Binding ElementName=ScanRandomizationSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,520,0,0" Name="ScanRandomizationTextBox"/>
-
-					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Notify the user of a pending restart" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,560,0,0" />
-					<CheckBox IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,560,0,0" Name="RebootNotificationCheckBox" />
-
-					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Toast Notification title" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,600,0,0" Name="ToastTitleTextBox"/>
-					<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="200" TextWrapping="NoWrap" Margin="350,600,0,0" Name="ToastTitle" Text="Windows Update"/>
-
-					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Toast Notification text" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,640,0,0" Name="ToastTextTextBox"/>
-					<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="60" Width="400" TextWrapping="Wrap" Margin="350,640,0,0" Name="ToastText" Text="A reboot is required to finish updating, please save your work and reboot at your convenience. If no action is taken reboot will happen automatically" />
-
-					<Button Content="Generate Profile" HorizontalAlignment="center" VerticalAlignment="bottom" Width="200" Name="GenerateCustomScriptProfile" Height="38" />
+							</Grid>
+						</TabItem>					
+					
 
 
+
+						<TabItem Header="Maintenance Window" Visibility="Collapsed" Name="CMUTab2">
+							<Grid Background="#2e628c">
+								<TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Text="Maintenance Window" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff" />
+							
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Enable maintenance Window" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,50,0,0" />
+								<CheckBox HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,53,0,0" Name="EnablemaintenanceWindow" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Maintenance Window Start Time" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,80,0,0" />
+								<TextBox IsEnabled="False" MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="350,80,0,0" Name="MWStartTime" />
+								<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="24 hour format 00:00 - 24:00" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="400,80,0,0" Name="StartTimeHelpText"/>
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Maintenance Window End Time" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,110,0,0" />
+								<TextBox IsEnabled="False" MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="350,110,0,0" Name="MWEndTime" />
+								<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="24 hour format 00:00 - 24:00" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="400,110,0,0" Name="StopTimeHelpText"/>
+
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Maintenance Window Day(s)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,140,0,0" />
+								<ListView IsEnabled="False" SelectionMode="Multiple" HorizontalAlignment="Left" BorderBrush="Black" BorderThickness="1" Height="145" VerticalAlignment="Top" Width="100" Margin="350,140,0,0" Name="MWDays">
+									<ListView.Items>
+										<TextBlock>Monday</TextBlock>
+										<TextBlock>Tuesday</TextBlock>
+										<TextBlock>Wednesday</TextBlock>
+										<TextBlock>Thursday</TextBlock>
+										<TextBlock>Friday</TextBlock>
+										<TextBlock>Saturday</TextBlock>
+										<TextBlock>Sunday</TextBlock>
+									</ListView.Items>
+								</ListView>
+
+							</Grid>
+						</TabItem>
+
+
+
+
+						<TabItem Header="Reboot settings" Visibility="Collapsed" Name="CMUTab3">
+							<Grid Background="#2e628c">
+								<TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Text="Reboot Settings" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Notify the user of a pending restart" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,50,0,0" />
+								<CheckBox IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,50,0,0" Name="RebootNotificationCheckBox" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Toast Notification title" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,80,0,0" Name="ToastTitleTextBox"/>
+								<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="200" TextWrapping="NoWrap" Margin="350,80,0,0" Name="ToastTitle" Text="Windows Update"/>
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Toast Notification text" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,110,0,0" Name="ToastTextTextBox"/>
+								<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="60" Width="400" TextWrapping="Wrap" Margin="350,110,0,0" Name="ToastText" Text="A reboot is required to finish updating, please save your work and reboot at your convenience. If no action is taken reboot will happen automatically" />
+
+
+							</Grid>
+						</TabItem>
+
+
+
+
+						<TabItem Header="Special KB's" Visibility="Collapsed" Name="CMUTab4">
+							<Grid Background="#2e628c">
+								<TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Text="Special KB's" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Blocked KB(s)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,50,0,0" />
+								<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="200" TextWrapping="NoWrap" Margin="350,50,0,0" Name="BlockedKBs" ToolTip="KB123;KB456;KB789" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Un-Blocked KB(s)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,80,0,0" />
+								<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="200" TextWrapping="NoWrap" Margin="350,80,0,0" Name="UnBlockedKBs" ToolTip="KB123;KB456;KB789" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Emergency Patch KB" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,110,0,0" />
+								<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="200" TextWrapping="NoWrap" Margin="350,110,0,0" Name="EmergencyKB" ToolTip="KB123" />
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="This KB gets installed ASAP and ignores maintenance window and scan interval" FontSize="12" FontWeight="Bold" Height="42" Foreground="#b30000" Margin="380,110,0,0" />
+
+								<Button Content="Generate Profile" HorizontalAlignment="center" VerticalAlignment="bottom" Width="200" Name="GenerateCustomScriptProfile" Height="38" />
+
+							</Grid>
+						</TabItem>
+
+
+					</TabControl>
 				</Grid>
 			</TabItem>
-			
+
 			<TabItem Header="Delivery Optimization" Name="TabDO">
 				<Grid Background="#2e628c">
 					<TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Text="Delivery Optimization" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff" />
@@ -283,17 +338,17 @@
 						<ComboBoxItem>Simple download mode with no peering</ComboBoxItem>
 					</ComboBox>
 
-					<TextBlock Visibility="Hidden"  HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Automatic Create ID" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="650,50,0,0" Name="DOAutomaticGUIDLabel" />
-					<CheckBox Visibility="Hidden"  HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="780,53,0,0" Name="DOAutomaticGUID" />
+					<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Automatic Create ID" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="650,50,0,0" Name="DOAutomaticGUIDLabel" />
+					<CheckBox Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="780,53,0,0" Name="DOAutomaticGUID" />
 
 
-					<TextBlock  Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Group ID" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,100,0,0" Name="DOGroupIDLabel"/>
-					<TextBox Visibility="Hidden"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="250" TextWrapping="NoWrap" Margin="350,100,0,0" Name="DOGroupID" ToolTip="e.g. 7a08ea00-4239-499c-be3a-07cdc7a9b60a" />
-					<Button Visibility="Hidden"  Content="Generate GUID" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100" Margin="600,100,0,0" Name="DOGenerateGUID" Height="20" />
+					<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Group ID" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,100,0,0" Name="DOGroupIDLabel"/>
+					<TextBox Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="250" TextWrapping="NoWrap" Margin="350,100,0,0" Name="DOGroupID" ToolTip="e.g. 7a08ea00-4239-499c-be3a-07cdc7a9b60a" />
+					<Button Visibility="Hidden" Content="Generate GUID" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100" Margin="600,100,0,0" Name="DOGenerateGUID" Height="20" />
 
 
-					<TextBlock  Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Group ID Source" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,100,0,0" Name="DOGroupIDSourceLabel" />
-					<ComboBox  Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="350,100,0,0" Name="DOGroupIDSource">
+					<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Group ID Source" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,100,0,0" Name="DOGroupIDSourceLabel" />
+					<ComboBox Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="350,100,0,0" Name="DOGroupIDSource">
 						<ComboBoxItem>AD Site</ComboBoxItem>
 						<ComboBoxItem>Authenticated domain SID</ComboBoxItem>
 						<ComboBoxItem>DHCP Option ID</ComboBoxItem>
@@ -301,20 +356,20 @@
 						<ComboBoxItem>AAD</ComboBoxItem>
 					</ComboBox>
 
-					<TextBlock  HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Minimum Peer Caching Content File Size" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,150,0,0" />
+					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Minimum Peer Caching Content File Size" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,150,0,0" />
 					<TextBox Text="100" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="100" TextWrapping="NoWrap" Margin="350,150,0,0" Name="DOMinFileSizeToCache" ToolTip="Recommended values: 1 MB to 100,000 MB" />
 
-					<TextBlock  HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Maximum download bandwidth in KiloBytes/second" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,200,0,0" />
+					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Maximum download bandwidth in KiloBytes/second" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,200,0,0" />
 					<TextBox Text="0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="100" TextWrapping="NoWrap" Margin="350,200,0,0" Name="DOMaxDownloadBandwidth" ToolTip="default value 0 dynamically adjusts the available bandwidth for downloads."/>
 
-					<TextBlock  HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Use Microsoft Connected Cache servers" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,250,0,0" />
-					<CheckBox  HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,253,0,0" Name="DOUseCacheHost" />
+					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Use Microsoft Connected Cache servers" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,250,0,0" />
+					<CheckBox HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,253,0,0" Name="DOUseCacheHost" />
 
-					<TextBlock  Visibility="Hidden"  HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Use DHCP Option to locate server(s)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,300,0,0" Name="DOUseDHCPCacheHostLabel" />
-					<CheckBox  Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,303,0,0" Name="DOUseDHCPCacheHost" />
+					<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Use DHCP Option to locate server(s)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,300,0,0" Name="DOUseDHCPCacheHostLabel" />
+					<CheckBox Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,303,0,0" Name="DOUseDHCPCacheHost" />
 
-					<TextBlock  Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Chache Host (FQDN or IP)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,350,0,0" Name="DOCacheHostLabel"/>
-					<TextBox Visibility="Hidden"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="250" TextWrapping="NoWrap" Margin="350,350,0,0" Name="DOCacheHost" ToolTip="e.g. 7a08ea00-4239-499c-be3a-07cdc7a9b60a" />
+					<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Chache Host (FQDN or IP)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,350,0,0" Name="DOCacheHostLabel"/>
+					<TextBox Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="250" TextWrapping="NoWrap" Margin="350,350,0,0" Name="DOCacheHost" ToolTip="e.g. 7a08ea00-4239-499c-be3a-07cdc7a9b60a" />
 
 					<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Group ID Source" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,350,0,0" Name="DOCacheHostSourceLabel" />
 					<ComboBox Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="350,350,0,0" Name="DOCacheHostSource">
@@ -333,20 +388,20 @@
 				<Grid Background="#2e628c">
 					<TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Text="Generate" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff" />
 					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Generate Windows Update Profile(s)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,50,0,0"/>
-					<CheckBox  IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,53,0,0" Name="GenerateWUProfiles" />
+					<CheckBox IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,53,0,0" Name="GenerateWUProfiles" />
 
-					<TextBlock  HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Generate Control My Update configuration profile" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,100,0,0"/>
-					<CheckBox IsChecked="False"  HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,103,0,0" Name="GenerateCustomProfiles" />
+					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Generate Control My Update configuration profile" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,100,0,0"/>
+					<CheckBox IsChecked="False" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,103,0,0" Name="GenerateCustomProfiles" />
 
-					<TextBlock  HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Generate Control My Update configuration script" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,150,0,0"/>
-					<CheckBox IsChecked="True"  HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,153,0,0" Name="GenerateCustomScript" />
+					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Generate Control My Update configuration script" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,150,0,0"/>
+					<CheckBox IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,153,0,0" Name="GenerateCustomScript" />
 
-					<TextBlock  HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Generate Delivery Optimization profile" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,200,0,0" />
-					<CheckBox IsChecked="True"  HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,203,0,0" Name="GenerateDOProfile" />
+					<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Generate Delivery Optimization profile" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,200,0,0" />
+					<CheckBox IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,203,0,0" Name="GenerateDOProfile" />
 
 					<Button Content="Generate profile(s)" HorizontalAlignment="center" VerticalAlignment="Top" Width="287" Margin="0,250,0,0" Name="GenerateButton" Height="38" />
 
-					<TextBlock  HorizontalAlignment="center" VerticalAlignment="Top" TextWrapping="Wrap" Text="Please make sure you store the files in a secure location" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,300,0,0"/>
+					<TextBlock HorizontalAlignment="center" VerticalAlignment="Top" TextWrapping="Wrap" Text="Please make sure you store the files in a secure location" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,300,0,0"/>
 				</Grid>
 			</TabItem>
 
