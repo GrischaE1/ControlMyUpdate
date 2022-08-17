@@ -963,17 +963,15 @@ Catch {
 Write-Log -LogLevel Trace -LogMessage "Registry test path root key"
 $32BitRegistryTest = Test-Path $RegistryRootPath
 
-If(!$32BitRegistryTest)
-{
-  $64BitRegistryTest = Test-Path $64BitRegistryRootPath
+If (!$32BitRegistryTest) {
+    $64BitRegistryTest = Test-Path $64BitRegistryRootPath
 
-  if($64BitRegistryRootPath)
-  {
-    $RegistryRootPath = $64BitRegistryRootPath
-    $RegistryTest = $64BitRegistryTest
-  }
+    if ($64BitRegistryRootPath) {
+        $RegistryRootPath = $64BitRegistryRootPath
+        $RegistryTest = $64BitRegistryTest
+    }
 }
-else{$RegistryTest = $32BitRegistryTest}
+else { $RegistryTest = $32BitRegistryTest }
 
 
 if ($RegistryTest -eq $true) {
