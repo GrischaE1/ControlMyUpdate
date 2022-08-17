@@ -409,14 +409,14 @@ $RebootNotificationCheckBox.Add_UnChecked({
 		$ToastText.IsEnabled = $false
 		$ToastTitle.IsEnabled = $false
 		$ToastTextTextBox.IsEnabled = $false
-		$ToastTitleTextBox = $false
+		$ToastTitleTextBox.IsEnabled  = $false
 	})
 
 $RebootNotificationCheckBox.Add_Checked({
 		$ToastText.IsEnabled = $True
 		$ToastTitle.IsEnabled = $True
 		$ToastTextTextBox.IsEnabled = $True
-		$ToastTitleTextBox = $True
+		$ToastTitleTextBox.IsEnabled = $True
 	})
 
 
