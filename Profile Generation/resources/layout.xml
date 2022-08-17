@@ -34,7 +34,7 @@
 					</Grid.RowDefinitions>
 
 					<StackPanel Background="#002f54" SnapsToDevicePixels="True" Grid.Row="0" Grid.Column="0">
-						<!-- Change the Source path in the Image to display your icon -->
+						
 						<Button Content="General" VerticalAlignment="Top" Height="40" Background="#8c4803" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#ffffff" Name="Tab1BT" />
 						<Button Content="Timing" VerticalAlignment="Top" Height="40" Background="#002f54" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#ffffff" Name="Tab2BT" />
 						<Button Content="Releases" VerticalAlignment="Top" Height="40" Background="#002f54" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#ffffff" Name="Tab3BT" />
@@ -212,7 +212,7 @@
 					</Grid.RowDefinitions>
 
 					<StackPanel Background="#002f54" SnapsToDevicePixels="True" Grid.Row="0" Grid.Column="0">
-						<!-- Change the Source path in the Image to display your icon -->
+						
 						<Button Content="General" VerticalAlignment="Top" Height="40" Background="#8c4803" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#ffffff" Name="CMUTab1BT" />
 						<Button Content="Maintenance Window" VerticalAlignment="Top" Height="40" Background="#002f54" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#ffffff" Name="CMUTab2BT" />
 						<Button Content="Reboot settings" VerticalAlignment="Top" Height="40" Background="#002f54" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#ffffff" Name="CMUTab3BT" />
@@ -237,9 +237,23 @@
 								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Download update before installation" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,110,0,0" />
 								<CheckBox IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,113,0,0" Name="DirectDownload" />
 
-								<TextBlock  HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Update Scan randomization (in minutes)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,140,0,0"/>
-								<Slider  Minimum="0" Maximum="240" TickPlacement="BottomRight" TickFrequency="10" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,140,0,0" Name="ScanRandomizationSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
-								<TextBox  Text="{Binding ElementName=ScanRandomizationSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,140,0,0" Name="ScanRandomizationTextBox"/>
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Update Scan Interval (hours)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,140,0,0" Name="CMUUpdateIntervalTextBlock" />
+								<Slider Minimum="1" Maximum="22" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,140,0,0" Name="CMUUpdateIntervalSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
+								<TextBox Text="{Binding ElementName=CMUUpdateIntervalSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,140,0,0" Name="CMUUpdateIntervalTextBox" />
+
+
+								<TextBlock  HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Update Scan randomization (in minutes)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,170,0,0"/>
+								<Slider  Minimum="0" Maximum="240" TickPlacement="BottomRight" TickFrequency="10" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,170,0,0" Name="ScanRandomizationSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
+								<TextBox  Text="{Binding ElementName=ScanRandomizationSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,170,0,0" Name="ScanRandomizationTextBox"/>
+
+								<TextBlock  HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Retries for incorrect downloads and installations" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,200,0,0"/>
+								<Slider  Minimum="0" Maximum="99" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,200,0,0" Name="RetryCountSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
+								<TextBox  Text="{Binding ElementName=RetryCountSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,200,0,0" Name="RetryCountTextBox"/>
+
+
+
+								<Button Content="Next" HorizontalAlignment="right" VerticalAlignment="bottom" Width="200" Name="CMUNextTab1" Height="38" />
 
 							</Grid>
 						</TabItem>					
@@ -276,6 +290,10 @@
 									</ListView.Items>
 								</ListView>
 
+								<Button Content="Next" HorizontalAlignment="right" VerticalAlignment="bottom" Width="200" Name="CMUNextTab2" Height="38" />
+								<Button Content="Previous" HorizontalAlignment="left" VerticalAlignment="bottom" Width="200" Name="CMUPreviousTab2" Height="38" />
+
+
 							</Grid>
 						</TabItem>
 
@@ -286,15 +304,34 @@
 							<Grid Background="#2e628c">
 								<TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Text="Reboot Settings" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff" />
 
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Notify the user of a pending restart" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,50,0,0" />
-								<CheckBox IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,50,0,0" Name="RebootNotificationCheckBox" />
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Settings for Devices without Maintenance Window" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff"  Margin="24,50,0,0"/>
 
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Toast Notification title" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,80,0,0" Name="ToastTitleTextBox"/>
-								<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="200" TextWrapping="NoWrap" Margin="350,80,0,0" Name="ToastTitle" Text="Windows Update"/>
 
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Toast Notification text" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,110,0,0" Name="ToastTextTextBox"/>
-								<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="60" Width="400" TextWrapping="Wrap" Margin="350,110,0,0" Name="ToastText" Text="A reboot is required to finish updating, please save your work and reboot at your convenience. If no action is taken reboot will happen automatically" />
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Notify the user of a pending restart" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,80,0,0" />
+								<CheckBox IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,83,0,0" Name="RebootNotificationCheckBox" />
 
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Toast Notification title" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,110,0,0" Name="ToastTitleTextBox"/>
+								<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="200" TextWrapping="NoWrap" Margin="350,110,0,0" Name="ToastTitle" Text="Windows Update"/>
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Toast Notification text" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,140,0,0" Name="ToastTextTextBox"/>
+								<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="90" Width="300" TextWrapping="Wrap" Margin="350,140,0,0" Name="ToastText" Text="A reboot is required to finish updating, please save your work and reboot at your convenience. If no action is taken reboot will happen automatically" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Restart the device automaticly" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,240,0,0" />
+								<CheckBox  IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,243,0,0" Name="NoMWAutomaticRebootCheckBox" />
+
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Force Reboot after x days" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,270,0,0" />
+								<Slider Minimum="1" Maximum="28" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,270,0,0" Name="CMUAutoRebootIntervalSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
+								<TextBox Text="{Binding ElementName=CMUAutoRebootIntervalSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,270,0,0" Name="CMUAutoRebootIntervalTextBox" />
+
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Settings for Devices with Maintenance Window" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff"  Margin="24,310,0,0"/>
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Restart the device automaticly during MW" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,340,0,0" />
+								<CheckBox IsEnabled = "false" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,343,0,0" Name="MWAutomaticRebootCheckBox" />
+
+								<Button Content="Next" HorizontalAlignment="right" VerticalAlignment="bottom" Width="200" Name="CMUNextTab3" Height="38" />
+								<Button Content="Previous" HorizontalAlignment="left" VerticalAlignment="bottom" Width="200" Name="CMUPreviousTab3" Height="38" />
 
 							</Grid>
 						</TabItem>
@@ -314,7 +351,12 @@
 
 								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Emergency Patch KB" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,110,0,0" />
 								<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="200" TextWrapping="NoWrap" Margin="350,110,0,0" Name="EmergencyKB" ToolTip="KB123" />
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="This KB gets installed ASAP and ignores maintenance window and scan interval" FontSize="12" FontWeight="Bold" Height="42" Foreground="#b30000" Margin="380,110,0,0" />
+								
+								
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="This KB gets installed ASAP and ignores maintenance window and scan interval" FontSize="12" FontWeight="Bold" Height="42" Foreground="#b30000" Margin="200,140,0,0" />
+								
+								
+								<Button Content="Previous" HorizontalAlignment="left" VerticalAlignment="bottom" Width="200" Name="CMUPreviousTab4" Height="38" />
 
 								<Button Content="Generate Profile" HorizontalAlignment="center" VerticalAlignment="bottom" Width="200" Name="GenerateCustomScriptProfile" Height="38" />
 

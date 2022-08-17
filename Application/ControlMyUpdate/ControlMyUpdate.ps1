@@ -87,7 +87,7 @@
 # Update Source   MU,WSUS or Default             Will set the update source to the selected option 
 #
 # Retry count     
-#0-99                           Configure how often updates getting downloaded and installed if an error appears 
+#                 0-99                           Configure how often updates getting downloaded and installed if an error appears 
 #
 # AutomaticReboot
 #               True                            Will reboot the device automatic if a pending reboot is detected and device is in MW
@@ -106,6 +106,9 @@
 #           - Removed toast title and text
 #       - Improved update detection and reporting
 #       - Added Windows Update and Delivery Optimization service connection test
+#       - Added force reboot function for non MW devices
+#       - Added automatic reboot configuration option for MW devices
+#       - Added "old" CSP support natively
 # 2.0 - removed the requirement of PSWindowsUpdate Module - now using native Windows Update API
 # 1.2 - Bugfixes 
 # 1.1 - Added delivery optimization statistics
@@ -920,6 +923,7 @@ function New-WindowsUpdateScan {
 
 $LogFileName = "WindowsUpdate_{0:yyyyMM}.log" -f (Get-Date)
 $RegistryRootPath = "HKLM:\SOFTWARE\ControlMyUpdate"
+$64BitRegistryRootPath = "HKLM:\SOFTWARE\WOW6432Node\ControlMyUpdate"
 
 #define the log folder if needed - otherwise delete it or set it to ""
 if ($LogPath) { 
@@ -957,9 +961,22 @@ Catch {
 }
 
 Write-Log -LogLevel Trace -LogMessage "Registry test path root key"
-$RegistryTest = Test-Path $RegistryRootPath
+$32BitRegistryTest = Test-Path $RegistryRootPath
 
-if ($RegistryTest) {
+If(!$32BitRegistryTest)
+{
+  $64BitRegistryTest = Test-Path $64BitRegistryRootPath
+
+  if($64BitRegistryRootPath)
+  {
+    $RegistryRootPath = $64BitRegistryRootPath
+    $RegistryTest = $64BitRegistryTest
+  }
+}
+else{$RegistryTest = $32BitRegistryTest}
+
+
+if ($RegistryTest -eq $true) {
     Write-Log -LogLevel Trace -LogMessage "Registry try write in key"
     try {
         Set-ItemProperty -Path "$($RegistryRootPath)\Settings" -Name 'LastScriptStartTime' -Value $(Get-Date -Format s) | Out-Null
@@ -984,6 +1001,10 @@ if ($RegistryTest) {
         break
     }    
 }
+else {
+    Write-Log -LogLevel Error -LogMessage "No registry settings detected"
+    break
+}   
 
 #Create Status registry keys
 if (!(Test-Path "$($RegistryRootPath)\Status")) {
