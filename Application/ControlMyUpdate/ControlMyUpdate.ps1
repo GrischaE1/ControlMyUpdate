@@ -161,10 +161,10 @@ Function Write-Log {
             }
 
             Switch ($LogLevel) {
-                "Info" { $Log = "<![LOG[$LogMessage $ErrorMessage" + "]LOG]!><time=`"$Time`" date=`"$Date`" component=`"$Component`" context=`"`" type=`"$Type`" thread=`"`" file=`"`">" }
-                "Debug" { if (($ScriptLogLevel -eq "Debug") -or ($ScriptLogLevel -eq "Trace")) { $Log = "<![LOG[$LogMessage $ErrorMessage" + "]LOG]!><time=`"$Time`" date=`"$Date`" component=`"$Component`" context=`"`" type=`"$Type`" thread=`"`" file=`"`">" } }
-                "Trace" { if ($ScriptLogLevel -eq "Trace") { $Log = "<![LOG[$LogMessage $ErrorMessage" + "]LOG]!><time=`"$Time`" date=`"$Date`" component=`"$Component`" context=`"`" type=`"$Type`" thread=`"`" file=`"`">" } }
-                "Error" { $Log = "<![LOG[$LogMessage $ErrorMessage" + "]LOG]!><time=`"$Time`" date=`"$Date`" component=`"$Component`" context=`"`" type=`"$Type`" thread=`"`" file=`"`">" }
+                "Info" { $Log = "<![LOG[$LogMessage $ErrorMessage" + "]LOG]!><time=`"$Time`" date=`"$Date`" component=`"$Component`" context=`"`" type=`"$Type`" thread=`"$thread`" >" }
+                "Debug" { if (($ScriptLogLevel -eq "Debug") -or ($ScriptLogLevel -eq "Trace")) { $Log = "<![LOG[$LogMessage $ErrorMessage" + "]LOG]!><time=`"$Time`" date=`"$Date`" component=`"$Component`" context=`"`" type=`"$Type`" thread=`"$thread`">" } }
+                "Trace" { if ($ScriptLogLevel -eq "Trace") { $Log = "<![LOG[$LogMessage $ErrorMessage" + "]LOG]!><time=`"$Time`" date=`"$Date`" component=`"$Component`" context=`"`" type=`"$Type`" thread=`"$thread`" >" } }
+                "Error" { $Log = "<![LOG[$LogMessage $ErrorMessage" + "]LOG]!><time=`"$Time`" date=`"$Date`" component=`"$Component`" context=`"`" type=`"$Type`" thread=`"$thread`" >" }
             }
                 
             if ($log) { $Log | Out-File -Append -Encoding UTF8 -FilePath $LogPath }
