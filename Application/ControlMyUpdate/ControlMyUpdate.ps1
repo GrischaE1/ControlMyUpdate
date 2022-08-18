@@ -146,18 +146,31 @@ Function Write-Log {
 
     Process {
         if ($LogEnabled) {
-            $TimeStamp = Get-Date -Format "dd-MM-yyyy HH:mm:ss.fff"
-            Switch ($LogLevel) {
-                "Info" { Add-content -Path "$($logpath)" -value "INFO: $($LogMessage)  `$`$<$Component><$($TimeStamp)><thread=$($thread)>" -Encoding UTF8 }
-                "Debug" { if (($ScriptLogLevel -eq "Debug") -or ($ScriptLogLevel -eq "Trace")) { Add-content -Path "$($logpath)" -value "DEBUG: $($LogMessage)  `$`$<$Component><$($TimeStamp)><thread=$($thread)>" -Encoding UTF8 } }
-                "Trace" { if ($ScriptLogLevel -eq "Trace") { Add-content -Path "$($logpath)" -value "TRACE: $($LogMessage)  `$`$<$Component><$($TimeStamp)><thread=$($thread)>" -Encoding UTF8 } }
-                "Error" { Add-content -Path "$($logpath)" -value "ERROR: $($LogMessage)  `$`$<$Component><$($TimeStamp)><thread=$($thread)>" -Encoding UTF8 }
-            }
-            Remove-Variable -Name LogMessage, LogLevel -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
-        }
-    }
-}
+            $Time = Get-Date -Format "HH:mm:ss.ffffff"
+            $Date = Get-Date -Format "MM-dd-yyyy"
+ 
+            if ($ErrorMessage -ne $null) { $Type = 3 }
+            if ($Component -eq $null) { $Component = " " }
 
+            switch ($LogLevel) {
+                "Info" { [int]$Type = 1 }
+                "Warning" { [int]$Type = 2 }
+                "Error" { [int]$Type = 3 }
+                default { [int]$Type = 1 }
+            }
+
+            Switch ($LogLevel) {
+                "Info" { $Log = "<![LOG[$LogMessage $ErrorMessage" + "]LOG]!><time=`"$Time`" date=`"$Date`" component=`"$Component`" context=`"`" type=`"$Type`" thread=`"`" file=`"`">" }
+                "Debug" { if (($ScriptLogLevel -eq "Debug") -or ($ScriptLogLevel -eq "Trace")) { $Log = "<![LOG[$LogMessage $ErrorMessage" + "]LOG]!><time=`"$Time`" date=`"$Date`" component=`"$Component`" context=`"`" type=`"$Type`" thread=`"`" file=`"`">" } }
+                "Trace" { if ($ScriptLogLevel -eq "Trace") { $Log = "<![LOG[$LogMessage $ErrorMessage" + "]LOG]!><time=`"$Time`" date=`"$Date`" component=`"$Component`" context=`"`" type=`"$Type`" thread=`"`" file=`"`">" } }
+                "Error" { $Log = "<![LOG[$LogMessage $ErrorMessage" + "]LOG]!><time=`"$Time`" date=`"$Date`" component=`"$Component`" context=`"`" type=`"$Type`" thread=`"`" file=`"`">" }
+            }
+                
+            if ($log) { $Log | Out-File -Append -Encoding UTF8 -FilePath $LogPath }
+        }
+        Remove-Variable -Name LogMessage, LogLevel, Log -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+    }    
+}
 function Test-MaintenanceWindow {
     $Component = "TEST MAINTENANCE WINDOW"
     Write-Log -LogLevel Trace -LogMessage "Function: Test-MaintenanceWindow: Start"
