@@ -388,7 +388,7 @@ function New-CustomUpdateProfile {
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ForceRebootNoMW -PropertyType String -Value $($AutoRebootInterval);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name AutomaticReboot -PropertyType String -Value $($MWAutomaticReboot);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name RetryCount -PropertyType String -Value $($RetryCount);
-                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate -Name ScriptLogLevel -PropertyType String -Value Info
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate -Name ScriptLogLevel -PropertyType String -Value Info -Force
                 }"/>
             </characteristic>
         </wap-provisioningdoc>
@@ -524,7 +524,7 @@ function New-CustomUpdateScript {
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ForceRebootNoMW -PropertyType String -Value $($AutoRebootInterval)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name AutomaticReboot -PropertyType String -Value $($MWAutomaticReboot)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name RetryCount -PropertyType String -Value $($RetryCount)
-                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate -Name ScriptLogLevel -PropertyType String -Value Info
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate -Name ScriptLogLevel -PropertyType String -Value Info -Force
       '
 
         $XMLProfile = $ExecutionContext.InvokeCommand.ExpandString($temp)

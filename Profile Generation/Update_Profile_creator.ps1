@@ -15,18 +15,29 @@
 
 ##########################################################################################
 # Name: Update_Profile_Creator.ps1
-# Version: 2.0
+# Version: 2.1
 # Date: 25.02.2022
 # Created by: Grischa Ernst gernst@vmware.com
 #
 # Description
 # - This GUI will create three different profiles: 
 # 	1. Windows Update - Fully supported settings from 20H2 and above incl. Windows 11
-# 	2. Custom Update Solution - New GUI + added some more features 
+# 	2. Control My Update - New GUI + added some more features 
 # 	3. Delivery Optimization - Fully supported settings from 20H2 and above incl. Windows 11
 #
 # Caution:
-# If you are using the Custom Update Solution, you need Version 1.0 or higher
+# If you are using the Control My Update, you need Version 2.1 or higher
+##########################################################################################
+
+##########################################################################################
+#                                    Changelog 
+#
+# 2.1 - added the following features:
+#       - new GUI settings for CMU
+#		- Bug fix MW day output 
+#		- Bug fix legacy profile
+#		- new settings for updated CMU version
+# 2.0 - Initial creation
 ##########################################################################################
 
 

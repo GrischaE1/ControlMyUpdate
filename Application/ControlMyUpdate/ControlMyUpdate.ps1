@@ -108,7 +108,7 @@
 #       - Added Windows Update and Delivery Optimization service connection test
 #       - Added force reboot function for non MW devices
 #       - Added automatic reboot configuration option for MW devices
-#       - Added "old" CSP support natively
+#       - Added "old" CSP support natively (detection if 32 or 64 bit registry hive is used)
 # 2.0 - removed the requirement of PSWindowsUpdate Module - now using native Windows Update API
 # 1.2 - Bugfixes 
 # 1.1 - Added delivery optimization statistics
@@ -333,6 +333,8 @@ function Write-UpdateStatus {
         if (!(Get-Item "$($RegistryRootPath)\Status\KBs\$($CurrentUpdate)\$($Status)" -ErrorAction SilentlyContinue) -or $StatusChange -eq $True) {
             New-ItemProperty -Path "$($RegistryRootPath)\Status\KBs\$($CurrentUpdate)" -PropertyType "String" -Name "$Status" -Value $LastUpdate -Force | Out-Null
         }
+        New-ItemProperty -Path "$($RegistryRootPath)\Status\KBs\$($CurrentUpdate)" -PropertyType "String" -Name "Last Status" -Value $Status -Force | Out-Null
+        New-ItemProperty -Path "$($RegistryRootPath)\Status\KBs\$($CurrentUpdate)" -PropertyType "String" -Name "Last Status Timestamp" -Value $LastUpdate -Force | Out-Null
     }
     Write-Log -LogLevel Trace -LogMessage "Function: Write-UpdateStatus: End"
 }

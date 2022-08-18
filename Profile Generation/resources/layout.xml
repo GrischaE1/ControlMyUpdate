@@ -105,11 +105,11 @@
 								<TextBox Text="{Binding ElementName=RestartGraceSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,230,0,0" Name="RestartGraceTextBox"/>
 
 
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Update Scan Interval" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff" Margin="24,290,0,0" Name="ScanIntervalHeader" />
+								<TextBlock  Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Update Scan Interval" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff" Margin="24,290,0,0" Name="ScanIntervalHeader" />
 
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Update Scan Interval (hours)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,330,0,0" Name="UpdateIntervalTextBlock" />
-								<Slider Minimum="1" Maximum="22" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,330,0,0" Name="UpdateIntervalSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
-								<TextBox Text="{Binding ElementName=UpdateIntervalSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,330,0,0" Name="UpdateIntervalTextBox" />
+								<TextBlock  Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Update Scan Interval (hours)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,330,0,0" Name="UpdateIntervalTextBlock" />
+								<Slider  Visibility="Hidden" Minimum="1" Maximum="22" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,330,0,0" Name="UpdateIntervalSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
+								<TextBox  Visibility="Hidden" Text="{Binding ElementName=UpdateIntervalSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,330,0,0" Name="UpdateIntervalTextBox" />
 
 								<Button Content="Previous" HorizontalAlignment="left" VerticalAlignment="bottom" Width="200" Name="PreviousTab2" Height="38" />
 								<Button Content="Next" HorizontalAlignment="right" VerticalAlignment="bottom" Width="200" Name="NextTab2" Height="38" />
