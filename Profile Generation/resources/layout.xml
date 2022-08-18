@@ -316,7 +316,7 @@
 								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Toast Notification text" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,140,0,0" Name="ToastTextTextBox"/>
 								<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="90" Width="300" TextWrapping="Wrap" Margin="350,140,0,0" Name="ToastText" Text="A reboot is required to finish updating, please save your work and reboot at your convenience. If no action is taken reboot will happen automatically" />
 
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Restart the device automaticly" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,240,0,0" />
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Restart the device automatically " FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,240,0,0" />
 								<CheckBox  IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,243,0,0" Name="NoMWAutomaticRebootCheckBox" />
 
 
@@ -327,7 +327,7 @@
 
 								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Settings for Devices with Maintenance Window" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff"  Margin="24,310,0,0"/>
 
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Restart the device automaticly during MW" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,340,0,0" />
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Restart the device automatically  during MW" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,340,0,0" />
 								<CheckBox IsEnabled = "false" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,343,0,0" Name="MWAutomaticRebootCheckBox" />
 
 								<Button Content="Next" HorizontalAlignment="right" VerticalAlignment="bottom" Width="200" Name="CMUNextTab3" Height="38" />
