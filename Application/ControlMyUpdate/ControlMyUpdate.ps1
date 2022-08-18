@@ -157,6 +157,8 @@ Function Write-Log {
                 "Info" { [int]$Type = 1 }
                 "Warning" { [int]$Type = 2 }
                 "Error" { [int]$Type = 3 }
+                "Debug" { [int]$Type = 4 }
+                "Trace" { [int]$Type = 5 }
                 default { [int]$Type = 1 }
             }
 
@@ -499,6 +501,8 @@ function Save-WindowsUpdate {
             #Initialize download
             Write-Log -LogLevel Debug -LogMessage "Initializing download"
             $downloader = $updateSession.CreateUpdateDownloader()
+            $downloader.ClientApplicationID = "ControlMyUpdate"
+            $downloader.IsForced = $True
             $downloader.Updates = $updatesToDownload
         
             Write-Log -LogLevel Info -LogMessage "Downloading $($Update.Title)"
@@ -865,7 +869,9 @@ function Install-SpecificWindowsUpdate {
     
             #start update installation
             $installer = New-Object -ComObject 'Microsoft.Update.Installer'
-            $installer.Updates = $updatesToInstall        
+            $installer.ClientApplicationID = "ControlMyUpdate"
+            $installer.Updates = $updatesToInstall 
+            $installer.IsForced = $True         
             $installResult = $installer.Install()
             
             Write-Log -LogLevel Info -LogMessage "Install result code: $($installResult.ResultCode)"
