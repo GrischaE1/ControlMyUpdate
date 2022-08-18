@@ -109,6 +109,7 @@
 #       - Added force reboot function for non MW devices
 #       - Added automatic reboot configuration option for MW devices
 #       - Added "old" CSP support natively (detection if 32 or 64 bit registry hive is used)
+#       - Bugfix for logging function (no date / time in CMtrace after a specific date)
 # 2.0 - removed the requirement of PSWindowsUpdate Module - now using native Windows Update API
 # 1.2 - Bugfixes 
 # 1.1 - Added delivery optimization statistics
