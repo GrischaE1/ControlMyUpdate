@@ -239,7 +239,7 @@
 
 
 								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Update Scan Interval (hours)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,140,0,0" Name="CMUUpdateIntervalTextBlock" />
-								<Slider Minimum="1" Maximum="22" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,140,0,0" Name="CMUUpdateIntervalSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
+								<Slider Value="4" Minimum="1" Maximum="22" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,140,0,0" Name="CMUUpdateIntervalSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
 								<TextBox Text="{Binding ElementName=CMUUpdateIntervalSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,140,0,0" Name="CMUUpdateIntervalTextBox" />
 
 
@@ -248,7 +248,7 @@
 								<TextBox  Text="{Binding ElementName=ScanRandomizationSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,170,0,0" Name="ScanRandomizationTextBox"/>
 
 								<TextBlock  HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Retries for incorrect downloads and installations" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,200,0,0"/>
-								<Slider  Minimum="0" Maximum="99" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,200,0,0" Name="RetryCountSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
+								<Slider Value="3"  Minimum="0" Maximum="99" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,200,0,0" Name="RetryCountSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
 								<TextBox  Text="{Binding ElementName=RetryCountSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,200,0,0" Name="RetryCountTextBox"/>
 
 
@@ -321,7 +321,7 @@
 
 
 								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Force Reboot after x days" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,270,0,0" />
-								<Slider Minimum="1" Maximum="28" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,270,0,0" Name="CMUAutoRebootIntervalSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
+								<Slider Value="3" Minimum="1" Maximum="28" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,270,0,0" Name="CMUAutoRebootIntervalSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
 								<TextBox Text="{Binding ElementName=CMUAutoRebootIntervalSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,270,0,0" Name="CMUAutoRebootIntervalTextBox" />
 
 
@@ -452,16 +452,16 @@
 				<Grid Background="#2e628c">
 					<TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Text="About" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff" />
 					<TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Version" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="50,50,0,0" />
-					<TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="2.0" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="295,50,0,0" />
+					<TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="2.1" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="295,50,0,0" />
 
 					<TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Created by" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="50,100,0,0" />
 					<TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Grischa Ernst" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="295,100,0,0" />
 
-					<TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="GitHub" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="50,150,0,0" />
-					<TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="https://github.com/GrischaE1/" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="295,150,0,0" />
+					<TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Fling Website" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="50,150,0,0" />
+					<TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="https://flings.vmware.com/control-my-update" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="295,150,0,0" />
 
 					<TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Release Date" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="50,200,0,0" />
-					<TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="20.05.2022" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="295,200,0,0" />
+					<TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="19.08.2022" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="295,200,0,0" />
 
 					<TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Release Website" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="50,250,0,0" />
 					<TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="https://www.controlmyupdate.com" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="295,250,0,0" />
