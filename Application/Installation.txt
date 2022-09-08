@@ -6,7 +6,7 @@ powershell -executionpolicy bypass -file install.ps1 -LogPath "C:\Temp\Logs" -Up
 As installation detection use a custom script and upload 
 Detection.ps1 
 as command use: 
-powershell -executionpolicy bypass -file detection.ps1 -FileHash "691807DE553CE107F47CDBC3E26048158B101A8796ACFC4E63D8AA4103940672" -ScriptExpectedVersion "2.1"
+powershell -executionpolicy bypass -file detection.ps1 -FileHash "554BF07E94460BB442C34763FE76A058AF581731A4E4F01D0228BAA1301B3A6F" -ScriptExpectedVersion "2.1"
 
 uninstall
 powershell -executionpolicy bypass -file uninstall.ps1 -InstallDir "C:\Windows\ControlMyUpdate"
