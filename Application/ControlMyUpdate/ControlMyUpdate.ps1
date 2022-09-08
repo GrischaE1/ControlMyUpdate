@@ -99,6 +99,7 @@
 ##########################################################################################
 #                                    Changelog 
 #
+# 2.1.1 - bugfix for single update installation
 # 2.1 - added the following features:
 #       - retry count for error handling (for download and installation of updates) 
 #       - pending reboot detection bugfix (if no update was pending, reboot was not triggered during the MW)
@@ -129,7 +130,7 @@ param(
     [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Verbosity of logging. Default: Info")][ValidateSet("Info", "Debug", "Trace")][String] $ScriptLogLevel = "Info"
 )
 
-$ScriptCurrentVersion = "2.1"
+$ScriptCurrentVersion = "2.1.1"
 
 if ($ScriptVersion.IsPresent) {
     Return $ScriptCurrentVersion
@@ -1149,7 +1150,7 @@ if (!$AllUpdates) {
         Write-Log -LogLevel Info -LogMessage "Maintenance Window Setting detected"
         if ((Test-MaintenanceWindow) -eq $true) {
             $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date)
-            Update-InstallationStatus -AvailableUpdates $AllUpdates
+            Update-InstallationStatus -AllUpdates $AllUpdates
         }
     }
 
@@ -1157,16 +1158,17 @@ if (!$AllUpdates) {
         Write-Log -LogLevel Info -LogMessage "Update installation status after reboot"
 
         $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date)       
-        Update-InstallationStatus -AvailableUpdates $AllUpdates
+        Update-InstallationStatus -AllUpdates $AllUpdates
         Clear-Variable AllUpdates, Updates
     }
 }
 
 if ($AllUpdates) {
-    $AllAvailableUpdates = $AllUpdates | Where-Object { $_.IsInstalled -eq $false -and $_.IsHidden -eq $false }
+    $AllAvailableUpdates = @($AllUpdates | Where-Object { $_.IsInstalled -eq $false -and $_.IsHidden -eq $false })
     Write-Log -LogLevel Info -LogMessage "Pending Update count: $($AllAvailableUpdates.Count)"
-    Update-InstallationStatus -AvailableUpdates $AllUpdates
+    Update-InstallationStatus -AllUpdates $AllUpdates
 }    
+
 
 # run download and installation if updates are available 
 if ( ($AllAvailableUpdates.Count -gt 0) -and ($Settings.ReportOnly -ne "True") ) {
