@@ -1017,6 +1017,13 @@ if ($RegistryTest -eq $true) {
             $retrycount = '3'
         }
         else { $retrycount = $settings.retrycount }
+        
+        if ($Settings.AutomaticReboot) {
+            if ($Settings.AutomaticReboot -eq "True") {
+                [bool]$Reboot = $True
+            }
+            else { [bool]$Reboot = $False }           
+        }
     }
     else {
         Write-Log -LogLevel Error -LogMessage "No registry settings detected"
@@ -1083,7 +1090,7 @@ if ($settings.EmergencyKB) {
 #restart the device if pending reboot and in MW
 if ($Settings.MaintenanceWindow -eq $True) {
     if (Test-MaintenanceWindow -eq $true) {
-        Test-PendingReboot -AutomaticReboot $Settings.AutomaticReboot
+        Test-PendingReboot -AutomaticReboot $Reboot
     }
 }
 
@@ -1195,7 +1202,7 @@ if ( ($AllAvailableUpdates.Count -gt 0) -and ($Settings.ReportOnly -ne "True") )
 
         if ((Test-MaintenanceWindow) -eq $true) {
             Write-Log -LogLevel Debug -LogMessage "Device in maintenance window"
-            Test-PendingReboot -AutomaticReboot $Settings.AutomaticReboot | Out-Null
+            Test-PendingReboot -AutomaticReboot $Reboot | Out-Null
 
             Write-Log -LogLevel Debug -LogMessage "Trigger update download"
             Save-WindowsUpdate -DownloadUpdateList $NotDownloadedUpdates
@@ -1215,7 +1222,7 @@ if ( ($AllAvailableUpdates.Count -gt 0) -and ($Settings.ReportOnly -ne "True") )
 
             if ((Test-MaintenanceWindow) -eq $true) {
                 Write-Log -LogLevel Debug -LogMessage "Device in MW. Reboot processing."
-                Test-PendingReboot -AutomaticReboot $Settings.AutomaticReboot | Out-Null
+                Test-PendingReboot -AutomaticReboot $Reboot | Out-Null
             }
             else {
                 Write-Log -LogLevel Debug -LogMessage "Device outside maintenance window. Skipping reboot"
@@ -1254,20 +1261,20 @@ if ($RebootRequired -eq $true) {
     Write-Log -LogLevel Trace -LogMessage "RebootRequired: True"
     New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "PendingReboot" -Value "True" -Force | Out-Null
 
-    if ( $Settings.NotifyUser  -eq $True) {
+    if ( $Settings.NotifyUser -eq $True) {
         Write-Log -LogLevel Info -LogMessage "Notifying User of pending reboot"
         $RebootNotification = Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootNotificationCreated' -ErrorAction Ignore 
         New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "True" -Force | Out-Null   
 
 
-        if (($Settings.MaintenanceWindow -eq $true) -and ((Test-MaintenanceWindow) -eq $true) -and ($Settings.AutomaticReboot -eq $True)) {           
+        if (($Settings.MaintenanceWindow -eq $true) -and ((Test-MaintenanceWindow) -eq $true) -and ($Reboot -eq $True)) {           
             Write-Log -LogLevel Info -LogMessage "Force reboot"
             New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
             Start-ScheduledTask -TaskName "Control My Update - Reboot Notification" 
-            Test-PendingReboot -AutomaticReboot $Settings.AutomaticReboot        
+            Test-PendingReboot -AutomaticReboot $Reboot        
         }
 
-        else{
+        else {
             if (!(Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)) {
                 New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootDetectionDate" -Value (Get-Date -Format s) -Force | Out-Null   
             }
@@ -1279,7 +1286,7 @@ if ($RebootRequired -eq $true) {
                     Write-Log -LogLevel Info -LogMessage "Force reboot"
 
                     New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
-                    Test-PendingReboot -AutomaticReboot $Settings.AutomaticReboot
+                    Test-PendingReboot -AutomaticReboot $Reboot
                     $RebootNotification = $false
                 }
             }
