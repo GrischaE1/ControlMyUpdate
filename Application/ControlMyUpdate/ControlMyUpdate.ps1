@@ -131,7 +131,7 @@ param(
     [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Verbosity of logging. Default: Info")][ValidateSet("Info", "Debug", "Trace")][String] $ScriptLogLevel = "Info"
 )
 
-$ScriptCurrentVersion = "2.1.1"
+$ScriptCurrentVersion = "2.1.2"
 
 if ($ScriptVersion.IsPresent) {
     Return $ScriptCurrentVersion
@@ -1267,7 +1267,7 @@ if ($RebootRequired -eq $true) {
             Test-PendingReboot -AutomaticReboot $Settings.AutomaticReboot
             $RebootNotification = $false
         }
-        
+
         else{
             if (!(Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)) {
                 New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootDetectionDate" -Value (Get-Date -Format s) -Force | Out-Null   
