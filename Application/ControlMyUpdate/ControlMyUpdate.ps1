@@ -1260,12 +1260,11 @@ if ($RebootRequired -eq $true) {
         New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "True" -Force | Out-Null   
 
 
-        if ($Settings.MaintenanceWindow -eq $true) {
+        if (($Settings.MaintenanceWindow -eq $true) -and ((Test-MaintenanceWindow) -eq $true) -and ($Settings.AutomaticReboot -eq $True)) {           
             Write-Log -LogLevel Info -LogMessage "Force reboot"
-
             New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
-            Test-PendingReboot -AutomaticReboot $Settings.AutomaticReboot
-            $RebootNotification = $false
+            Start-ScheduledTask -TaskName "Control My Update - Reboot Notification" 
+            Test-PendingReboot -AutomaticReboot $Settings.AutomaticReboot        
         }
 
         else{
