@@ -15,7 +15,7 @@
 
 ##########################################################################################
 # Name: ControlMyUpdate.ps1
-# Version: 2.1
+# Version: 2.1.2
 # Date: 18.05.2021
 # Created by: Grischa Ernst gernst@vmware.com
 # Contributor: Camille Debay
@@ -99,6 +99,7 @@
 ##########################################################################################
 #                                    Changelog 
 #
+# 2.1.2 - bugfix notification configuration
 # 2.1.1 - bugfix for single update installation
 # 2.1 - added the following features:
 #       - retry count for error handling (for download and installation of updates) 
@@ -1253,28 +1254,37 @@ if ($RebootRequired -eq $true) {
     Write-Log -LogLevel Trace -LogMessage "RebootRequired: True"
     New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "PendingReboot" -Value "True" -Force | Out-Null
 
-    if ( $Settings.NotifyUser ) {
+    if ( $Settings.NotifyUser  -eq $True) {
         Write-Log -LogLevel Info -LogMessage "Notifying User of pending reboot"
         $RebootNotification = Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootNotificationCreated' -ErrorAction Ignore 
         New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "True" -Force | Out-Null   
 
 
-        if (!(Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)) {
-            New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootDetectionDate" -Value (Get-Date -Format s) -Force | Out-Null   
-        }
-        else {
-            
-            $RebootDetectionDate = Get-Date (Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)
-    
-            if ($RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.ForceRebootNoMW)) -and ($Settings.ForceRebootNoMW) -ne 0) {
-                Write-Log -LogLevel Info -LogMessage "Force reboot"
+        if ($Settings.MaintenanceWindow -eq $true) {
+            Write-Log -LogLevel Info -LogMessage "Force reboot"
 
-                New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
-                Test-PendingReboot -AutomaticReboot $Settings.AutomaticReboot
-                $RebootNotification = $false
+            New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
+            Test-PendingReboot -AutomaticReboot $Settings.AutomaticReboot
+            $RebootNotification = $false
+        }
+        
+        else{
+            if (!(Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)) {
+                New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootDetectionDate" -Value (Get-Date -Format s) -Force | Out-Null   
+            }
+            else {
+                
+                $RebootDetectionDate = Get-Date (Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)
+        
+                if ($RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.ForceRebootNoMW)) -and ($Settings.ForceRebootNoMW) -ne 0) {
+                    Write-Log -LogLevel Info -LogMessage "Force reboot"
+
+                    New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
+                    Test-PendingReboot -AutomaticReboot $Settings.AutomaticReboot
+                    $RebootNotification = $false
+                }
             }
         }
-
 
         if ($RebootNotification -eq $False -or !($RebootNotification)) { 
             $NotificationDate = Get-Date -Format s                    
@@ -1297,7 +1307,7 @@ if ($RebootRequired -eq $true) {
 else {
     Write-Log -LogLevel Trace -LogMessage "RebootRequired: False"
     New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "PendingReboot" -Value "False" -Force | Out-Null
-    if ( $Settings.NotifyUser ) {
+    if ( $Settings.NotifyUser -eq $True) {
         New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootNotificationCreated" -Value "False" -Force | Out-Null
     }
 
