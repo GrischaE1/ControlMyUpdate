@@ -78,7 +78,7 @@ function Create-UEMAPIHeader
 }
 
 
-function Create-APIApplicationBody 
+function Create-APISensorUploadBody 
 {
     param(
          $sensorname,
@@ -110,12 +110,48 @@ function Create-APIApplicationBody
             return $json
 }
 
+function Get-SmartGroupInfo
+{
+    param(
+        $SmartGroupName)    
+    
+    #generate UEM header
+    $header = Create-UEMAPIHeader -APIUser $APIUser -APIPassword $APIPassword -APIKey $APIKey
+
+    #Get OG UUID
+    $url  = "https://$($APIEndpoint)/API/mdm/smartgroups/search?name=$($SmartGroupName.Replace(" ","%20"))"
+    $SmartGroupDetails = (Invoke-RestMethod $url -Method 'GET' -Headers $header).SmartGroups 
+
+    return  $SmartGroupDetails
+}
+
+
+function New-SensorAssignmentBody
+{
+    param(
+        $SmartGroupUUID,
+        $AssignmentName
+    )
+       
+        $APIbody = '{
+            "name": "$($AssignmentName)",
+            "smart_group_uuids": [
+              "$($SmartGroupUUID)"
+            ],
+            "trigger_type": "SCHEDULE",
+            "event_triggers": []
+          }'
+
+            $json = $ExecutionContext.InvokeCommand.ExpandString($APIbody) 
+            return $json
+
+}
 
 
 
 ##########################################################################################
 # Start
-                          
+
 
 #generate UEM header
 $header = Create-UEMAPIHeader -APIUser $APIUser -APIPassword $APIPassword -APIKey $APIKey
@@ -129,35 +165,71 @@ $OGGUID = $OGDetails.uuid
 #Get the sensor files
 $AllFiles = Get-ChildItem $SourcePath | Where-Object {$_.Name -like "*.ps1" -and $_.Name -notlike "*sensor*"}
 
-foreach($file in $AllFiles)
+if($AllFiles)
 {
-    #Get the script Data and encrypt the data
-    $Data = Get-Content $file.FullName -Encoding UTF8 -Raw
-    $Bytes = [System.Text.Encoding]::UTF8.GetBytes($Data)
-    $Script = [Convert]::ToBase64String($Bytes)
-    
-    #create JSON body
-    if($file.BaseName -like "*_date*")
+    foreach($file in $AllFiles)
     {
-        $body = Create-APIApplicationBody -sensorname $($file.BaseName.ToLower()) -orgGUID $OGGUID -scriptcontent $Script -responsetype "DATETIME"
-    }
-    elseif($file.BaseName -like "*_bool*")
-    {
-        $body = Create-APIApplicationBody -sensorname $($file.BaseName.ToLower()) -orgGUID $OGGUID -scriptcontent $Script -responsetype "BOOLEAN"
-    }
-    elseif($file.BaseName -like "*_count*")
-    {
-        $body = Create-APIApplicationBody -sensorname $($file.BaseName.ToLower()) -orgGUID $OGGUID -scriptcontent $Script -responsetype "INTEGER"
-    }
-    else 
-    {
-        $body = Create-APIApplicationBody -sensorname $($file.BaseName.ToLower()) -orgGUID $OGGUID -scriptcontent $Script
-    }
-    
+        #Get the script Data and encrypt the data
+        $Data = Get-Content $file.FullName -Encoding UTF8 -Raw
+        $Bytes = [System.Text.Encoding]::UTF8.GetBytes($Data)
+        $Script = [Convert]::ToBase64String($Bytes)
+        
+        #create JSON body
+        if($file.BaseName -like "*_date*")
+        {
+            $body = Create-APISensorUploadBody -sensorname $($file.BaseName.ToLower()) -orgGUID $OGGUID -scriptcontent $Script -responsetype "DATETIME"
+        }
+        elseif($file.BaseName -like "*_bool*")
+        {
+            $body = Create-APISensorUploadBody -sensorname $($file.BaseName.ToLower()) -orgGUID $OGGUID -scriptcontent $Script -responsetype "BOOLEAN"
+        }
+        elseif($file.BaseName -like "*_count*")
+        {
+            $body = Create-APISensorUploadBody -sensorname $($file.BaseName.ToLower()) -orgGUID $OGGUID -scriptcontent $Script -responsetype "INTEGER"
+        }
+        else 
+        {
+            $body = Create-APISensorUploadBody -sensorname $($file.BaseName.ToLower()) -orgGUID $OGGUID -scriptcontent $Script
+        }
+        
+        #upload sensor data
+        $url  = "https://$($APIEndpoint)/API/mdm/devicesensors"
+        Invoke-RestMethod $url -Method 'POST' -Headers $header -Body $body  
 
-    #upload sensor data
-    $url  = "https://$($APIEndpoint)/API/mdm/devicesensors"
-    Invoke-RestMethod $url -Method 'POST' -Headers $header -Body $body
+        Write-Output "$($file.basename) uploaded"
+    }
+   
 
-    Write-Output "$($file.basename) uploaded"
+    #Get all Sensors for specific OG
+    $header = Create-UEMAPIHeader -APIUser $APIUser -APIPassword $APIPassword -APIKey $APIKey
+    $url  = "https://$($APIEndpoint)/API/mdm/devicesensors/list/$($OGGUID)"
+    $AllSensors = (Invoke-RestMethod $url -Method 'GET' -Headers $header).result_set
+
+    if($AllSensors)
+    {
+        #Get Smart Group information
+        $SmartGroupInfo = Get-SmartGroupInfo -SmartGroupName $SmartGroupName
+        $SmartGroupUUID = $SmartGroupInfo.SmartGroupUuid
+        $SmartGroupName = $SmartGroupInfo.Name
+
+        #Assign the sensors to the Smart Group
+        $header = Create-UEMAPIHeader -APIUser $APIUser -APIPassword $APIPassword -APIKey $APIKey -APIVersion 2
+
+        foreach($file in $AllFiles)
+        {
+            $CurrentSensor = $AllSensors | Where-Object {$_.name -eq $file.BaseName}
+            
+            if($CurrentSensor -ne "" -and $CurrentSensor -ne $null)
+            {
+                $AssignmentName = ("$($file.BaseName) to $($SmartGroupName)").ToLower().Replace(" ","_")
+                $Body = New-SensorAssignmentBody -SmartGroupUUID $SmartGroupUUID -AssignmentName $AssignmentName
+
+                #Assign sensors
+                $url  = "https://$($APIEndpoint)/API/mdm/devicesensors/$($CurrentSensor.uuid)/assignment"
+                Invoke-RestMethod $url -Method 'POST' -Headers $header -Body $body 
+            
+            }
+            Clear-Variable CurrentSensor
+        }
+    }
 }

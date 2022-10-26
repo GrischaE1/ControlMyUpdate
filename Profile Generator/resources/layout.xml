@@ -147,10 +147,12 @@
 									<ComboBoxItem>20H2</ComboBoxItem>
 									<ComboBoxItem>21H1</ComboBoxItem>
 									<ComboBoxItem>21H2</ComboBoxItem>
+									<ComboBoxItem>22H2</ComboBoxItem>
 								</ComboBox>
 
 								<ComboBox Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="350,200,0,0" Name="ReleaseVersionW11Box">
 									<ComboBoxItem>21H2</ComboBoxItem>
+									<ComboBoxItem>22H2</ComboBoxItem>
 								</ComboBox>
 
 								<Button Content="Previous" HorizontalAlignment="left" VerticalAlignment="bottom" Width="200" Name="PreviousTab3" Height="38" />

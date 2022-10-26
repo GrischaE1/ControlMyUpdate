@@ -1023,7 +1023,7 @@ if ($RegistryTest -eq $true) {
                 [bool]$Reboot = $True
             }
             else { [bool]$Reboot = $False }           
-        }
+        }        
     }
     else {
         Write-Log -LogLevel Error -LogMessage "No registry settings detected"
