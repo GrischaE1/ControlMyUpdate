@@ -345,6 +345,9 @@ $GenerateButton.Add_Click({
 				New-DOProfile @DOProfileParams 
 
 			}
+
+			#open the Target folder
+			Invoke-Item $($FolderBrowser.SelectedPath)
 		}
 	})
 #-------------------------------------------------------------#
