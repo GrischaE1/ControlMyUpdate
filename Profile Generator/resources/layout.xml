@@ -75,6 +75,7 @@
 									<ComboBoxItem>Auto install and restart</ComboBoxItem>
 									<ComboBoxItem>Auto install and restart at a specified time</ComboBoxItem>
 									<ComboBoxItem>Auto install and restart without end-user control</ComboBoxItem>
+									<ComboBoxItem>Updates automatically download and install at an optimal time determined by the device</ComboBoxItem>
 									<ComboBoxItem IsSelected="True">Turn off automatic updates</ComboBoxItem>
 								</ComboBox>
 
@@ -253,6 +254,9 @@
 								<Slider Value="3"  Minimum="0" Maximum="99" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,200,0,0" Name="RetryCountSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
 								<TextBox  Text="{Binding ElementName=RetryCountSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,200,0,0" Name="RetryCountTextBox"/>
 
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Download update before installation" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,230,0,0" />
+								<CheckBox IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,233,0,0" Name="RunConnectionTests" />
+
 
 
 								<Button Content="Next" HorizontalAlignment="right" VerticalAlignment="bottom" Width="200" Name="CMUNextTab1" Height="38" />
@@ -326,11 +330,13 @@
 								<Slider Value="3" Minimum="1" Maximum="28" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,270,0,0" Name="CMUAutoRebootIntervalSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
 								<TextBox Text="{Binding ElementName=CMUAutoRebootIntervalSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,270,0,0" Name="CMUAutoRebootIntervalTextBox" />
 
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Force restart if no user is logged on " FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,300,0,0" />
+								<CheckBox  IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,303,0,0" Name="ForceRebootwithNoUser" />
 
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Settings for Devices with Maintenance Window" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff"  Margin="24,310,0,0"/>
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Settings for Devices with Maintenance Window" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff"  Margin="24,350,0,0"/>
 
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Restart the device automatically  during MW" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,340,0,0" />
-								<CheckBox IsEnabled = "false" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,343,0,0" Name="MWAutomaticRebootCheckBox" />
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Restart the device automatically  during MW" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,380,0,0" />
+								<CheckBox IsEnabled = "false" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,383,0,0" Name="MWAutomaticRebootCheckBox" />
 
 								<Button Content="Next" HorizontalAlignment="right" VerticalAlignment="bottom" Width="200" Name="CMUNextTab3" Height="38" />
 								<Button Content="Previous" HorizontalAlignment="left" VerticalAlignment="bottom" Width="200" Name="CMUPreviousTab3" Height="38" />
@@ -347,6 +353,9 @@
 
 								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Blocked KB(s)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,50,0,0" />
 								<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="200" TextWrapping="NoWrap" Margin="350,50,0,0" Name="BlockedKBs" ToolTip="KB123;KB456;KB789" />
+								<CheckBox  IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="560,53,0,0" Name="UninstallKBsCheckBox" />
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Uninstall KB(s)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="575,50,0,0" />
+
 
 								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Un-Blocked KB(s)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,80,0,0" />
 								<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="200" TextWrapping="NoWrap" Margin="350,80,0,0" Name="UnBlockedKBs" ToolTip="KB123;KB456;KB789" />

@@ -96,9 +96,27 @@
 # ForceRebootNoMW
 #               1-24                            If no MW is configured the device will force a reboot after X days - only possible if "NotifyUser" is set to true
 #               0                               Disabled
+#
+# RunConnectionTests
+#               True
+#               False
+#
+# ForceRebootwithNoUser
+#               True
+#               False
+#
+# UninstallKBs
+#               True
+#               False
+#
+#
 ##########################################################################################
 #                                    Changelog 
 #
+# 2.1.3 - added option for connection test (enabled/disabled)
+#       - connection test will only run before Windows Update search is triggered 
+#       - Added the option to force a reboot if no user is logged on (for non MW devices)
+#       - Added Update Rollback
 # 2.1.2 - bugfix notification configuration
 # 2.1.1 - bugfix for single update installation
 # 2.1 - added the following features:
@@ -131,7 +149,7 @@ param(
     [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Verbosity of logging. Default: Info")][ValidateSet("Info", "Debug", "Trace")][String] $ScriptLogLevel = "Info"
 )
 
-$ScriptCurrentVersion = "2.1.2"
+$ScriptCurrentVersion = "2.1.3"
 
 if ($ScriptVersion.IsPresent) {
     Return $ScriptCurrentVersion
@@ -1050,8 +1068,6 @@ if (!$settings.LastScanTime) {
     Set-ItemProperty -Path "$($RegistryRootPath)\Settings" -Name 'LastScanTime' -Value $(Get-Date -Format s)
 }
 
-$ConnectionTest = Test-UpdateConnectivity
-
 
 $Component = "Emergency update installation"
 
@@ -1093,6 +1109,14 @@ if ($Settings.MaintenanceWindow -eq $True) {
         Test-PendingReboot -AutomaticReboot $Reboot
     }
 }
+#Check if Force Reboot With No User is enabled an if NO user is currently logged in
+else{
+    if(!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($Settings.ForceRebootwithNoUser) -eq $true)
+    {
+        Test-PendingReboot -AutomaticReboot $true
+    }
+
+}
 
 
 $Component = "UPDATE HIDE/UNHIDE"
@@ -1107,6 +1131,12 @@ if (($settings.HiddenUpdates) -or ($settings.UnHiddenUpdates)) {
         foreach ($Item in $($settings.HiddenUpdates)) {
             Write-Log -LogLevel Debug -LogMessage "Hide | Processing Update: $($Item)"
             Set-WindowsUpdateBlockStatus -AllUpdates $FullUpdateList -KBArticleID $Item -Status Blocked
+            
+            if($Settings.UninstallKBs -eq $true)
+            {
+                Get-WindowsPackage -Online | ?{$_.ReleaseType -like "*Update*"} |  ForEach-Object {Get-WindowsPackage -Online -PackageName $_.PackageName} |  Where-Object {$_.Description -like "*$($Item)*"} | Remove-WindowsPackage -Online -NoRestart
+            }
+
         }
     }
 
@@ -1124,6 +1154,9 @@ if (($settings.HiddenUpdates) -or ($settings.UnHiddenUpdates)) {
 $Component = "UPDATE SCAN"
 #Get last scan time 
 if (!$Settings.NextScanTime) {
+    Write-Log -LogLevel Info -LogMessage "Testing connectivity"
+    Test-UpdateConnectivity | Out-Null
+
     Write-Log -LogLevel Info -LogMessage "Script First Run - Searching for updates"
     $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date)
 }
@@ -1134,6 +1167,9 @@ else {
     Write-Log -LogLevel Debug -LogMessage "NextScanTime: $($NextScanTime)"
 
     if ($CurrentTime -ge $NextScanTime -or (($Settings.MaintenanceWindow -eq $true) -and [bool](Test-MaintenanceWindow) -eq $true)) {
+        Write-Log -LogLevel Info -LogMessage "Testing connectivity"
+        Test-UpdateConnectivity | Out-Null
+
         Write-Log -LogLevel Info -LogMessage "Scan Interval reached - Searching for updates"
         $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date $Settings.LastScanTime)
     }

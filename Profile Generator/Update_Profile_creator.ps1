@@ -15,7 +15,7 @@
 
 ##########################################################################################
 # Name: Update_Profile_Creator.ps1
-# Version: 2.1
+# Version: 2.1.1
 # Date: 25.02.2022
 # Created by: Grischa Ernst gernst@vmware.com
 #
@@ -32,6 +32,8 @@
 ##########################################################################################
 #                                    Changelog 
 #
+# 2.1.1 - Added 22H2 support
+#		- Added new "Updates automatically download and install at an optimal time determined by the device" installation method
 # 2.1 - added the following features:
 #       - new GUI settings for CMU
 #		- Bug fix MW day output 
@@ -268,6 +270,9 @@ $GenerateButton.Add_Click({
 					$CUProfileParams["ToastText"] = $ToastText.text
 					$CUProfileParams["AutoRebootInterval"] = $CMUAutoRebootIntervalSlider.Value
 					$CUProfileParams["AutomaticReboot"] = $AutomaticRebootCheckBox.IsChecked
+					$CUProfileParams["ForceRebootwithNoUser"] = $ForceRebootwithNoUser.IsChecked
+					$CUProfileParams["UninstallKBs"] = $UninstallKBsCheckBox.IsChecked
+					$CUProfileParams["RunConnectionTests"] = $RunConnectionTests.IsChecked
 					$CUProfileParams["RetryCount"] = $RetryCountSlider.Value
 				}
 
@@ -299,6 +304,9 @@ $GenerateButton.Add_Click({
 					$CUScriptParams["ToastText"] = $ToastText.text
 					$CUScriptParams["AutomaticReboot"] = $AutomaticRebootCheckBox.IsChecked
 					$CUScriptParams["AutoRebootInterval"] = $CMUAutoRebootIntervalSlider.Value
+					$CUScriptParams["ForceRebootwithNoUser"] = $ForceRebootwithNoUser.IsChecked
+					$CUScriptParams["UninstallKBs"] = $UninstallKBsCheckBox.IsChecked
+					$CUScriptParams["RunConnectionTests"] = $RunConnectionTests.IsChecked
 					$CUScriptParams["RetryCount"] = $RetryCountSlider.Value
 				}
 

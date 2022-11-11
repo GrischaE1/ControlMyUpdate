@@ -58,6 +58,7 @@ Function New-WUProfile {
         'Auto install and restart at a specified time' { $AutoUpdateValue = 3 }
         'Auto install and restart without end-user control' { $AutoUpdateValue = 4 }
         'Turn off automatic updates' { $AutoUpdateValue = 5 }
+        'Updates automatically download and install at an optimal time determined by the device' { $AutoUpdateValue = 6 }
         Default { $AutoUpdateValue = 5 }
     }
     Get-JSONData -JSONFile $JsonInformation -SettingName 'AutoUpdate' -SettingValue $AutoUpdateValue
@@ -279,6 +280,9 @@ function New-CustomUpdateProfile {
         $ToastText,
         $MWAutomaticReboot,
         $AutoRebootInterval,
+        $ForceRebootwithNoUser,
+        $RunConnectionTests,
+        $UninstallKBs,
         $RetryCount
     )
 
@@ -370,6 +374,7 @@ function New-CustomUpdateProfile {
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name DirectDownload -PropertyType String -Value $($DirectDownload);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name EmergencyKB -PropertyType String -Value $($EmergencyKB);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name HiddenUpdates -PropertyType String -Value $($BlockedKBs);
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name UninstallKBs -PropertyType String -Value $($UninstallKBs);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name UnHiddenUpdates -PropertyType String -Value  $($UnBlockedKBs);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name LastInstallationDate -PropertyType String -Value &quot;&quot;;
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MaintenanceWindow -PropertyType String -Value $($EnableMaintenanceWindow);
@@ -386,7 +391,9 @@ function New-CustomUpdateProfile {
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastTitle -PropertyType String -Value &quot;$($ToastTitle)&quot;;
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastText -PropertyType String -Value &quot;$($ToastText)&quot;;
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ForceRebootNoMW -PropertyType String -Value $($AutoRebootInterval);
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ForceRebootwithNoUser -PropertyType String -Value $($ForceRebootwithNoUser);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name AutomaticReboot -PropertyType String -Value $($MWAutomaticReboot);
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name RunConnectionTests -PropertyType String -Value $($RunConnectionTests);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name RetryCount -PropertyType String -Value $($RetryCount);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate -Name ScriptLogLevel -PropertyType String -Value Info -Force
                 }"/>
@@ -432,6 +439,9 @@ function New-CustomUpdateScript {
         $ToastText,
         $MWAutomaticReboot,
         $AutoRebootInterval,
+        $ForceRebootwithNoUser,
+        $RunConnectionTests,
+        $UninstallKBs,
         $RetryCount
     )
 
@@ -506,6 +516,7 @@ function New-CustomUpdateScript {
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name DirectDownload -PropertyType String -Value $($DirectDownload)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name EmergencyKB -PropertyType String -Value $($EmergencyKB)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name HiddenUpdates -PropertyType String -Value $($BlockedKBs)
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name UninstallKBs -PropertyType String -Value $($UninstallKBs)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name UnHiddenUpdates -PropertyType String -Value  $($UnBlockedKBs)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name LastInstallationDate -PropertyType String -Value ""
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MaintenanceWindow -PropertyType String -Value $($EnableMaintenanceWindow)
@@ -522,7 +533,9 @@ function New-CustomUpdateScript {
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastTitle -PropertyType String -Value "$($ToastTitle)"
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastText -PropertyType String -Value "$($ToastText)"
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ForceRebootNoMW -PropertyType String -Value $($AutoRebootInterval)
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ForceRebootwithNoUser -PropertyType String -Value $($ForceRebootwithNoUser)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name AutomaticReboot -PropertyType String -Value $($MWAutomaticReboot)
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name RunConnectionTests -PropertyType String -Value $($RunConnectionTests)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name RetryCount -PropertyType String -Value $($RetryCount)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate -Name ScriptLogLevel -PropertyType String -Value Info -Force
       '
