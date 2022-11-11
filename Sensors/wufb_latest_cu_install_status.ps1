@@ -11,7 +11,7 @@ function Get-SecondTuesday ([int]$Month, [int]$Year) {
 
  $RegPath = "HKLM:\SOFTWARE\ControlMyUpdate\Status\KBs"
  $Regitems = Get-ChildItem "$($RegPath)" -Recurse | Where-Object {$_.Property -like "Title"}
-
+ 
 
 
 
@@ -23,6 +23,7 @@ Foreach($Item in $Regitems)
    
    if($Title -like "*Cumulative Update for Windows*")
    {
+   
        $KBArticle = Split-Path -Path $item.PSPath -Leaf
        $KBInfo = Get-ChildItem "$($Item.PSParentPath)" -Recurse | Where-Object {$_.Name -like "*$($KBArticle)*"}  | Select-Object Property -ExpandProperty Property 
        $KBInstallstatus = ($KBInfo | Where-Object {$_ -Like "*Installation Status*"}).Replace("Installation Status : ","") 
@@ -33,7 +34,7 @@ Foreach($Item in $Regitems)
         if((Get-date) -ge $SecondTuesday)
         {
           $CurrentMonth = Get-Date -Format yyyy-MM
-          $CurrentCU = $AllTitles | Where-Object {$_ -like "*$($CurrentMonth) Cumulative Update for Windows*"}
+          $CurrentCU = $Title | Where-Object {$_ -like "*$($CurrentMonth) Cumulative Update for Windows*"}
   
           if($CurrentCU)
           {
