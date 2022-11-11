@@ -15,7 +15,7 @@
 
 ##########################################################################################
 # Name: ControlMyUpdate.ps1
-# Version: 2.1.2
+# Version: 2.1.3
 # Date: 18.05.2021
 # Created by: Grischa Ernst gernst@vmware.com
 # Contributor: Camille Debay
@@ -98,16 +98,16 @@
 #               0                               Disabled
 #
 # RunConnectionTests
-#               True
-#               False
+#               True                            Device will try to reach all URLs in the ConnectionCheck.csv file
+#               False                           No connection tests
 #
 # ForceRebootwithNoUser
-#               True
-#               False
+#               True                            For devices without maintenance window, the device will reboot ASAP if no user is logged on
+#               False                           No automatic reboot if no user is logged on
 #
 # UninstallKBs
-#               True
-#               False
+#               True                            KB's that are blocked will also be uninstalled - if already installed
+#               False                           KB's will only be blocked and will stay installed if already installed
 #
 #
 ##########################################################################################
@@ -1110,12 +1110,9 @@ if ($Settings.MaintenanceWindow -eq $True) {
     }
 }
 #Check if Force Reboot With No User is enabled an if NO user is currently logged in
-else{
-    if(!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($Settings.ForceRebootwithNoUser) -eq $true)
-    {
-        Test-PendingReboot -AutomaticReboot $true
-    }
-
+elseif (!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($Settings.ForceRebootwithNoUser) -eq $true) {
+    #reboot the device if pending reboot and no user is logged in
+    Test-PendingReboot -AutomaticReboot $true
 }
 
 
@@ -1132,9 +1129,8 @@ if (($settings.HiddenUpdates) -or ($settings.UnHiddenUpdates)) {
             Write-Log -LogLevel Debug -LogMessage "Hide | Processing Update: $($Item)"
             Set-WindowsUpdateBlockStatus -AllUpdates $FullUpdateList -KBArticleID $Item -Status Blocked
             
-            if($Settings.UninstallKBs -eq $true)
-            {
-                Get-WindowsPackage -Online | ?{$_.ReleaseType -like "*Update*"} |  ForEach-Object {Get-WindowsPackage -Online -PackageName $_.PackageName} |  Where-Object {$_.Description -like "*$($Item)*"} | Remove-WindowsPackage -Online -NoRestart
+            if ($Settings.UninstallKBs -eq $true) {
+                Get-WindowsPackage -Online | ? { $_.ReleaseType -like "*Update*" } |  ForEach-Object { Get-WindowsPackage -Online -PackageName $_.PackageName } |  Where-Object { $_.Description -like "*$($Item)*" } | Remove-WindowsPackage -Online -NoRestart
             }
 
         }
