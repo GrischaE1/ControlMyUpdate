@@ -135,12 +135,7 @@ function Remove-Sensor {
 
 ##########################################################################################
 # Start
-$APIEndpoint = "as1678.awmdm.com"
-$APIUser = "mmworks.online\api"
-$APIPassword = 'Pa$$w0rd'
-$APIKey = 'IMD+Af5rDeSI1HOzfd89pTtf3/0mqyxfbJBHp+YDGbs='
-$OGID = '2705'
-$SourcePath = "C:\Users\Administrator\Nextcloud\GitHub\ControlMyUpdate-2\Sensors"
+
 
 #generate UEM header
 $header = Create-UEMAPIHeader -APIUser $APIUser -APIPassword $APIPassword -APIKey $APIKey
@@ -200,70 +195,6 @@ foreach ($sensor in $AllSensors) {
         foreach ($item in $Assignments) {
             $url = "https://$($APIEndpoint)/API/mdm/devicesensors/assignments/$($item.uuid)"
             Invoke-RestMethod $url -Method 'DELETE' -Headers $header            
-        }
-    }
-}
-
-
-#Get the sensor files
-$AllFiles = Get-ChildItem $SourcePath | Where-Object { $_.Name -like "*.ps1" -and $_.Name -notlike "*sensor*" }
-
-if ($AllFiles) {
-    foreach ($file in $AllFiles) {
-        #Get the script Data and encrypt the data
-        $Data = Get-Content $file.FullName -Encoding UTF8 -Raw
-        $Bytes = [System.Text.Encoding]::UTF8.GetBytes($Data)
-        $Script = [Convert]::ToBase64String($Bytes)
-        
-        #create JSON body
-        if ($file.BaseName -like "*_date*") {
-            $body = Create-APISensorUploadBody -sensorname $($file.BaseName.ToLower()) -orgGUID $OGGUID -scriptcontent $Script -responsetype "DATETIME"
-        }
-        elseif ($file.BaseName -like "*_bool*") {
-            $body = Create-APISensorUploadBody -sensorname $($file.BaseName.ToLower()) -orgGUID $OGGUID -scriptcontent $Script -responsetype "BOOLEAN"
-        }
-        elseif ($file.BaseName -like "*_count*") {
-            $body = Create-APISensorUploadBody -sensorname $($file.BaseName.ToLower()) -orgGUID $OGGUID -scriptcontent $Script -responsetype "INTEGER"
-        }
-        else {
-            $body = Create-APISensorUploadBody -sensorname $($file.BaseName.ToLower()) -orgGUID $OGGUID -scriptcontent $Script
-        }
-        
-        #upload sensor data
-        $url = "https://$($APIEndpoint)/API/mdm/devicesensors"
-        Invoke-RestMethod $url -Method 'POST' -Headers $header -Body $body  
-
-        Write-Output "$($file.basename) uploaded"
-    }
-   
-
-    #Get all Sensors for specific OG
-    $header = Create-UEMAPIHeader -APIUser $APIUser -APIPassword $APIPassword -APIKey $APIKey
-    $url = "https://$($APIEndpoint)/API/mdm/devicesensors/list/$($OGGUID)"
-    $AllSensors = (Invoke-RestMethod $url -Method 'GET' -Headers $header).result_set
-
-    if ($AllSensors) {
-        #Get Smart Group information
-        $SmartGroupInfo = Get-SmartGroupInfo -SmartGroupName $SmartGroupName
-        $SmartGroupUUID = $SmartGroupInfo.SmartGroupUuid
-        $SmartGroupName = $SmartGroupInfo.Name
-
-        #Assign the sensors to the Smart Group
-        $header = Create-UEMAPIHeader -APIUser $APIUser -APIPassword $APIPassword -APIKey $APIKey -APIVersion 2
-
-        foreach ($file in $AllFiles) {
-            $CurrentSensor = $AllSensors | Where-Object { $_.name -eq $file.BaseName }
-            
-            if ($CurrentSensor -ne "" -and $CurrentSensor -ne $null) {
-                $AssignmentName = ("$($file.BaseName) to $($SmartGroupName)").ToLower().Replace(" ", "_")
-                $Body = New-SensorAssignmentBody -SmartGroupUUID $SmartGroupUUID -AssignmentName $AssignmentName
-
-                #Assign sensors
-                $url = "https://$($APIEndpoint)/API/mdm/devicesensors/$($CurrentSensor.uuid)/assignment"
-                Invoke-RestMethod $url -Method 'POST' -Headers $header -Body $body 
-            
-            }
-            Clear-Variable CurrentSensor
         }
     }
 }
