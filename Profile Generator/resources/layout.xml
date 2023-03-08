@@ -309,34 +309,49 @@
 						<TabItem Header="Reboot settings" Visibility="Collapsed" Name="CMUTab3">
 							<Grid Background="#2e628c">
 								<TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Text="Reboot Settings" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff" />
-
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Settings for Devices without Maintenance Window" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff"  Margin="24,50,0,0"/>
-
+								
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Notification Settings" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff"  Margin="24,50,0,0"/>
 
 								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Notify the user of a pending restart" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,80,0,0" />
 								<CheckBox IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,83,0,0" Name="RebootNotificationCheckBox" />
 
 								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Toast Notification title" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,110,0,0" Name="ToastTitleTextBox"/>
-								<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="200" TextWrapping="NoWrap" Margin="350,110,0,0" Name="ToastTitle" Text="Windows Update"/>
+								<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="200" TextWrapping="NoWrap" Margin="350,110,0,0" Name="ToastTitle" Text="Control My Update"/>
 
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Toast Notification text" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,140,0,0" Name="ToastTextTextBox"/>
-								<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="90" Width="300" TextWrapping="Wrap" Margin="350,140,0,0" Name="ToastText" Text="A reboot is required to finish updating, please save your work and reboot at your convenience. If no action is taken reboot will happen automatically" />
-
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Restart the device automatically " FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,240,0,0" />
-								<CheckBox  IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,243,0,0" Name="NoMWAutomaticRebootCheckBox" />
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Toast Notification message" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,140,0,0" Name="ToastMessageTextBox"/>
+								<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="90" Width="300" TextWrapping="Wrap" Margin="350,140,0,0" Name="ToastMessage" Text="To finalize Update installation, please reboot the device" />
 
 
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Force Reboot after x days" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,270,0,0" />
-								<Slider Value="3" Minimum="1" Maximum="28" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,270,0,0" Name="CMUAutoRebootIntervalSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
-								<TextBox Text="{Binding ElementName=CMUAutoRebootIntervalSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,270,0,0" Name="CMUAutoRebootIntervalTextBox" />
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Toast Notification advise" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,240,0,0" Name="ToastAdviseTextBox"/>
+								<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Height="90" Width="300" TextWrapping="Wrap" Margin="350,240,0,0" Name="ToastAdvise" Text="To ensure the stability and proper functioning of your system, consider rebooting your device soon." />
 
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Force restart if no user is logged on " FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,300,0,0" />
-								<CheckBox  IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,303,0,0" Name="ForceRebootwithNoUser" />
 
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Settings for Devices with Maintenance Window" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff"  Margin="24,350,0,0"/>
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Force restart if no user is logged on" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,350,0,0" />
+								<CheckBox  IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,353,0,0" Name="ForceRebootwithNoUser" />
+								
 
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Restart the device automatically  during MW" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,380,0,0" />
-								<CheckBox IsEnabled = "false" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,383,0,0" Name="MWAutomaticRebootCheckBox" />
+								<!--NON Maintenance Windows settings-->
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Restart the device automatically " FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,380,0,0" />
+								<CheckBox  IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,383,0,0" Name="NoMWAutomaticRebootCheckBox" />
+
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Force Reboot after x days" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,410,0,0" />
+								<Slider Value="3" Minimum="1" Maximum="28" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,410,0,0" Name="CMUAutoRebootIntervalSlider_NoMW" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
+								<TextBox Text="{Binding ElementName=CMUAutoRebootIntervalSlider_NoMW, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,410,0,0" Name="CMUAutoRebootIntervalTextBox_NoMW" />
+
+
+
+								<!--Maintenance Windows settings-->
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Settings for Devices with Maintenance Window" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff"  Margin="24,440,0,0"/>
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Restart the device automatically during MW" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,470,0,0" />
+								<CheckBox IsEnabled = "false" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,473,0,0" Name="MWAutomaticRebootCheckBox" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Force Reboot after x days (Outside of the MW)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,500,0,0" />
+								<Slider IsEnabled = "false" Value="3" Minimum="1" Maximum="28" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,500,0,0" Name="CMUAutoRebootIntervalSlider_MW" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
+								<TextBox IsEnabled = "false" Text="{Binding ElementName=CMUAutoRebootIntervalSlider_MW, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,500,0,0" Name="CMUAutoRebootIntervalTextBox_MW" />
+
 
 								<Button Content="Next" HorizontalAlignment="right" VerticalAlignment="bottom" Width="200" Name="CMUNextTab3" Height="38" />
 								<Button Content="Previous" HorizontalAlignment="left" VerticalAlignment="bottom" Width="200" Name="CMUPreviousTab3" Height="38" />

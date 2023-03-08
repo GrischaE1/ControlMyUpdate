@@ -101,7 +101,7 @@
 #               True                            Device will try to reach all URLs in the ConnectionCheck.csv file
 #               False                           No connection tests
 #
-# ForceRebootwithNoUser
+# ForceRebootWithNoUser
 #               True                            For devices without maintenance window, the device will reboot ASAP if no user is logged on
 #               False                           No automatic reboot if no user is logged on
 #
@@ -109,10 +109,29 @@
 #               True                            KB's that are blocked will also be uninstalled - if already installed
 #               False                           KB's will only be blocked and will stay installed if already installed
 #
+# NotifyEnduserOutsideOfMW
+#               True                            Will show the reboot notification if a user is logged on to the device and the device has a MW configured
+#               False                           Will not show any notification
+#
+# ForceRebootOutsideOfMW
+#               True                            Will force the reboot outside of the MW after Deadline is reached - only if no user is logged in
+#               False                           Will wait for the next MW to reboot the device
+#
+# ForceRebootMWDeadline
+#               1-30                            Days till the device gets forced rebooted outside of the MW
+#
+# NotificationInterval
+#               1-99                            Hours between the Reboot notifications
 #
 ##########################################################################################
 #                                    Changelog 
 #
+# 2.2   - Bugfixes: 
+#           - Reboot notification loop if user is no admin user
+#       - New Features:
+#           - Optional Prompt for end users if MW is configured
+#       - Improvements: 
+#           - NotificationInterval - The time between the end user notification is now configurable 
 # 2.1.3 - added option for connection test (enabled/disabled)
 #       - connection test will only run before Windows Update search is triggered 
 #       - Added the option to force a reboot if no user is logged on (for non MW devices)
@@ -149,7 +168,7 @@ param(
     [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Verbosity of logging. Default: Info")][ValidateSet("Info", "Debug", "Trace")][String] $ScriptLogLevel = "Info"
 )
 
-$ScriptCurrentVersion = "2.1.3"
+$ScriptCurrentVersion = "2.2"
 
 if ($ScriptVersion.IsPresent) {
     Return $ScriptCurrentVersion
@@ -344,7 +363,8 @@ function Write-UpdateStatus {
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Force status change update")][String] $StatusChange,
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Update Title")][String] $UpdateTitle,
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Update Category")][String] $UpdateCategory,
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Status of the update to recorded")][String] $Status
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Status of the update to recorded")][String] $Status,
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "UpdateID")][String] $UpdateID
     )
     $Component = "WRITE UPDATE STATUS"
 
@@ -363,6 +383,10 @@ function Write-UpdateStatus {
     }
     if ($UpdateCategory) {
         New-ItemProperty -Path "$($RegistryRootPath)\Status\KBs\$($CurrentUpdate)" -PropertyType "String" -Name "Category" -Value $UpdateCategory -Force | Out-Null
+    }
+
+    if ($UpdateID) {
+        New-ItemProperty -Path "$($RegistryRootPath)\Status\KBs\$($CurrentUpdate)" -PropertyType "String" -Name "UpdateID" -Value $UpdateID -Force | Out-Null
     }
 
     if ($Status) {
@@ -475,9 +499,9 @@ function Search-AllUpdates {
     foreach ($item in $Updates.Updates) {
         if ($item.IsDownloaded -eq $false -and $item.IsInstalled -eq $False) {
             $Status = "Available"
-            Write-UpdateStatus -CurrentUpdate "KB$($item.KBArticleIDs)" -Status $Status -UpdateTitle ($item.title) -UpdateCategory ($item.Categories._NewEnum.name) | Out-Null
+            Write-UpdateStatus -CurrentUpdate "KB$($item.KBArticleIDs)" -Status $Status -UpdateTitle ($item.title) -UpdateCategory ($item.Categories._NewEnum.name) -UpdateID ($item.identity._NewEnum) | Out-Null
         }
-        else { Write-UpdateStatus -CurrentUpdate "KB$($item.KBArticleIDs)" -UpdateTitle ($item.title) -UpdateCategory ($item.Categories._NewEnum.name) | Out-Null }
+        else { Write-UpdateStatus -CurrentUpdate "KB$($item.KBArticleIDs)" -UpdateTitle ($item.title) -UpdateCategory ($item.Categories._NewEnum.name) -UpdateID ($item.identity._NewEnum) | Out-Null }
 
         Clear-Variable Status -Force -ErrorAction SilentlyContinue
         
@@ -1036,12 +1060,15 @@ if ($RegistryTest -eq $true) {
         }
         else { $retrycount = $settings.retrycount }
         
-        if ($Settings.AutomaticReboot) {
+        
             if ($Settings.AutomaticReboot -eq "True") {
                 [bool]$Reboot = $True
             }
+            elseif ($settings.ForceRebootOutsideOfMW -eq "True") {
+                [bool]$Reboot = $True
+            }
             else { [bool]$Reboot = $False }           
-        }        
+               
     }
     else {
         Write-Log -LogLevel Error -LogMessage "No registry settings detected"
@@ -1052,6 +1079,19 @@ else {
     Write-Log -LogLevel Error -LogMessage "No registry settings detected"
     break
 }   
+
+#Registry mapping - to make sure bool is bool
+if($settings.DirectDownload -eq "True"){[bool]$DirectDownload = $true} else{[bool]$DirectDownload = $false}
+if($Settings.ForceRebootOutsideOfMW -eq "True"){[bool]$ForceRebootOutsideOfMW = $true} else{[bool]$ForceRebootOutsideOfMW = $false}
+if($Settings.NotifyEnduserOutsideOfMW -eq "True"){[bool]$NotifyEnduserOutsideOfMW = $true} else{[bool]$NotifyEnduserOutsideOfMW = $false}
+if($Settings.RunConnectionTests -eq "True"){[bool]$RunConnectionTests = $true} else{[bool]$RunConnectionTests = $false}
+if($Settings.ForceRebootwithNoUser -eq "True"){[bool]$ForceRebootwithNoUser = $true} else{[bool]$ForceRebootwithNoUser = $false}
+if($Settings.ReportOnly -eq "True"){[bool]$ReportOnly = $true} else{[bool]$ReportOnly = $false}
+if($Settings.NotifyUser -eq "True"){[bool]$NotifyUser = $true} else{[bool]$NotifyUser = $false}
+if($Settings.MaintenanceWindow -eq "True"){[bool]$MaintenanceWindow = $true} else{[bool]$MaintenanceWindow = $false}
+if($Settings.UninstallKBs -eq "True"){[bool]$UninstallKBs = $true} else{[bool]$UninstallKBs = $false}
+if($Settings.AutomaticReboot -eq "True"){[bool]$AutomaticReboot = $true} else{[bool]$AutomaticReboot = $false}
+
 
 #Create Status registry keys
 if (!(Test-Path "$($RegistryRootPath)\Status")) {
@@ -1104,13 +1144,13 @@ if ($settings.EmergencyKB) {
 }
 
 #restart the device if pending reboot and in MW
-if ($Settings.MaintenanceWindow -eq $True) {
+if ($MaintenanceWindow -eq $True) {
     if (Test-MaintenanceWindow -eq $true) {
         Test-PendingReboot -AutomaticReboot $Reboot
     }
 }
 #Check if Force Reboot With No User is enabled an if NO user is currently logged in
-elseif (!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($Settings.ForceRebootwithNoUser) -eq $true) {
+if (!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($ForceRebootwithNoUser) -eq $true) {
     #reboot the device if pending reboot and no user is logged in
     Test-PendingReboot -AutomaticReboot $true
 }
@@ -1129,7 +1169,7 @@ if (($settings.HiddenUpdates) -or ($settings.UnHiddenUpdates)) {
             Write-Log -LogLevel Debug -LogMessage "Hide | Processing Update: $($Item)"
             Set-WindowsUpdateBlockStatus -AllUpdates $FullUpdateList -KBArticleID $Item -Status Blocked
             
-            if ($Settings.UninstallKBs -eq $true) {
+            if ($UninstallKBs -eq $true) {
                 Get-WindowsPackage -Online | ? { $_.ReleaseType -like "*Update*" } |  ForEach-Object { Get-WindowsPackage -Online -PackageName $_.PackageName } |  Where-Object { $_.Description -like "*$($Item)*" } | Remove-WindowsPackage -Online -NoRestart
             }
 
@@ -1162,7 +1202,7 @@ else {
     $NextScanTime = (Get-Date $($Settings.NextScanTime) -Format s)
     Write-Log -LogLevel Debug -LogMessage "NextScanTime: $($NextScanTime)"
 
-    if ($CurrentTime -ge $NextScanTime -or (($Settings.MaintenanceWindow -eq $true) -and [bool](Test-MaintenanceWindow) -eq $true)) {
+    if ($CurrentTime -ge $NextScanTime -or (($MaintenanceWindow -eq $true) -and [bool](Test-MaintenanceWindow) -eq $true)) {
         Write-Log -LogLevel Info -LogMessage "Testing connectivity"
         Test-UpdateConnectivity | Out-Null
 
@@ -1185,7 +1225,7 @@ if (!$AllUpdates) {
     Update-InstallationStatus
 
     # Check if Maintenance Window is enabled
-    if ($Settings.MaintenanceWindow -eq $true) {
+    if ($MaintenanceWindow -eq $true) {
 
         Write-Log -LogLevel Info -LogMessage "Maintenance Window Setting detected"
         if ((Test-MaintenanceWindow) -eq $true) {
@@ -1211,10 +1251,10 @@ if ($AllUpdates) {
 
 
 # run download and installation if updates are available 
-if ( ($AllAvailableUpdates.Count -gt 0) -and ($Settings.ReportOnly -ne "True") ) {
+if ( ($AllAvailableUpdates.Count -gt 0) -and ($ReportOnly -ne "True") ) {
     $NotDownloadedUpdates = $AllAvailableUpdates | Where-Object IsDownloaded -eq $false
     # If Download is independent of installation - Download all Updates
-    If ($Settings.DirectDownload -eq $True) {
+    If ($DirectDownload -eq $True) {
         Write-Log -LogLevel Debug -LogMessage "Direct Download Enabled"
         Write-Log -LogLevel Info -LogMessage "Start Download process"
         #get all updates that are not downloaded
@@ -1229,7 +1269,7 @@ if ( ($AllAvailableUpdates.Count -gt 0) -and ($Settings.ReportOnly -ne "True") )
 
     # Install Updates
     # Check if Maintenance Window is enabled
-    if ($Settings.MaintenanceWindow -eq $true) {
+    if ($MaintenanceWindow -eq $true) {
         Write-Log -LogLevel Info -LogMessage "Maintenance Window Setting detected"
 
         if ((Test-MaintenanceWindow) -eq $true) {
@@ -1293,13 +1333,14 @@ if ($RebootRequired -eq $true) {
     Write-Log -LogLevel Trace -LogMessage "RebootRequired: True"
     New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "PendingReboot" -Value "True" -Force | Out-Null
 
-    if ( $Settings.NotifyUser -eq $True) {
+    if ( $NotifyUser -eq $True -or $NotifyEnduserOutsideOfMW -eq $true) {
         Write-Log -LogLevel Info -LogMessage "Notifying User of pending reboot"
         $RebootNotification = Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootNotificationCreated' -ErrorAction Ignore 
         New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "True" -Force | Out-Null   
 
 
-        if (($Settings.MaintenanceWindow -eq $true) -and ((Test-MaintenanceWindow) -eq $true) -and ($Reboot -eq $True)) {           
+        #Maintenance Window enabled - no restart 
+        if (($MaintenanceWindow -eq $true) -and ((Test-MaintenanceWindow) -eq $true) -and ($Reboot -eq $True)) {  
             Write-Log -LogLevel Info -LogMessage "Force reboot"
             New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
             Start-ScheduledTask -TaskName "Control My Update - Reboot Notification" 
@@ -1314,7 +1355,27 @@ if ($RebootRequired -eq $true) {
                 
                 $RebootDetectionDate = Get-Date (Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)
         
-                if ($RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.ForceRebootNoMW)) -and ($Settings.ForceRebootNoMW) -ne 0) {
+                if ($RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.ForceRebootMWDeadline)) -and ($Settings.ForceRebootMWDeadline) -ne 0) {
+                    Write-Log -LogLevel Info -LogMessage "Force reboot"
+
+                    New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
+                    Test-PendingReboot -AutomaticReboot $Reboot
+                    $RebootNotification = $false
+                }
+            }
+        }
+
+        #Maintenance Window enabled - force restart enabled
+        if (($MaintenanceWindow -eq $true) -and ((Test-MaintenanceWindow) -eq $false) -and ($Reboot -eq $True) -and ($ForceRebootOutsideOfMW -eq $true)) {    
+           
+            if (!(Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)) {
+                New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootDetectionDate" -Value (Get-Date -Format s) -Force | Out-Null   
+            }
+            else {
+                
+                $RebootDetectionDate = Get-Date (Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)
+        
+                if ($RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.ForceRebootMWDeadline)) -and ($Settings.ForceRebootMWDeadline) -ne 0) {
                     Write-Log -LogLevel Info -LogMessage "Force reboot"
 
                     New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
@@ -1325,17 +1386,19 @@ if ($RebootRequired -eq $true) {
         }
 
         if ($RebootNotification -eq $False -or !($RebootNotification)) { 
-            $NotificationDate = Get-Date -Format s                    
+            $NotificationDate = Get-Date -Format s    
+            Write-Log -LogLevel Info -LogMessage "Create first end user notification"                
             Start-ScheduledTask -TaskName "Control My Update - Reboot Notification" 
             New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootNotificationCreated" -Value "True" -Force | Out-Null    
             New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootNotificationDate" -Value $NotificationDate -Force | Out-Null   
         }
         elseif ($RebootNotification -eq $True) {
             $LastNotificationTime = Get-Date (Get-ItemPropertyValue -Path "$($RegistryRootPath)\Status" -Name "RebootNotificationDate") -Format s
-            $IntervalTimerTemp = (Get-Date).AddHours(-8)
+            $IntervalTimerTemp = (Get-Date).AddHours(-$($Settings.NotificationInterval))
             $IntervalTimer = Get-Date ($IntervalTimerTemp) -format s
             if ($LastNotificationTime -le $IntervalTimer) {
                 $NotificationDate = Get-Date -Format s   
+                Write-Log -LogLevel Info -LogMessage "Create Notification since interval is reached"
                 Start-ScheduledTask -TaskName "Control My Update - Reboot Notification" 
                 New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootNotificationDate" -Value $NotificationDate -Force | Out-Null  
             }
@@ -1345,7 +1408,7 @@ if ($RebootRequired -eq $true) {
 else {
     Write-Log -LogLevel Trace -LogMessage "RebootRequired: False"
     New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "PendingReboot" -Value "False" -Force | Out-Null
-    if ( $Settings.NotifyUser -eq $True) {
+    if ( $NotifyUser -eq $True) {
         New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootNotificationCreated" -Value "False" -Force | Out-Null
     }
 

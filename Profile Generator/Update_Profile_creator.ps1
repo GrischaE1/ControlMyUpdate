@@ -267,9 +267,10 @@ $GenerateButton.Add_Click({
 					$CUProfileParams["ScanRandomization"] = $ScanRandomizationSlider.Value
 					$CUProfileParams["NotifyUser"] = $RebootNotificationCheckBox.IsChecked
 					$CUProfileParams["ToastTitle"] = $ToastTitle.text
-					$CUProfileParams["ToastText"] = $ToastText.text
-					$CUProfileParams["AutoRebootInterval"] = $CMUAutoRebootIntervalSlider.Value
-					$CUProfileParams["AutomaticReboot"] = $AutomaticRebootCheckBox.IsChecked
+					$CUProfileParams["ToastMessage"] = $ToastMessage.text
+					$CUProfileParams["ToastAdvice"] = $ToastAdvise.text
+					$CUProfileParams["NoMWAutoRebootInterval"] = $CMUAutoRebootIntervalSlider_NoMW.Value
+					$CUProfileParams["NoMWAutomaticReboot"] = $NoMWAutomaticRebootCheckBox.IsChecked
 					$CUProfileParams["ForceRebootwithNoUser"] = $ForceRebootwithNoUser.IsChecked
 					$CUProfileParams["UninstallKBs"] = $UninstallKBsCheckBox.IsChecked
 					$CUProfileParams["RunConnectionTests"] = $RunConnectionTests.IsChecked
@@ -301,9 +302,12 @@ $GenerateButton.Add_Click({
 					$CUScriptParams["ScanRandomization"] = $ScanRandomizationSlider.Value
 					$CUScriptParams["NotifyUser"] = $RebootNotificationCheckBox.IsChecked
 					$CUScriptParams["ToastTitle"] = $ToastTitle.text
-					$CUScriptParams["ToastText"] = $ToastText.text
-					$CUScriptParams["AutomaticReboot"] = $AutomaticRebootCheckBox.IsChecked
-					$CUScriptParams["AutoRebootInterval"] = $CMUAutoRebootIntervalSlider.Value
+					$CUScriptParams["ToastMessage"] = $ToastMessage.text
+					$CUScriptParams["ToastAdvice"] = $ToastAdvise.text
+					$CUScriptParams["NoMWAutomaticReboot"] = $NoMWAutomaticRebootCheckBox.IsChecked
+					$CUScriptParams["NoMWAutoRebootInterval"] = $CMUAutoRebootIntervalSlider.Value
+					$CUScriptParams["MWAutomaticReboot"] = $MWAutomaticRebootCheckBox.IsChecked
+					$CUScriptParams["MWAutoRebootInterval"] = $CMUAutoRebootIntervalTextBox_MW.Value
 					$CUScriptParams["ForceRebootwithNoUser"] = $ForceRebootwithNoUser.IsChecked
 					$CUScriptParams["UninstallKBs"] = $UninstallKBsCheckBox.IsChecked
 					$CUScriptParams["RunConnectionTests"] = $RunConnectionTests.IsChecked
@@ -364,20 +368,32 @@ $GenerateButton.Add_Click({
 
 $GenerateCustomScriptProfile.Add_Click( { $MenuNavigation.SelectedItem = $TABGenerate })
 
-$EnableMaintenanceWindow.Add_Checked({ $NoMWAutomaticRebootCheckBox.IsEnabled = $false; $CMUAutoRebootIntervalSlider.IsEnabled = $false; $CMUAutoRebootIntervalTextBox.IsEnabled = $false; $MWStartTime.IsEnabled = $true; $MWEndTime.IsEnabled = $true; $MWDays.IsEnabled = $true; $StartTimeHelpText.Visibility = "Visible"; $StopTimeHelpText.Visibility = "Visible"; $MWAutomaticRebootCheckBox.IsEnabled = $true; $RebootNotificationCheckBox.IsEnabled = $false; $ToastTitle.IsEnabled = $false; $ToastText.IsEnabled = $false })
-$EnableMaintenanceWindow.Add_UnChecked({ $NoMWAutomaticRebootCheckBox.IsEnabled = $true; $CMUAutoRebootIntervalSlider.IsEnabled = $true; $CMUAutoRebootIntervalTextBox.IsEnabled = $true; $MWStartTime.IsEnabled = $false; $MWEndTime.IsEnabled = $false; $MWDays.IsEnabled = $false; $StartTimeHelpText.Visibility = "Hidden"; $StopTimeHelpText.Visibility = "Hidden"; $MWAutomaticRebootCheckBox.IsEnabled = $false; $RebootNotificationCheckBox.IsEnabled = $true ; $ToastTitle.IsEnabled = $true; $ToastText.IsEnabled = $true })
+$EnableMaintenanceWindow.Add_Checked({ $MWAutomaticRebootCheckBox.IsEnabled = $True;  $CMUAutoRebootIntervalTextBox_MW.IsEnabled = $true; $CMUAutoRebootIntervalSlider_MW.IsEnabled = $True; $NoMWAutomaticRebootCheckBox.IsEnabled = $false; $CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $false; $CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $false; $MWStartTime.IsEnabled = $true; $MWEndTime.IsEnabled = $true; $MWDays.IsEnabled = $true; $StartTimeHelpText.Visibility = "Visible"; $StopTimeHelpText.Visibility = "Visible"; $MWAutomaticRebootCheckBox.IsEnabled = $true })
+$EnableMaintenanceWindow.Add_UnChecked({ $MWAutomaticRebootCheckBox.IsEnabled = $False;  $CMUAutoRebootIntervalTextBox_MW.IsEnabled = $False; $CMUAutoRebootIntervalSlider_MW.IsEnabled = $False; $NoMWAutomaticRebootCheckBox.IsEnabled = $true; $CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $true; $CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $true; $MWStartTime.IsEnabled = $false; $MWEndTime.IsEnabled = $false; $MWDays.IsEnabled = $false; $StartTimeHelpText.Visibility = "Hidden"; $StopTimeHelpText.Visibility = "Hidden"; $MWAutomaticRebootCheckBox.IsEnabled = $false })
 
 
 $NoMWAutomaticRebootCheckBox.Add_Checked({
 
-		$CMUAutoRebootIntervalSlider.IsEnabled = $true
-		$CMUAutoRebootIntervalTextBox.IsEnabled = $true
+		$CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $true
+		$CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $true
 	})
 
 $NoMWAutomaticRebootCheckBox.Add_UnChecked({
 
-		$CMUAutoRebootIntervalSlider.IsEnabled = $false
-		$CMUAutoRebootIntervalTextBox.IsEnabled = $false
+		$CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $false
+		$CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $false
+	})
+
+$MWAutomaticRebootCheckBox.Add_Checked({
+
+		$CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $true
+		$CMUAutoRebootIntervalSlider_MW.IsEnabled = $true
+	})
+
+$MWAutomaticRebootCheckBox.Add_UnChecked({
+
+		$CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $false
+		$CMUAutoRebootIntervalSlider_MW.IsEnabled = $false
 	})
 
 $ReportOnly.Add_Checked({
@@ -428,17 +444,21 @@ $ReportOnly.Add_UnChecked({
 	})
 
 $RebootNotificationCheckBox.Add_UnChecked({
-		$ToastText.IsEnabled = $false
+		$ToastMessage.IsEnabled = $false
 		$ToastTitle.IsEnabled = $false
-		$ToastTextTextBox.IsEnabled = $false
+		$ToastAdvise.IsEnabled = $false
+		$ToastMessageTextBox.IsEnabled = $false
+		$ToastAdviseTextBox.IsEnabled = $false
 		$ToastTitleTextBox.IsEnabled  = $false
 	})
 
 $RebootNotificationCheckBox.Add_Checked({
-		$ToastText.IsEnabled = $True
+		$ToastMessage.IsEnabled = $True
 		$ToastTitle.IsEnabled = $True
-		$ToastTextTextBox.IsEnabled = $True
-		$ToastTitleTextBox.IsEnabled = $True
+		$ToastAdvise.IsEnabled = $True
+		$ToastMessageTextBox.IsEnabled = $True
+		$ToastAdviseTextBox.IsEnabled = $True
+		$ToastTitleTextBox.IsEnabled  = $True
 	})
 
 

@@ -14,26 +14,21 @@ $Show_Dismiss_Button = Get-ItemPropertyValue -Path "$($RegistryRootPath)\Status"
 
 
 # Toast information
-if($Show_Dismiss_Button -eq $true)
-{
-$Title = "Your device needs to reboot"
+if ($Show_Dismiss_Button -eq $true) {
+	$Title = "Your device needs to reboot"
 
-$Message = "`nTo finalize Update installation, please reboot the device"
-$Advice = "`nTo ensure the stability and proper functioning of your system, consider rebooting your device soon."
-$Text_AppName = "Control My Update"
+	$Message = "`nTo finalize Update installation, please reboot the device"
+	$Advice = "`nTo ensure the stability and proper functioning of your system, consider rebooting your device soon."
+	$Text_AppName = "Control My Update"
 }
-else{
-$Title = "Your device will reboot in 2 minutes"
+else {
+	$Title = "Your device will reboot in 2 minutes"
 
-$Message = "`nPlease save your work - your device will reboot soon"
-$Advice = "`nTo ensure the stability and proper functioning of your system, your device gets automatically rebooted."
-$Text_AppName = "Control My Update"
+	$Message = "`nPlease save your work - your device will reboot soon"
+	$Advice = "`nTo ensure the stability and proper functioning of your system, your device gets automatically rebooted."
+	$Text_AppName = "Control My Update"
 }
 
-
-# ***************************************************************************
-# 								Part to fill
-# ***************************************************************************
 
 
 # ***************************************************************************
@@ -41,73 +36,62 @@ $Text_AppName = "Control My Update"
 # ***************************************************************************
 $HeroImage = "$env:TEMP\HeroPicture.png"
 [byte[]]$Bytes = [convert]::FromBase64String($Picture_Base64)
-[System.IO.File]::WriteAllBytes($HeroImage,$Bytes)		
+[System.IO.File]::WriteAllBytes($HeroImage, $Bytes)		
 
-Function Set-Action
-	{
-		param(
+Function Set-Action {
+	param(
 		$Action_Name		
-		)	
+	)	
 		
-		$Main_Reg_Path = "HKCU:\SOFTWARE\Classes\$Action_Name"
-		$Command_Path = "$Main_Reg_Path\shell\open\command"
-		$CMD_Script = "C:\Windows\Temp\$Action_Name.cmd"
-		New-Item $Command_Path -Force
-		New-ItemProperty -Path $Main_Reg_Path -Name "URL Protocol" -Value "" -PropertyType String -Force | Out-Null
-		Set-ItemProperty -Path $Main_Reg_Path -Name "(Default)" -Value "URL:$Action_Name Protocol" -Force | Out-Null
-		Set-ItemProperty -Path $Command_Path -Name "(Default)" -Value $CMD_Script -Force | Out-Null		
-	}
+	$Main_Reg_Path = "HKCU:\SOFTWARE\Classes\$Action_Name"
+	$Command_Path = "$Main_Reg_Path\shell\open\command"
+	$CMD_Script = "C:\Windows\ControlMyUpdate\$Action_Name.cmd"
+	New-Item $Command_Path -Force
+	New-ItemProperty -Path $Main_Reg_Path -Name "URL Protocol" -Value "" -PropertyType String -Force | Out-Null
+	Set-ItemProperty -Path $Main_Reg_Path -Name "(Default)" -Value "URL:$Action_Name Protocol" -Force | Out-Null
+	Set-ItemProperty -Path $Command_Path -Name "(Default)" -Value $CMD_Script -Force | Out-Null		
+}
 
-$Restart_Script = @'
-shutdown /r /f /t 120 -c " "
-'@
-
-$Script_Export_Path = "C:\Windows\Temp"
-
-
-		$Restart_Script | out-file "$Script_Export_Path\RestartScript.cmd" -Force -Encoding ASCII
-		Set-Action -Action_Name RestartScript	
+Set-Action -Action_Name RestartScript	
 	
 
-Function Register-NotificationApp($AppID,$AppDisplayName) {
-    [int]$ShowInSettings = 0
+Function Register-NotificationApp($AppID, $AppDisplayName) {
+	[int]$ShowInSettings = 0
 
-    [int]$IconBackgroundColor = 0
+	[int]$IconBackgroundColor = 0
 	$IconUri = "C:\Windows\ImmersiveControlPanel\images\logo.png"
 	
-    $AppRegPath = "HKCU:\Software\Classes\AppUserModelId"
-    $RegPath = "$AppRegPath\$AppID"
+	$AppRegPath = "HKCU:\Software\Classes\AppUserModelId"
+	$RegPath = "$AppRegPath\$AppID"
 	
 	$Notifications_Reg = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings'
-	If(!(Test-Path -Path "$Notifications_Reg\$AppID")) 
-		{
-			New-Item -Path "$Notifications_Reg\$AppID" -Force
-			New-ItemProperty -Path "$Notifications_Reg\$AppID" -Name 'ShowInActionCenter' -Value 1 -PropertyType 'DWORD' -Force
-		}
+	If (!(Test-Path -Path "$Notifications_Reg\$AppID")) {
+		New-Item -Path "$Notifications_Reg\$AppID" -Force
+		New-ItemProperty -Path "$Notifications_Reg\$AppID" -Name 'ShowInActionCenter' -Value 1 -PropertyType 'DWORD' -Force
+	}
 
-	If((Get-ItemProperty -Path "$Notifications_Reg\$AppID" -Name 'ShowInActionCenter' -ErrorAction SilentlyContinue).ShowInActionCenter -ne '1') 
-		{
-			New-ItemProperty -Path "$Notifications_Reg\$AppID" -Name 'ShowInActionCenter' -Value 1 -PropertyType 'DWORD' -Force
-		}	
+	If ((Get-ItemProperty -Path "$Notifications_Reg\$AppID" -Name 'ShowInActionCenter' -ErrorAction SilentlyContinue).ShowInActionCenter -ne '1') {
+		New-ItemProperty -Path "$Notifications_Reg\$AppID" -Name 'ShowInActionCenter' -Value 1 -PropertyType 'DWORD' -Force
+	}	
 		
-    try {
-        if (-NOT(Test-Path $RegPath)) {
-            New-Item -Path $AppRegPath -Name $AppID -Force | Out-Null
-        }
-        $DisplayName = Get-ItemProperty -Path $RegPath -Name DisplayName -ErrorAction SilentlyContinue | Select-Object -ExpandProperty DisplayName -ErrorAction SilentlyContinue
-        if ($DisplayName -ne $AppDisplayName) {
-            New-ItemProperty -Path $RegPath -Name DisplayName -Value $AppDisplayName -PropertyType String -Force | Out-Null
-        }
-        $ShowInSettingsValue = Get-ItemProperty -Path $RegPath -Name ShowInSettings -ErrorAction SilentlyContinue | Select-Object -ExpandProperty ShowInSettings -ErrorAction SilentlyContinue
-        if ($ShowInSettingsValue -ne $ShowInSettings) {
-            New-ItemProperty -Path $RegPath -Name ShowInSettings -Value $ShowInSettings -PropertyType DWORD -Force | Out-Null
-        }
+	try {
+		if (-NOT(Test-Path $RegPath)) {
+			New-Item -Path $AppRegPath -Name $AppID -Force | Out-Null
+		}
+		$DisplayName = Get-ItemProperty -Path $RegPath -Name DisplayName -ErrorAction SilentlyContinue | Select-Object -ExpandProperty DisplayName -ErrorAction SilentlyContinue
+		if ($DisplayName -ne $AppDisplayName) {
+			New-ItemProperty -Path $RegPath -Name DisplayName -Value $AppDisplayName -PropertyType String -Force | Out-Null
+		}
+		$ShowInSettingsValue = Get-ItemProperty -Path $RegPath -Name ShowInSettings -ErrorAction SilentlyContinue | Select-Object -ExpandProperty ShowInSettings -ErrorAction SilentlyContinue
+		if ($ShowInSettingsValue -ne $ShowInSettings) {
+			New-ItemProperty -Path $RegPath -Name ShowInSettings -Value $ShowInSettings -PropertyType DWORD -Force | Out-Null
+		}
 		
 		New-ItemProperty -Path $RegPath -Name IconUri -Value $IconUri -PropertyType ExpandString -Force | Out-Null	
 		New-ItemProperty -Path $RegPath -Name IconBackgroundColor -Value $IconBackgroundColor -PropertyType ExpandString -Force | Out-Null		
 		
-    }
-    catch {}
+	}
+	catch {}
 }
 
 	
@@ -121,25 +105,23 @@ $Scenario = 'Alarm'
 
 
 $Action_Restart = "RestartScript:"
-If(($Show_Dismiss_Button -eq $True))
-	{
-		$Actions = 
-@"
+If (($Show_Dismiss_Button -eq $True)) {
+	$Actions = 
+	@"
   <actions>
         <action activationType="protocol" arguments="$Action_Restart" content="Restart now" />		
         <action activationType="protocol" arguments="Dismiss" content="Dismiss" />
    </actions>	
 "@		
-	}
-Else
-	{
-		$Actions = 
-@"
+}
+Else {
+	$Actions = 
+	@"
   <actions>
   		<action activationType="protocol" arguments="$Action_Restart" content="Restart now" />		
   </actions>	
 "@		
-	}	
+}	
 
 [xml]$Toast = @"
 <toast scenario="$Scenario">
