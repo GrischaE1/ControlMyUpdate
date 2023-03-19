@@ -51,19 +51,12 @@ Function Set-Action
 		
 		$Main_Reg_Path = "HKCU:\SOFTWARE\Classes\$Action_Name"
 		$Command_Path = "$Main_Reg_Path\shell\open\command"
-		$CMD_Script = "C:\Windows\Temp\$Action_Name.cmd"
+		$CMD_Script = "C:\Windows\ControlMyUpdate\RestartScript.cmd"
 		New-Item $Command_Path -Force
 		New-ItemProperty -Path $Main_Reg_Path -Name "URL Protocol" -Value "" -PropertyType String -Force | Out-Null
 		Set-ItemProperty -Path $Main_Reg_Path -Name "(Default)" -Value "URL:$Action_Name Protocol" -Force | Out-Null
 		Set-ItemProperty -Path $Command_Path -Name "(Default)" -Value $CMD_Script -Force | Out-Null		
 	}
-
-$Restart_Script = @'
-shutdown /r /f /t 120 -c " "
-'@
-
-$Script_Export_Path = "C:\Windows\Temp"
-
 
 		$Restart_Script | out-file "$Script_Export_Path\RestartScript.cmd" -Force -Encoding ASCII
 		Set-Action -Action_Name RestartScript	
