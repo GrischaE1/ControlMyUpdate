@@ -474,10 +474,43 @@ function Search-AllUpdates {
         }
     }
 
-
+    
     Write-Log -LogLevel Debug -LogMessage "Search for update with update searcher"
     if ( $IgnoreHideStatus ) {
-        $SearchFilter = "( IsHidden = 0 )"
+        $HiddenFilter = "IsHidden = 0"
+        $updates = ($updateSearcher.Search($SearchFilter))
+    }
+    if($settings.UpdateCategories -ne "All")
+    {
+        $CategorySettings = $settings.UpdateCategories.Split(" ")
+           
+        foreach($Category in $CategorySettings)
+        {
+           if($CategoryFilter)
+           {
+                $CategoryFilter = "$($CategoryFilter) AND CategoryIDs contains '$($Category)'"
+           }
+           else{$CategoryFilter = "CategoryIDs contains '$($Category)'"}
+        }
+    }
+    if($InstallDrivers -eq $False)
+    {
+        $TypeFilter = "Type = 'Software'"
+    }
+    
+    if(($TypeFilter -and $CategoryFilter) -or ($TypeFilter -and $CategoryFilter -and $HiddenFilter) -or ($HiddenFilter -and $CategoryFilter) -or ($HiddenFilter -and $TypeFilter))
+    {
+        if($HiddenFilter -and $CategoryFilter -and !$TypeFilter){$SearchFilter = "$($HiddenFilter) AND $($CategoryFilter)"}
+        elseif($HiddenFilter -and $CategoryFilter -and $TypeFilter){$SearchFilter = "$($HiddenFilter) AND $($CategoryFilter) AND $($TypeFilter)"}
+        elseif(!$HiddenFilter -and $CategoryFilter -and $TypeFilter){$SearchFilter = "$($TypeFilter) AND $($CategoryFilter)"}
+        elseif($HiddenFilter -and !$CategoryFilter -and $TypeFilter){$SearchFilter = "$($HiddenFilter) AND $($TypeFilter)"}
+    }
+    elseif($TypeFilter){$SearchFilter = "$TypeFilter"}
+    elseif($HiddenFilter){$SearchFilter = "$HiddenFilter"}
+    elseif($CategoryFilter){$CategoryFilter = "$TypeFilter"}
+    
+    if($SearchFilter)
+    {
         $updates = ($updateSearcher.Search($SearchFilter))
     }
     else {

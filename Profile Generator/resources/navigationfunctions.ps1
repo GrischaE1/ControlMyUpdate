@@ -122,30 +122,36 @@ Function GenerateCustomScriptProfileClick() {
 
 Function CMUTab1Click() {
 	$CMUTabNav.SelectedItem = $CMUTab1
-	$CMUTab1BT.Background = "#8c4803"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#002f54"; $CMUTab4BT.Background = "#002f54"
+	$CMUTab1BT.Background = "#8c4803"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#002f54"; $CMUTab4BT.Background = "#002f54"; $CMUTab5BT.Background = "#002f54"
 }
 
 Function CMUTab2Click() {
 	$CMUTabNav.SelectedItem = $CMUTab2
-	$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#8c4803"; $CMUTab3BT.Background = "#002f54"; $CMUTab4BT.Background = "#002f54"
+	$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#8c4803"; $CMUTab3BT.Background = "#002f54"; $CMUTab4BT.Background = "#002f54"; $CMUTab5BT.Background = "#002f54"
 }
 
 Function CMUTab3Click() {
 	$CMUTabNav.SelectedItem = $CMUTab3
-	$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#8c4803"; $CMUTab4BT.Background = "#002f54"
+	$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#8c4803"; $CMUTab4BT.Background = "#002f54"; $CMUTab5BT.Background = "#002f54"
 }
 
 Function CMUTab4Click() {
 	$CMUTabNav.SelectedItem = $CMUTab4
-	$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#002f54"; $CMUTab4BT.Background = "#8c4803"
+	$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#002f54"; $CMUTab4BT.Background = "#8c4803"; $CMUTab5BT.Background = "#002f54"
 }
+
+Function CMUTab5Click() {
+	$CMUTabNav.SelectedItem = $CMUTab5
+	$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#002f54"; $CMUTab4BT.Background = "#002f54"; $CMUTab5BT.Background = "#8c4803"
+}
+
 
 
 #Next Button
 Function CMUNextTab1Click() {
 	if ($CMUTab2.IsEnabled -eq "True") {
 		$CMUTabNav.SelectedItem = $CMUTab2
-		$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#8c4803"; $CMUTab3BT.Background = "#002f54"; $CMUTab4BT.Background = "#002f54"
+		$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#8c4803"; $CMUTab3BT.Background = "#002f54"; $CMUTab4BT.Background = "#002f54"; $CMUTab5BT.Background = "#002f54"
 	}
 	else {
 		$MenuNavigation.SelectedItem = $TABGenerate
@@ -155,7 +161,7 @@ Function CMUNextTab1Click() {
 Function CMUNextTab2Click() {
 	if ($CMUTab3.IsEnabled -eq "True") {
 		$CMUTabNav.SelectedItem = $CMUTab3
-		$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#8c4803"; $CMUTab4BT.Background = "#002f54"
+		$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#8c4803"; $CMUTab4BT.Background = "#002f54"; $CMUTab5BT.Background = "#002f54"
 	}
 	else {
 		$MenuNavigation.SelectedItem = $TABGenerate
@@ -165,7 +171,27 @@ Function CMUNextTab2Click() {
 Function CMUNextTab3Click() {
 	if ($CMUTab4.IsEnabled -eq "True") {
 		$CMUTabNav.SelectedItem = $CMUTab4
-		$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#002f54"; $CMUTab4BT.Background = "#8c4803"
+		$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#002f54"; $CMUTab4BT.Background = "#8c4803"; $CMUTab5BT.Background = "#002f54"
+	}
+	else {
+		$MenuNavigation.SelectedItem = $TABGenerate
+	}
+}
+
+Function CMUNextTab4Click() {
+	if ($CMUTab5.IsEnabled -eq "True") {
+		$CMUTabNav.SelectedItem = $CMUTab5
+		$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#002f54"; $CMUTab4BT.Background = "#002f54"; $CMUTab5BT.Background = "#002f54"
+	}
+	else {
+		$MenuNavigation.SelectedItem = $TABGenerate
+	}
+}
+
+Function CMUNextTab5Click() {
+	if ($CMUTab4.IsEnabled -eq "True") {
+		$CMUTabNav.SelectedItem = $CMUTab5
+		$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#002f54"; $CMUTab4BT.Background = "#002f54"; $CMUTab5BT.Background = "#8c4803"
 	}
 	else {
 		$MenuNavigation.SelectedItem = $TABGenerate
@@ -173,17 +199,22 @@ Function CMUNextTab3Click() {
 }
 
 
+
 Function CMUPreviousTab2Click() {
 	$CMUTabNav.SelectedItem = $CMUTab1
-	$CMUTab1BT.Background = "#8c4803"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#002f54"; $CMUTab4BT.Background = "#002f54"
+	$CMUTab1BT.Background = "#8c4803"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#002f54"; $CMUTab4BT.Background = "#002f54"; $CMUTab5BT.Background = "#002f54"
 }
 
 Function CMUPreviousTab3Click() {
 	$CMUTabNav.SelectedItem = $CMUTab2
-	$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#8c4803"; $CMUTab3BT.Background = "#002f54"; $CMUTab4BT.Background = "#002f54"
+	$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#8c4803"; $CMUTab3BT.Background = "#002f54"; $CMUTab4BT.Background = "#002f54"; $CMUTab5BT.Background = "#002f54"
 }
 Function CMUPreviousTab4Click() {
 	$CMUTabNav.SelectedItem = $CMUTab3
-	$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#8c4803"; $CMUTab4BT.Background = "#002f54"
+	$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#8c4803"; $CMUTab4BT.Background = "#002f54"; $CMUTab5BT.Background = "#002f54"
 }
 
+Function CMUPreviousTab5Click() {
+	$CMUTabNav.SelectedItem = $CMUTab4
+	$CMUTab1BT.Background = "#002f54"; $CMUTab2BT.Background = "#002f54"; $CMUTab3BT.Background = "#002f54"; $CMUTab4BT.Background = "#8c4803"; $CMUTab5BT.Background = "#8c4803"
+}

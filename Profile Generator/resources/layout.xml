@@ -220,6 +220,8 @@
 						<Button Content="Maintenance Window" VerticalAlignment="Top" Height="40" Background="#002f54" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#ffffff" Name="CMUTab2BT" />
 						<Button Content="Reboot settings" VerticalAlignment="Top" Height="40" Background="#002f54" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#ffffff" Name="CMUTab3BT" />
 						<Button Content="Special KB's" VerticalAlignment="Top" Height="40" Background="#002f54" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#ffffff" Name="CMUTab4BT" />
+						<Button Content="Update Categories" VerticalAlignment="Top" Height="40" Background="#002f54" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#ffffff" Name="CMUTab5BT" />
+
 					</StackPanel>
 
 					<TabControl Grid.Row="0" Grid.Column="1" Padding="-1" Name="CMUTabNav" SelectedIndex="0">
@@ -254,7 +256,7 @@
 								<Slider Value="3"  Minimum="0" Maximum="99" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,200,0,0" Name="RetryCountSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
 								<TextBox  Text="{Binding ElementName=RetryCountSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,200,0,0" Name="RetryCountTextBox"/>
 
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Download update before installation" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,230,0,0" />
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Run Connection Tests" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,230,0,0" />
 								<CheckBox IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,233,0,0" Name="RunConnectionTests" />
 
 
@@ -384,11 +386,64 @@
 								
 								<Button Content="Previous" HorizontalAlignment="left" VerticalAlignment="bottom" Width="200" Name="CMUPreviousTab4" Height="38" />
 
-								<Button Content="Generate Profile" HorizontalAlignment="center" VerticalAlignment="bottom" Width="200" Name="GenerateCustomScriptProfile" Height="38" />
+								<Button Content="Next" HorizontalAlignment="right" VerticalAlignment="bottom" Width="200" Name="CMUNextTab4" Height="38" />
 
 							</Grid>
 						</TabItem>
 
+
+						<TabItem Header="Update Categories" Visibility="Collapsed" Name="CMUTab5">
+							<Grid Background="#2e628c">
+								<TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Text="Update Categories" FontSize="14" FontWeight="Bold" Height="21" Foreground="#ffffff" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Install all updates" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,50,0,0" />
+								<CheckBox IsEnabled = "True" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,53,0,0" Name="CMUCategories_SelectAll" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include Applications" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,80,0,0" />
+								<CheckBox IsEnabled = "False" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,83,0,0" Name="CMUCategories_Application" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include Connectors" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,110,0,0" />
+								<CheckBox IsEnabled = "False" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,113,0,0" Name="CMUCategories_Connectors" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include CriticalUpdates" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,140,0,0" />
+								<CheckBox IsEnabled = "False" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,143,0,0" Name="CMUCategories_CriticalUpdates" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include DefinitionUpdates" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,170,0,0" />
+								<CheckBox IsEnabled = "False" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,173,0,0" Name="CMUCategories_DefinitionUpdates" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include DeveloperKits" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,200,0,0" />
+								<CheckBox IsEnabled = "False" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,203,0,0" Name="CMUCategories_DeveloperKits" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include Guidance" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,230,0,0" />
+								<CheckBox IsEnabled = "False" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,233,0,0" Name="CMUCategories_Guidance" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include FeaturePacks" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,260,0,0" />
+								<CheckBox IsEnabled = "False" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,263,0,0" Name="CMUCategories_FeaturePacks" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include ServicePacks" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,290,0,0" />
+								<CheckBox IsEnabled = "False" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,293,0,0" Name="CMUCategories_ServicePacks" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include Tools" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,320,0,0" />
+								<CheckBox IsEnabled = "False" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,323,0,0" Name="CMUCategories_Tools" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include UpdateRollups" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,350,0,0" />
+								<CheckBox IsEnabled = "False" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,353,0,0" Name="CMUCategories_UpdateRollups" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include Updates" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,380,0,0" />
+								<CheckBox IsEnabled = "False" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,383,0,0" Name="CMUCategories_Updates" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include SecurityUpdates" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,410,0,0" />
+								<CheckBox IsEnabled = "False" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,413,0,0" Name="CMUCategories_SecurityUpdates" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include Drivers" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,460,0,0" />
+								<CheckBox IsEnabled = "True" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,463,0,0" Name="CMUCategories_Drivers" />
+
+								<Button Content="Previous" HorizontalAlignment="left" VerticalAlignment="bottom" Width="200" Name="CMUPreviousTab5" Height="38" />
+
+								<Button Content="Generate Profile" HorizontalAlignment="center" VerticalAlignment="bottom" Width="200" Name="GenerateCustomScriptProfile" Height="38" />
+
+							</Grid>
+						</TabItem>
 
 					</TabControl>
 				</Grid>
