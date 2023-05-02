@@ -88,6 +88,7 @@ $CMUTab1BT.Add_Click( { CMUTab1Click $this $_ })
 $CMUTab2BT.Add_Click( { CMUTab2Click $this $_ })
 $CMUTab3BT.Add_Click( { CMUTab3Click $this $_ })
 $CMUTab4BT.Add_Click( { CMUTab4Click $this $_ })
+$CMUTab5BT.Add_Click( { CMUTab5Click $this $_ })
 
 
 
@@ -102,6 +103,7 @@ $NextTabWSUS.Add_Click( { NextTabWSUSClick $this $_ })
 $CMUNextTab1.Add_Click( { CMUNextTab1Click $this $_ })
 $CMUNextTab2.Add_Click( { CMUNextTab2Click $this $_ })
 $CMUNextTab3.Add_Click( { CMUNextTab3Click $this $_ })
+$CMUNextTab4.Add_Click( { CMUNextTab4Click $this $_ })
 
 #Previous
 $PreviousTab2.Add_Click( { PreviousTab2Click $this $_ })
@@ -112,7 +114,7 @@ $PreviousTabWSUS.Add_Click( { PreviousTabWSUSClick $this $_ })
 $CMUPreviousTab2.Add_Click( { CMUPreviousTab2Click $this $_ })
 $CMUPreviousTab3.Add_Click( { CMUPreviousTab3Click $this $_ })
 $CMUPreviousTab4.Add_Click( { CMUPreviousTab4Click $this $_ })
-
+$CMUPreviousTab5.Add_Click( { CMUPreviousTab5Click $this $_ })
 
 #-------------------------------------------------------------#
 #---General---------------------------------------------------#
@@ -275,6 +277,21 @@ $GenerateButton.Add_Click({
 					$CUProfileParams["UninstallKBs"] = $UninstallKBsCheckBox.IsChecked
 					$CUProfileParams["RunConnectionTests"] = $RunConnectionTests.IsChecked
 					$CUProfileParams["RetryCount"] = $RetryCountSlider.Value
+					$CUProfileParams["CMUCategories_SelectAll"] = $CMUCategories_SelectAll.IsChecked
+					$CUProfileParams["CMUCategories_Application"] = $CMUCategories_Application.IsChecked
+					$CUProfileParams["CMUCategories_Connectors"] = $CMUCategories_Connectors.IsChecked
+					$CUProfileParams["CMUCategories_CriticalUpdates"] = $CMUCategories_CriticalUpdates.IsChecked
+					$CUProfileParams["CMUCategories_DefinitionUpdates"] = $CMUCategories_DefinitionUpdates.IsChecked
+					$CUProfileParams["CMUCategories_DeveloperKits"] = $CMUCategories_DeveloperKits.IsChecked
+					$CUProfileParams["CMUCategories_FeaturePacks"] = $CMUCategories_FeaturePacks.IsChecked
+					$CUProfileParams["CMUCategories_Guidance"] = $CMUCategories_Guidance.IsChecked
+					$CUProfileParams["CMUCategories_ServicePacks"] = $CMUCategories_ServicePacks.IsChecked
+					$CUProfileParams["CMUCategories_Tools"] = $CMUCategories_Tools.IsChecked
+					$CUProfileParams["CMUCategories_UpdateRollups"] = $CMUCategories_UpdateRollups.IsChecked
+					$CUProfileParams["CMUCategories_Updates"] = $CMUCategories_Updates.IsChecked
+					$CUProfileParams["CMUCategories_SecurityUpdates"] = $CMUCategories_Updates.IsChecked
+					$CUProfileParams["CMUCategories_Drivers"] = $CMUCategories_Drivers.IsChecked
+
 				}
 
 				New-CustomUpdateProfile @CUProfileParams
@@ -312,6 +329,20 @@ $GenerateButton.Add_Click({
 					$CUScriptParams["UninstallKBs"] = $UninstallKBsCheckBox.IsChecked
 					$CUScriptParams["RunConnectionTests"] = $RunConnectionTests.IsChecked
 					$CUScriptParams["RetryCount"] = $RetryCountSlider.Value
+					$CUScriptParams["CMUCategories_SelectAll"] = $CMUCategories_SelectAll.IsChecked
+					$CUScriptParams["CMUCategories_Application"] = $CMUCategories_Application.IsChecked
+					$CUScriptParams["CMUCategories_Connectors"] = $CMUCategories_Connectors.IsChecked
+					$CUScriptParams["CMUCategories_CriticalUpdates"] = $CMUCategories_CriticalUpdates.IsChecked
+					$CUScriptParams["CMUCategories_DefinitionUpdates"] = $CMUCategories_DefinitionUpdates.IsChecked
+					$CUScriptParams["CMUCategories_DeveloperKits"] = $CMUCategories_DeveloperKits.IsChecked
+					$CUScriptParams["CMUCategories_FeaturePacks"] = $CMUCategories_FeaturePacks.IsChecked
+					$CUScriptParams["CMUCategories_Guidance"] = $CMUCategories_Guidance.IsChecked
+					$CUScriptParams["CMUCategories_ServicePacks"] = $CMUCategories_ServicePacks.IsChecked
+					$CUScriptParams["CMUCategories_Tools"] = $CMUCategories_Tools.IsChecked
+					$CUScriptParams["CMUCategories_UpdateRollups"] = $CMUCategories_UpdateRollups.IsChecked
+					$CUScriptParams["CMUCategories_Updates"] = $CMUCategories_Updates.IsChecked
+					$CUScriptParams["CMUCategories_SecurityUpdates"] = $CMUCategories_Updates.IsChecked
+					$CUScriptParams["CMUCategories_Drivers"] = $CMUCategories_Drivers.IsChecked
 				}
 
 				New-CustomUpdateScript @CUScriptParams
@@ -460,6 +491,11 @@ $RebootNotificationCheckBox.Add_Checked({
 		$ToastAdviseTextBox.IsEnabled = $True
 		$ToastTitleTextBox.IsEnabled  = $True
 	})
+
+
+$CMUCategories_SelectAll.Add_Checked({ $CMUCategories_SecurityUpdates.IsEnabled = $False; $CMUCategories_Application.IsEnabled = $False;  $CMUCategories_Connectors.IsEnabled = $False; $CMUCategories_CriticalUpdates.IsEnabled = $false; $CMUCategories_DefinitionUpdates.IsEnabled = $false; $CMUCategories_DeveloperKits.IsEnabled = $false; $CMUCategories_Guidance.IsEnabled = $false; $CMUCategories_FeaturePacks.IsEnabled = $false; $CMUCategories_ServicePacks.IsEnabled = $false; $CMUCategories_Tools.IsEnabled = $false; $CMUCategories_UpdateRollups.IsEnabled = $false; $CMUCategories_Updates.IsEnabled = $false })
+$CMUCategories_SelectAll.Add_UnChecked({ $CMUCategories_SecurityUpdates.IsEnabled = $true; $CMUCategories_Application.IsEnabled = $True;  $CMUCategories_Connectors.IsEnabled = $True; $CMUCategories_CriticalUpdates.IsEnabled = $True; $CMUCategories_DefinitionUpdates.IsEnabled = $True; $CMUCategories_DeveloperKits.IsEnabled = $True; $CMUCategories_Guidance.IsEnabled = $True; $CMUCategories_FeaturePacks.IsEnabled = $True; $CMUCategories_ServicePacks.IsEnabled = $True; $CMUCategories_Tools.IsEnabled = $True; $CMUCategories_UpdateRollups.IsEnabled = $True; $CMUCategories_Updates.IsEnabled = $True })
+
 
 
 #-------------------------------------------------------------#
