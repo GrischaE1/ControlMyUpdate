@@ -369,6 +369,11 @@ function New-CustomUpdateProfile {
             if($CMUCategories_UpdateRollups -eq $true){ $UpdateCategories += "28BC880E-0592-4CBF-8F95-C79B17911D5F"}
             if($CMUCategories_Updates -eq $true){ $UpdateCategories += "CD5FFD1E-E932-4E3A-BF74-18BF0B1BBD83"}
             if($CMUCategories_SecurityUpdates -eq $true){ $UpdateCategories += "0FA1201D-4330-4FA8-8AE9-B877473B6441"}
+            if($CMUCategories_Defender -eq $true){ $UpdateCategories += "8c3fcc84-7410-4a95-8b89-a166a0190486"}
+            if($CMUCategories_W101903later -eq $true){ $UpdateCategories += "b3c75dc1-155f-4be4-b015-3f1a91758e52"}
+            if($CMUCategories_W11 -eq $true){ $UpdateCategories += "72e7624a-5b00-45d2-b92f-e561c0a6a160"}
+            if($CMUCategories_W10LTSB -eq $true){ $UpdateCategories += "d2085b71-5f1f-43a9-880d-ed159016d5c6"}
+            if($CMUCategories_W10 -eq $true){ $UpdateCategories += "a3c2375d-0c8a-42f9-bce0-28333e198407"}
         }
         else{ $UpdateCategories = "All"}
 
@@ -539,7 +544,6 @@ function New-CustomUpdateScript {
         if($CMUCategories_SelectAll -eq $False)
         {
             $UpdateCategories = @()
-            $selectedcategory = ""
             if($CMUCategories_Application -eq $true){ $UpdateCategories += "5C9376AB-8CE6-464A-B136-22113DD69801"}
             if($CMUCategories_Connectors -eq $true){ $UpdateCategories += "434DE588-ED14-48F5-8EED-A15E09A991F6"}
             if($CMUCategories_CriticalUpdates -eq $true){ $UpdateCategories += "E6CF1350-C01B-414D-A61F-263D14D133B4"}
@@ -552,6 +556,11 @@ function New-CustomUpdateScript {
             if($CMUCategories_UpdateRollups -eq $true){ $UpdateCategories += "28BC880E-0592-4CBF-8F95-C79B17911D5F"}
             if($CMUCategories_Updates -eq $true){ $UpdateCategories += "CD5FFD1E-E932-4E3A-BF74-18BF0B1BBD83"}
             if($CMUCategories_SecurityUpdates -eq $true){ $UpdateCategories += "0FA1201D-4330-4FA8-8AE9-B877473B6441"}
+            if($CMUCategories_Defender -eq $true){ $UpdateCategories += "8c3fcc84-7410-4a95-8b89-a166a0190486"}
+            if($CMUCategories_W101903later -eq $true){ $UpdateCategories += "b3c75dc1-155f-4be4-b015-3f1a91758e52"}
+            if($CMUCategories_W11 -eq $true){ $UpdateCategories += "72e7624a-5b00-45d2-b92f-e561c0a6a160"}
+            if($CMUCategories_W10LTSB -eq $true){ $UpdateCategories += "d2085b71-5f1f-43a9-880d-ed159016d5c6"}
+            if($CMUCategories_W10 -eq $true){ $UpdateCategories += "a3c2375d-0c8a-42f9-bce0-28333e198407"}
         }
         else{ $UpdateCategories = "All"}
 

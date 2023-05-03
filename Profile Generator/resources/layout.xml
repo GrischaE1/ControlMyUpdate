@@ -435,8 +435,23 @@
 								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include SecurityUpdates" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,410,0,0" />
 								<CheckBox IsEnabled = "False" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,413,0,0" Name="CMUCategories_SecurityUpdates" />
 
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include Drivers" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,460,0,0" />
-								<CheckBox IsEnabled = "True" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,463,0,0" Name="CMUCategories_Drivers" />
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include Defender Updates" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,440,0,0" />
+								<CheckBox IsEnabled = "False" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,443,0,0" Name="CMUCategories_Defender" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include Windows 10 1903 or later" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,470,0,0" />
+								<CheckBox IsEnabled = "False" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,473,0,0" Name="CMUCategories_W101903later" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include Windows 11 Updates" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,500,0,0" />
+								<CheckBox IsEnabled = "False" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,503,0,0" Name="CMUCategories_W11" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include Windows 10 LTSB Updates" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,530,0,0" />
+								<CheckBox IsEnabled = "False" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,533,0,0" Name="CMUCategories_W10LTSB" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include Windows 10 Updates" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,560,0,0" />
+								<CheckBox IsEnabled = "False" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,563,0,0" Name="CMUCategories_W10" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Include Drivers" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,600,0,0" />
+								<CheckBox IsEnabled = "True" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,603,0,0" Name="CMUCategories_Drivers" />
 
 								<Button Content="Previous" HorizontalAlignment="left" VerticalAlignment="bottom" Width="200" Name="CMUPreviousTab5" Height="38" />
 
