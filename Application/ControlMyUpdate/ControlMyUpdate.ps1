@@ -130,6 +130,8 @@
 #           - Reboot notification loop if user is no admin user
 #       - New Features:
 #           - Optional Prompt for end users if MW is configured
+#           - Search specific categories
+#           - Disable Driver downloads
 #       - Improvements: 
 #           - NotificationInterval - The time between the end user notification is now configurable 
 # 2.1.3 - added option for connection test (enabled/disabled)
@@ -476,6 +478,7 @@ function Search-AllUpdates {
 
     
     Write-Log -LogLevel Debug -LogMessage "Search for update with update searcher"
+     
     if ( $IgnoreHideStatus ) {
         $HiddenFilter = "IsHidden = 0"
         $updates = ($updateSearcher.Search($SearchFilter))
@@ -493,9 +496,9 @@ function Search-AllUpdates {
            else{$CategoryFilter = "CategoryIDs contains '$($Category)'"}
         }
     }
-    if($InstallDrivers -eq $False)
+    if($settings.InstallDrivers -eq $False)
     {
-        $TypeFilter = "Type = 'Software'"
+        $TypeFilter = "Type != 'Driver'"
     }
     
     if(($TypeFilter -and $CategoryFilter) -or ($TypeFilter -and $CategoryFilter -and $HiddenFilter) -or ($HiddenFilter -and $CategoryFilter) -or ($HiddenFilter -and $TypeFilter))
@@ -507,7 +510,7 @@ function Search-AllUpdates {
     }
     elseif($TypeFilter){$SearchFilter = "$TypeFilter"}
     elseif($HiddenFilter){$SearchFilter = "$HiddenFilter"}
-    elseif($CategoryFilter){$CategoryFilter = "$TypeFilter"}
+    elseif($CategoryFilter){$SearchFilter = "$CategoryFilter"}
     
     if($SearchFilter)
     {
@@ -516,6 +519,7 @@ function Search-AllUpdates {
     else {
         $updates = ($updateSearcher.Search($Null))
     }
+
 
     switch -exact ($updates.ResultCode) {
         0 { $Status = 'NotStarted' }
