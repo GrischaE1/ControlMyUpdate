@@ -12,13 +12,16 @@ $RegistryRootPath = "HKLM:\SOFTWARE\ControlMyUpdate"
 # Buttons to display in the toast: set $True or $False
 $Show_Dismiss_Button = Get-ItemPropertyValue -Path "$($RegistryRootPath)\Status" -Name "ShowDismissButton"
 
+$ToastTitle = Get-ItemPropertyValue -Path "$($RegistryRootPath)\Settings" -Name "ToastTitle"
+$ToastMessage = Get-ItemPropertyValue -Path "$($RegistryRootPath)\Settings" -Name "ToastMessage"
+$ToastAdvice = Get-ItemPropertyValue -Path "$($RegistryRootPath)\Settings" -Name "ToastAdvice"
 
 # Toast information
 if ($Show_Dismiss_Button -eq $true) {
-	$Title = "Your device needs to reboot"
+	$Title = $ToastTitle
 
-	$Message = "`nTo finalize Update installation, please reboot the device"
-	$Advice = "`nTo ensure the stability and proper functioning of your system, consider rebooting your device soon."
+	$Message = "`n$($ToastMessage)"
+	$Advice = "`n$($ToastAdvice)"
 	$Text_AppName = "Control My Update"
 }
 else {

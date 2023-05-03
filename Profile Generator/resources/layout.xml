@@ -276,17 +276,22 @@
 								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Enable maintenance Window" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,50,0,0" />
 								<CheckBox HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,53,0,0" Name="EnablemaintenanceWindow" />
 
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Maintenance Window Start Time" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,80,0,0" />
-								<TextBox IsEnabled="False" MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="350,80,0,0" Name="MWStartTime" />
-								<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="24 hour format 00:00 - 24:00" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="400,80,0,0" Name="StartTimeHelpText"/>
+								<TextBlock IsEnabled="False" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Enable per day maintenance Window" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,80,0,0" />
+								<CheckBox IsEnabled="False" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,83,0,0" Name="EnablePerDayMW" />
 
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Maintenance Window End Time" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,110,0,0" />
-								<TextBox IsEnabled="False" MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="350,110,0,0" Name="MWEndTime" />
-								<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="24 hour format 00:00 - 24:00" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="400,110,0,0" Name="StopTimeHelpText"/>
+								<!--Simple MW settings-->
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Maintenance Window Start Time" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,110,0,0" Name="MWSimpleStartText"/>
+								<TextBox IsEnabled="False" MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="350,110,0,0" Name="MWStartTime" />
+								<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="24 hour format 00:00 - 24:00" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="400,110,0,0" Name="StartTimeHelpText"/>
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Maintenance Window End Time" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,140,0,0" Name="MWSimpleEndText" />
+								<TextBox IsEnabled="False" MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="350,140,0,0" Name="MWEndTime" />
+								<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="24 hour format 00:00 - 24:00" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="400,140,0,0" Name="StopTimeHelpText"/>
 
 
-								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Maintenance Window Day(s)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,140,0,0" />
-								<ListView IsEnabled="False" SelectionMode="Multiple" HorizontalAlignment="Left" BorderBrush="Black" BorderThickness="1" Height="145" VerticalAlignment="Top" Width="100" Margin="350,140,0,0" Name="MWDays">
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Maintenance Window Day(s)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,170,0,0" Name="MWSimpleDaysText"/>
+								<ListView IsEnabled="False" SelectionMode="Multiple" HorizontalAlignment="Left" BorderBrush="Black" BorderThickness="1" Height="145" VerticalAlignment="Top" Width="100" Margin="350,170,0,0" Name="MWDays">
 									<ListView.Items>
 										<TextBlock>Monday</TextBlock>
 										<TextBlock>Tuesday</TextBlock>
@@ -297,6 +302,41 @@
 										<TextBlock>Sunday</TextBlock>
 									</ListView.Items>
 								</ListView>
+				
+								<!--Per day MW settings-->
+								<TextBlock Visibility="Hidden"  HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="24 hour format 00:00 - 24:00" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="400,80,0,0" Name="PerDayStartTimeHelpText"/>
+
+								<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Start Time" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="350,110,0,0" Name="PerDayStartTimeText"/>
+								<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Stop Time" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="440,110,0,0" Name="PerDayStopTimeText"/>				
+
+								<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Monday" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,140,0,0" Name="PerDayMonday"/>
+								<TextBox Visibility="Hidden"  MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="350,140,0,0" Name="MWPerDayMondayStartTime"/>
+								<TextBox Visibility="Hidden"  MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="440,140,0,0" Name="MWPerDayMondayEndTime"/>
+
+								<TextBlock Visibility="Hidden"  HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Tuesday" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,180,0,0" Name="PerDayTuesday"/>
+								<TextBox Visibility="Hidden"  MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="350,180,0,0" Name="MWPerDayTuesdayStartTime" />
+								<TextBox Visibility="Hidden"  MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="440,180,0,0" Name="MWPerDayTuesdayEndTime" />
+
+								<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Wednesday" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,220,0,0" Name="PerDayWednesday"/>
+								<TextBox Visibility="Hidden"  MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="350,220,0,0" Name="MWPerDayWednesdayStartTime" />
+								<TextBox Visibility="Hidden"  MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="440,220,0,0" Name="MWPerDayWednesdayEndTime" />
+
+								<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Thursday" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,260,0,0" Name="PerDayThursday"/>
+								<TextBox Visibility="Hidden" MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="350,260,0,0" Name="MWPerDayThursdayStartTime" />
+								<TextBox Visibility="Hidden"  MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="440,260,0,0" Name="MWPerDayThursdayEndTime" />
+
+								<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Friday" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,300,0,0" Name="PerDayFriday"/>
+								<TextBox Visibility="Hidden"  MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="350,300,0,0" Name="MWPerDayFridayStartTime" />
+								<TextBox Visibility="Hidden"  MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="440,300,0,0" Name="MWPerDayFridayEndTime" />
+
+								<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Saturday" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,340,0,0" Name="PerDaySaturday"/>
+								<TextBox Visibility="Hidden"  MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="350,340,0,0" Name="MWPerDaySaturdayStartTime" />
+								<TextBox Visibility="Hidden"  MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="440,340,0,0" Name="MWPerDaySaturdayEndTime" />
+
+								<TextBlock Visibility="Hidden" HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Sunday" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,380,0,0" Name="PerDaySunday"/>
+								<TextBox Visibility="Hidden"  MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="350,380,0,0" Name="MWPerDaySundayStartTime" />
+								<TextBox Visibility="Hidden"  MaxLength="5" Text="00:00" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="40" TextWrapping="Wrap" Margin="440,380,0,0" Name="MWPerDaySundayEndTime" />
+
 
 								<Button Content="Next" HorizontalAlignment="right" VerticalAlignment="bottom" Width="200" Name="CMUNextTab2" Height="38" />
 								<Button Content="Previous" HorizontalAlignment="left" VerticalAlignment="bottom" Width="200" Name="CMUPreviousTab2" Height="38" />

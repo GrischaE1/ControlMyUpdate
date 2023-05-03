@@ -270,6 +270,21 @@ function New-CustomUpdateProfile {
         $MWStartTime,
         $MWEndTime,
         $MWDay,
+        $EnablePerDayMW,
+        $MWPerDayMondayStartTime,
+        $MWPerDayMondayEndTime,
+        $MWPerDayTuesdayStartTime,
+        $MWPerDayTuesdayEndTime,
+        $MWPerDayWednesdayStartTime,
+        $MWPerDayWednesdayEndTime,
+        $MWPerDayThursdayStartTime,
+        $MWPerDayThursdayEndTime,
+        $MWPerDayFridayStartTime,
+        $MWPerDayFridayEndTime,
+        $MWPerDaySaturdayStartTime,
+        $MWPerDaySaturdayEndTime,
+        $MWPerDaySundayStartTime,
+        $MWPerDaySundayEndTime,
         $BlockedKBs,
         $UnBlockedKBs,
         $EmergencyKB,
@@ -277,7 +292,8 @@ function New-CustomUpdateProfile {
         $ScanRandomization,
         $NotifyUser,
         $ToastTitle,
-        $ToastText,
+        $ToastMessage,
+        $ToastAdvice,
         $MWAutomaticReboot,
         $AutoRebootInterval,
         $ForceRebootwithNoUser,
@@ -391,7 +407,8 @@ function New-CustomUpdateProfile {
             $MWStartTime = '&quot;&quot;'
             $MWEndTime = '&quot;&quot;'
         }
-
+        if (!$MWStartTime) { $MWStartTime = '&quot;&quot;' }
+        if (!$MWEndTime) { $MWEndTime = '&quot;&quot;' }
         if (!$MWAutomaticReboot) { $MWAutomaticReboot = '&quot;&quot;' }
         if (!$AutoRebootInterval) { $AutoRebootInterval = '&quot;&quot;' }
 
@@ -418,6 +435,21 @@ function New-CustomUpdateProfile {
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWDay -PropertyType String -Value $($selectedDays);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWStartTime -PropertyType String -Value  $($MWStartTime);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWStopTime -PropertyType String -Value $($MWEndTime);
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name EnablePerDayMW -PropertyType String -Value $($EnablePerDayMW);                    
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayMondayStartTime -PropertyType String -Value &quot;$($MWPerDayMondayStartTime)&quot;;
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayMondayEndTime -PropertyType String -Value &quot;$($MWPerDayMondayEndTime)&quot;;
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayTuesdayStartTime -PropertyType String -Value &quot;$($MWPerDayTuesdayStartTime)&quot;;
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayTuesdayEndTime -PropertyType String -Value &quot;$($MWPerDayTuesdayEndTime)&quot;;
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayWednesdayStartTime -PropertyType String -Value &quot;$($MWPerDayWednesdayStartTime)&quot;;
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayWednesdayEndTime -PropertyType String -Value &quot;$($MWPerDayWednesdayEndTime)&quot;;
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayThursdayStartTime -PropertyType String -Value &quot;$($MWPerDayThursdayStartTime)&quot;;
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayThursdayEndTime -PropertyType String -Value &quot;$($MWPerDayThursdayEndTime)&quot;;
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayFridayStartTime -PropertyType String -Value &quot;$($MWPerDayFridayStartTime)&quot;;
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayFridayEndTime -PropertyType String -Value &quot;$($MWPerDayFridayEndTime)&quot;;
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDaySaturdayStartTime -PropertyType String -Value &quot;$($MWPerDaySaturdayStartTime)&quot;;
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDaySaturdayEndTime -PropertyType String -Value &quot;$($MWPerDaySaturdayEndTime)&quot;;
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDaySundayStartTime -PropertyType String -Value &quot;$($MWPerDaySundayStartTime)&quot;;
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDaySundayEndTime -PropertyType String -Value &quot;$($MWPerDaySundayEndTime)&quot;;
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name UpdateSource -PropertyType String -Value $($selectedUpdateSource);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name LastScanTime -PropertyType String -Value &quot;&quot;;
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name NextScanTime -PropertyType String -Value &quot;&quot;;
@@ -426,7 +458,8 @@ function New-CustomUpdateProfile {
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ReportOnly -PropertyType String -Value False;
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name NotifyUser -PropertyType String -Value $($NotifyUser);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastTitle -PropertyType String -Value &quot;$($ToastTitle)&quot;;
-                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastText -PropertyType String -Value &quot;$($ToastText)&quot;;
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastMessage -PropertyType String -Value &quot;$($ToastMessage)&quot;;
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastAdvice -PropertyType String -Value &quot;$($ToastAdvice)&quot;;
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ForceRebootNoMW -PropertyType String -Value $($AutoRebootInterval);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ForceRebootwithNoUser -PropertyType String -Value $($ForceRebootwithNoUser);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name AutomaticReboot -PropertyType String -Value $($MWAutomaticReboot);
@@ -467,6 +500,21 @@ function New-CustomUpdateScript {
         $MWStartTime,
         $MWEndTime,
         $MWDay,
+        $EnablePerDayMW,
+        $MWPerDayMondayStartTime,
+        $MWPerDayMondayEndTime,
+        $MWPerDayTuesdayStartTime,
+        $MWPerDayTuesdayEndTime,
+        $MWPerDayWednesdayStartTime,
+        $MWPerDayWednesdayEndTime,
+        $MWPerDayThursdayStartTime,
+        $MWPerDayThursdayEndTime,
+        $MWPerDayFridayStartTime,
+        $MWPerDayFridayEndTime,
+        $MWPerDaySaturdayStartTime,
+        $MWPerDaySaturdayEndTime,
+        $MWPerDaySundayStartTime,
+        $MWPerDaySundayEndTime,
         $BlockedKBs,
         $UnBlockedKBs,
         $EmergencyKB,
@@ -474,7 +522,8 @@ function New-CustomUpdateScript {
         $ScanRandomization,
         $NotifyUser,
         $ToastTitle,
-        $ToastText,
+        $ToastMessage,
+        $ToastAdvice,
         $MWAutomaticReboot,
         $AutoRebootInterval,
         $ForceRebootwithNoUser,
@@ -578,6 +627,8 @@ function New-CustomUpdateScript {
             $MWStartTime = '""'
             $MWEndTime = '""'
         }
+        if(!$MWStartTime){$MWStartTime = '""'}
+        if(!$MWEndTime){$MWEndTime = '""'}
         if (!$MWAutomaticReboot) { $MWAutomaticReboot = '""' }
         if (!$AutoRebootInterval) { $AutoRebootInterval = '""' }
         switch ( $ToolUpdateSource ) {
@@ -599,6 +650,21 @@ function New-CustomUpdateScript {
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWDay -PropertyType String -Value $($selectedDays)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWStartTime -PropertyType String -Value  $($MWStartTime)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWStopTime -PropertyType String -Value $($MWEndTime)
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name EnablePerDayMW -PropertyType String -Value "$($EnablePerDayMW)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayMondayStartTime -PropertyType String -Value "$($MWPerDayMondayStartTime)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayMondayEndTime -PropertyType String -Value "$($MWPerDayMondayEndTime)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayTuesdayStartTime -PropertyType String -Value "$($MWPerDayTuesdayStartTime)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayTuesdayEndTime -PropertyType String -Value "$($MWPerDayTuesdayEndTime)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayWednesdayStartTime -PropertyType String -Value "$($MWPerDayWednesdayStartTime)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayWednesdayEndTime -PropertyType String -Value "$($MWPerDayWednesdayEndTime)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayThursdayStartTime -PropertyType String -Value "$($MWPerDayThursdayStartTime)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayThursdayEndTime -PropertyType String -Value "$($MWPerDayThursdayEndTime)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayFridayStartTime -PropertyType String -Value "$($MWPerDayFridayStartTime)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDayFridayEndTime -PropertyType String -Value "$($MWPerDayFridayEndTime)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDaySaturdayStartTime -PropertyType String -Value "$($MWPerDaySaturdayStartTime)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDaySaturdayEndTime -PropertyType String -Value "$($MWPerDaySaturdayEndTime)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDaySundayStartTime -PropertyType String -Value "$($MWPerDaySundayStartTime)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWPerDaySundayEndTime -PropertyType String -Value "$($MWPerDaySundayEndTime)"
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name UpdateSource -PropertyType String -Value $($selectedUpdateSource)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name LastScanTime -PropertyType String -Value ""
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name NextScanTime -PropertyType String -Value ""
@@ -607,7 +673,8 @@ function New-CustomUpdateScript {
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ReportOnly -PropertyType String -Value False
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name NotifyUser -PropertyType String -Value $($NotifyUser)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastTitle -PropertyType String -Value "$($ToastTitle)"
-                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastText -PropertyType String -Value "$($ToastText)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastAdvice -PropertyType String -Value "$($ToastAdvice)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastMessage -PropertyType String -Value "$($ToastMessage)"
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ForceRebootNoMW -PropertyType String -Value $($AutoRebootInterval)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ForceRebootwithNoUser -PropertyType String -Value $($ForceRebootwithNoUser)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name AutomaticReboot -PropertyType String -Value $($MWAutomaticReboot)

@@ -259,9 +259,31 @@ $GenerateButton.Add_Click({
 					$CUProfileParams["ToolUpdateSource"] = $ToolUpdateSource.SelectionBoxItem
 					$CUProfileParams["DirectDownload"] = $DirectDownload.IsChecked
 					$CUProfileParams["EnablemaintenanceWindow"] = $EnablemaintenanceWindow.IsChecked
-					$CUProfileParams["MWStartTime"] = $MWStartTime.text
-					$CUProfileParams["MWEndTime"] = $MWEndTime.text
-					$CUProfileParams["MWDay"] = $MWDays.SelectedItems.text
+					$CUProfileParams["EnablePerDayMW"] = $EnablePerDayMW.IsChecked
+					if($EnablePerDayMW.IsChecked)
+					{
+						$CUProfileParams["MWPerDayMondayStartTime"] = $MWPerDayMondayStartTime.text
+						$CUProfileParams["MWPerDayMondayEndTime"] = $MWPerDayMondayEndTime.text
+						$CUProfileParams["MWPerDayTuesdayStartTime"] = $MWPerDayTuesdayStartTime.text
+						$CUProfileParams["MWPerDayTuesdayEndTime"] = $MWPerDayTuesdayEndTime.text
+						$CUProfileParams["MWPerDayWednesdayStartTime"] = $MWPerDayWednesdayStartTime.text
+						$CUProfileParams["MWPerDayWednesdayEndTime"] = $MWPerDayWednesdayEndTime.text
+						$CUProfileParams["MWPerDayThursdayStartTime"] = $MWPerDayThursdayStartTime.text
+						$CUProfileParams["MWPerDayThursdayEndTime"] = $MWPerDayThursdayEndTime.text
+						$CUProfileParams["MWPerDayFridayStartTime"] = $MWPerDayFridayStartTime.text
+						$CUProfileParams["MWPerDayFridayEndTime"] = $MWPerDayFridayEndTime.text
+						$CUProfileParams["MWPerDaySaturdayStartTime"] = $MWPerDaySaturdayStartTime.text
+						$CUProfileParams["MWPerDaySaturdayEndTime"] = $MWPerDaySaturdayEndTime.text
+						$CUProfileParams["MWPerDaySundayStartTime"] = $MWPerDaySundayStartTime.text
+						$CUProfileParams["MWPerDaySundayEndTime"] = $MWPerDaySundayEndTime.text
+					}
+					else
+					{
+						$CUProfileParams["MWStartTime"] = $MWStartTime.text
+						$CUProfileParams["MWEndTime"] = $MWEndTime.text
+						$CUProfileParams["MWDay"] = $MWDays.SelectedItems.text
+					}
+					
 					$CUProfileParams["EmergencyKB"] = $EmergencyKB.text
 					$CUProfileParams["BlockedKBs"] = $BlockedKBs.text
 					$CUProfileParams["UnBlockedKBs"] = $UnBlockedKBs.text
@@ -309,9 +331,30 @@ $GenerateButton.Add_Click({
 					$CUScriptParams["ToolUpdateSource"] = $ToolUpdateSource.SelectionBoxItem
 					$CUScriptParams["DirectDownload"] = $DirectDownload.IsChecked
 					$CUScriptParams["EnablemaintenanceWindow"] = $EnablemaintenanceWindow.IsChecked
-					$CUScriptParams["MWStartTime"] = $MWStartTime.text
-					$CUScriptParams["MWEndTime"] = $MWEndTime.text
-					$CUScriptParams["MWDay"] = $MWDays.SelectedItems.text
+					$CUProfileParams["EnablePerDayMW"] = $EnablePerDayMW.IsChecked
+					if($EnablePerDayMW.IsChecked)
+					{
+						$CUScriptParams["MWPerDayMondayStartTime"] = $MWPerDayMondayStartTime.text
+						$CUScriptParams["MWPerDayMondayEndTime"] = $MWPerDayMondayEndTime.text
+						$CUScriptParams["MWPerDayTuesdayStartTime"] = $MWPerDayTuesdayStartTime.text
+						$CUScriptParams["MWPerDayTuesdayEndTime"] = $MWPerDayTuesdayEndTime.text
+						$CUScriptParams["MWPerDayWednesdayStartTime"] = $MWPerDayWednesdayStartTime.text
+						$CUScriptParams["MWPerDayWednesdayEndTime"] = $MWPerDayWednesdayEndTime.text
+						$CUScriptParams["MWPerDayThursdayStartTime"] = $MWPerDayThursdayStartTime.text
+						$CUScriptParams["MWPerDayThursdayEndTime"] = $MWPerDayThursdayEndTime.text
+						$CUScriptParams["MWPerDayFridayStartTime"] = $MWPerDayFridayStartTime.text
+						$CUScriptParams["MWPerDayFridayEndTime"] = $MWPerDayFridayEndTime.text
+						$CUScriptParams["MWPerDaySaturdayStartTime"] = $MWPerDaySaturdayStartTime.text
+						$CUScriptParams["MWPerDaySaturdayEndTime"] = $MWPerDaySaturdayEndTime.text
+						$CUScriptParams["MWPerDaySundayStartTime"] = $MWPerDaySundayStartTime.text
+						$CUScriptParams["MWPerDaySundayEndTime"] = $MWPerDaySundayEndTime.text
+					}
+					else
+					{
+						$CUScriptParams["MWStartTime"] = $MWStartTime.text
+						$CUScriptParams["MWEndTime"] = $MWEndTime.text
+						$CUScriptParams["MWDay"] = $MWDays.SelectedItems.text
+					}
 					$CUScriptParams["EmergencyKB"] = $EmergencyKB.text
 					$CUScriptParams["BlockedKBs"] = $BlockedKBs.text
 					$CUScriptParams["UnBlockedKBs"] = $UnBlockedKBs.text
@@ -399,8 +442,66 @@ $GenerateButton.Add_Click({
 
 $GenerateCustomScriptProfile.Add_Click( { $MenuNavigation.SelectedItem = $TABGenerate })
 
-$EnableMaintenanceWindow.Add_Checked({ $MWAutomaticRebootCheckBox.IsEnabled = $True;  $CMUAutoRebootIntervalTextBox_MW.IsEnabled = $true; $CMUAutoRebootIntervalSlider_MW.IsEnabled = $True; $NoMWAutomaticRebootCheckBox.IsEnabled = $false; $CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $false; $CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $false; $MWStartTime.IsEnabled = $true; $MWEndTime.IsEnabled = $true; $MWDays.IsEnabled = $true; $StartTimeHelpText.Visibility = "Visible"; $StopTimeHelpText.Visibility = "Visible"; $MWAutomaticRebootCheckBox.IsEnabled = $true })
-$EnableMaintenanceWindow.Add_UnChecked({ $MWAutomaticRebootCheckBox.IsEnabled = $False;  $CMUAutoRebootIntervalTextBox_MW.IsEnabled = $False; $CMUAutoRebootIntervalSlider_MW.IsEnabled = $False; $NoMWAutomaticRebootCheckBox.IsEnabled = $true; $CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $true; $CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $true; $MWStartTime.IsEnabled = $false; $MWEndTime.IsEnabled = $false; $MWDays.IsEnabled = $false; $StartTimeHelpText.Visibility = "Hidden"; $StopTimeHelpText.Visibility = "Hidden"; $MWAutomaticRebootCheckBox.IsEnabled = $false })
+$EnableMaintenanceWindow.Add_Checked({ $EnablePerDayMW.IsEnabled = $true; $MWAutomaticRebootCheckBox.IsEnabled = $True;  $CMUAutoRebootIntervalTextBox_MW.IsEnabled = $true; $CMUAutoRebootIntervalSlider_MW.IsEnabled = $True; $NoMWAutomaticRebootCheckBox.IsEnabled = $false; $CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $false; $CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $false; $MWStartTime.IsEnabled = $true; $MWEndTime.IsEnabled = $true; $MWDays.IsEnabled = $true; $StartTimeHelpText.Visibility = "Visible"; $StopTimeHelpText.Visibility = "Visible"; $MWAutomaticRebootCheckBox.IsEnabled = $true })
+$EnableMaintenanceWindow.Add_UnChecked({ $EnablePerDayMW.IsEnabled = $false; $MWAutomaticRebootCheckBox.IsEnabled = $False;  $CMUAutoRebootIntervalTextBox_MW.IsEnabled = $False; $CMUAutoRebootIntervalSlider_MW.IsEnabled = $False; $NoMWAutomaticRebootCheckBox.IsEnabled = $true; $CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $true; $CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $true; $MWStartTime.IsEnabled = $false; $MWEndTime.IsEnabled = $false; $MWDays.IsEnabled = $false; $StartTimeHelpText.Visibility = "Hidden"; $StopTimeHelpText.Visibility = "Hidden"; $MWAutomaticRebootCheckBox.IsEnabled = $false })
+
+
+$EnablePerDayMW.Add_UnChecked({
+	$PerDayStartTimeHelpText.Visibility = "Hidden"
+	$PerDayStartTimeText.Visibility = "Hidden"
+	$PerDayStopTimeText.Visibility = "Hidden"
+	$PerDayMonday.Visibility = "Hidden"
+	$MWPerDayMondayStartTime.Visibility = "Hidden"
+	$MWPerDayMondayEndTime.Visibility = "Hidden"
+	$PerDayTuesday.Visibility = "Hidden"
+	$MWPerDayTuesdayStartTime.Visibility = "Hidden"
+	$MWPerDayTuesdayEndTime.Visibility = "Hidden"
+	$PerDayWednesday.Visibility = "Hidden"
+	$MWPerDayWednesdayStartTime.Visibility = "Hidden"
+	$MWPerDayWednesdayEndTime.Visibility = "Hidden"
+	$PerDayThursday.Visibility = "Hidden"
+	$MWPerDayThursdayStartTime.Visibility = "Hidden"
+	$MWPerDayThursdayEndTime.Visibility = "Hidden"
+	$PerDayFriday.Visibility = "Hidden"
+	$MWPerDayFridayStartTime.Visibility = "Hidden"
+	$MWPerDayFridayEndTime.Visibility = "Hidden"
+	$PerDaySaturday.Visibility = "Hidden"
+	$MWPerDaySaturdayStartTime.Visibility = "Hidden"
+	$MWPerDaySaturdayEndTime.Visibility = "Hidden"
+	$PerDaySunday.Visibility = "Hidden"
+	$MWPerDaySundayStartTime.Visibility = "Hidden"
+	$MWPerDaySundayEndTime.Visibility = "Hidden"
+	$MWSimpleDaysText.Visibility = "Visible"; $MWSimpleEndText.Visibility = "Visible"; $MWSimpleStartText.Visibility = "Visible"; $MWAutomaticRebootCheckBox.Visibility = "Visible";  $CMUAutoRebootIntervalTextBox_MW.Visibility = "Visible"; $CMUAutoRebootIntervalSlider_MW.Visibility = "Visible"; $NoMWAutomaticRebootCheckBox.IsEnabled = $false; $CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $false; $CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $false; $MWStartTime.Visibility = "Visible"; $MWEndTime.Visibility = "Visible"; $MWDays.Visibility = "Visible"; $StartTimeHelpText.Visibility = "Visible"; $StopTimeHelpText.Visibility = "Visible"; $MWAutomaticRebootCheckBox.Visibility = "Visible"
+})
+
+$EnablePerDayMW.Add_Checked({
+	$PerDayStartTimeHelpText.Visibility = "Visible"
+	$PerDayStartTimeText.Visibility = "Visible"
+	$PerDayStopTimeText.Visibility = "Visible"
+	$PerDayMonday.Visibility = "Visible"
+	$MWPerDayMondayStartTime.Visibility = "Visible"
+	$MWPerDayMondayEndTime.Visibility = "Visible"
+	$PerDayTuesday.Visibility = "Visible"
+	$MWPerDayTuesdayStartTime.Visibility = "Visible"
+	$MWPerDayTuesdayEndTime.Visibility = "Visible"
+	$PerDayWednesday.Visibility = "Visible"
+	$MWPerDayWednesdayStartTime.Visibility = "Visible"
+	$MWPerDayWednesdayEndTime.Visibility = "Visible"
+	$PerDayThursday.Visibility = "Visible"
+	$MWPerDayThursdayStartTime.Visibility = "Visible"
+	$MWPerDayThursdayEndTime.Visibility = "Visible"
+	$PerDayFriday.Visibility = "Visible"
+	$MWPerDayFridayStartTime.Visibility = "Visible"
+	$MWPerDayFridayEndTime.Visibility = "Visible"
+	$PerDaySaturday.Visibility = "Visible"
+	$MWPerDaySaturdayStartTime.Visibility = "Visible"
+	$MWPerDaySaturdayEndTime.Visibility = "Visible"
+	$PerDaySunday.Visibility = "Visible"
+	$MWPerDaySundayStartTime.Visibility = "Visible"
+	$MWPerDaySundayEndTime.Visibility = "Visible"
+	$MWSimpleDaysText.Visibility = "Hidden"; $MWSimpleEndText.Visibility = "Hidden"; $MWSimpleStartText.Visibility = "Hidden"; $MWAutomaticRebootCheckBox.Visibility = "Hidden";  $CMUAutoRebootIntervalTextBox_MW.Visibility = "Hidden"; $CMUAutoRebootIntervalSlider_MW.Visibility = "Hidden"; $NoMWAutomaticRebootCheckBox.IsEnabled = $false; $CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $false; $CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $false; $MWStartTime.Visibility = "Hidden"; $MWEndTime.Visibility = "Hidden"; $MWDays.Visibility = "Hidden"; $StartTimeHelpText.Visibility = "Hidden"; $StopTimeHelpText.Visibility = "Hidden"; $MWAutomaticRebootCheckBox.Visibility = "Hidden"
+})
+
 
 
 $NoMWAutomaticRebootCheckBox.Add_Checked({
