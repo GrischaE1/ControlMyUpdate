@@ -89,11 +89,11 @@
 # Retry count     
 #                 0-99                           Configure how often updates getting downloaded and installed if an error appears 
 #
-# AutomaticReboot
+# NoMWAutomaticReboot
 #               True                            Will reboot the device automatic if a pending reboot is detected and device is in MW
 #               False                           Will not reboot the device automatic during the MW
 #
-# ForceRebootNoMW
+# NoMWAutoRebootInterval
 #               1-24                            If no MW is configured the device will force a reboot after X days - only possible if "NotifyUser" is set to true
 #               0                               Disabled
 #
@@ -113,11 +113,11 @@
 #               True                            Will show the reboot notification if a user is logged on to the device and the device has a MW configured
 #               False                           Will not show any notification
 #
-# ForceRebootOutsideOfMW
+# MWAutomaticReboot
 #               True                            Will force the reboot outside of the MW after Deadline is reached - only if no user is logged in
 #               False                           Will wait for the next MW to reboot the device
 #
-# ForceRebootMWDeadline
+# MWAutomaticRebootInterval
 #               1-30                            Days till the device gets forced rebooted outside of the MW
 #
 # NotificationInterval
@@ -1142,10 +1142,10 @@ if ($RegistryTest -eq $true) {
         else { $retrycount = $settings.retrycount }
         
         
-        if ($Settings.AutomaticReboot -eq "True") {
+        if ($Settings.NoMWAutomaticReboot -eq "True") {
             [bool]$Reboot = $True
         }
-        elseif ($settings.ForceRebootOutsideOfMW -eq "True") {
+        elseif ($settings.MWAutomaticReboot -eq "True") {
             [bool]$Reboot = $True
         }
         else { [bool]$Reboot = $False }           
@@ -1163,7 +1163,7 @@ else {
 
 #Registry mapping - to make sure bool is bool
 if ($settings.DirectDownload -eq "True") { [bool]$DirectDownload = $true } else { [bool]$DirectDownload = $false }
-if ($Settings.ForceRebootOutsideOfMW -eq "True") { [bool]$ForceRebootOutsideOfMW = $true } else { [bool]$ForceRebootOutsideOfMW = $false }
+if ($Settings.MWAutomaticReboot -eq "True") { [bool]$MWAutomaticReboot = $true } else { [bool]$MWAutomaticReboot = $false }
 if ($Settings.NotifyEnduserOutsideOfMW -eq "True") { [bool]$NotifyEnduserOutsideOfMW = $true } else { [bool]$NotifyEnduserOutsideOfMW = $false }
 if ($Settings.RunConnectionTests -eq "True") { [bool]$RunConnectionTests = $true } else { [bool]$RunConnectionTests = $false }
 if ($Settings.ForceRebootwithNoUser -eq "True") { [bool]$ForceRebootwithNoUser = $true } else { [bool]$ForceRebootwithNoUser = $false }
@@ -1171,7 +1171,7 @@ if ($Settings.ReportOnly -eq "True") { [bool]$ReportOnly = $true } else { [bool]
 if ($Settings.NotifyUser -eq "True") { [bool]$NotifyUser = $true } else { [bool]$NotifyUser = $false }
 if ($Settings.MaintenanceWindow -eq "True") { [bool]$MaintenanceWindow = $true } else { [bool]$MaintenanceWindow = $false }
 if ($Settings.UninstallKBs -eq "True") { [bool]$UninstallKBs = $true } else { [bool]$UninstallKBs = $false }
-if ($Settings.AutomaticReboot -eq "True") { [bool]$AutomaticReboot = $true } else { [bool]$AutomaticReboot = $false }
+if ($Settings.NoMWAutomaticReboot -eq "True") { [bool]$NoMWAutomaticReboot = $true } else { [bool]$NoMWAutomaticReboot = $false }
 
 
 #Create Status registry keys
@@ -1443,7 +1443,7 @@ if ($RebootRequired -eq $true) {
                 
                 $RebootDetectionDate = Get-Date (Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)
         
-                if ($RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.ForceRebootMWDeadline)) -and ($Settings.ForceRebootMWDeadline) -ne 0) {
+                if ($RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.NoMWAutoRebootInterval)) -and ($Settings.NoMWAutoRebootInterval) -ne 0) {
                     Write-Log -LogLevel Info -LogMessage "Force reboot"
 
                     New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
@@ -1454,7 +1454,7 @@ if ($RebootRequired -eq $true) {
         }
 
         #Maintenance Window enabled - force restart enabled
-        if (($MaintenanceWindow -eq $true) -and ((Test-MaintenanceWindow) -eq $false) -and ($Reboot -eq $True) -and ($ForceRebootOutsideOfMW -eq $true)) {    
+        if (($MaintenanceWindow -eq $true) -and ((Test-MaintenanceWindow) -eq $false) -and ($Reboot -eq $True) -and ($MWAutomaticReboot -eq $true)) {    
            
             if (!(Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)) {
                 New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootDetectionDate" -Value (Get-Date -Format s) -Force | Out-Null   
@@ -1462,14 +1462,15 @@ if ($RebootRequired -eq $true) {
             else {
                 
                 $RebootDetectionDate = Get-Date (Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)
-        
-                if ($RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.ForceRebootMWDeadline)) -and ($Settings.ForceRebootMWDeadline) -ne 0) {
-                    Write-Log -LogLevel Info -LogMessage "Force reboot"
+                                
+                    if ($RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.MWAutoRebootInterval)) -and ($Settings.MWAutoRebootInterval) -ne 0) {
+                        Write-Log -LogLevel Info -LogMessage "Force reboot"
 
-                    New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
-                    Test-PendingReboot -AutomaticReboot $Reboot
-                    $RebootNotification = $false
-                }
+                        New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
+                        Test-PendingReboot -AutomaticReboot $Reboot
+                        $RebootNotification = $false
+                    }
+                
             }
         }
 

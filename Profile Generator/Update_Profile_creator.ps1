@@ -442,8 +442,8 @@ $GenerateButton.Add_Click({
 
 $GenerateCustomScriptProfile.Add_Click( { $MenuNavigation.SelectedItem = $TABGenerate })
 
-$EnableMaintenanceWindow.Add_Checked({ $EnablePerDayMW.IsEnabled = $true; $MWAutomaticRebootCheckBox.IsEnabled = $True;  $CMUAutoRebootIntervalTextBox_MW.IsEnabled = $true; $CMUAutoRebootIntervalSlider_MW.IsEnabled = $True; $NoMWAutomaticRebootCheckBox.IsEnabled = $false; $CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $false; $CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $false; $MWStartTime.IsEnabled = $true; $MWEndTime.IsEnabled = $true; $MWDays.IsEnabled = $true; $StartTimeHelpText.Visibility = "Visible"; $StopTimeHelpText.Visibility = "Visible"; $MWAutomaticRebootCheckBox.IsEnabled = $true })
-$EnableMaintenanceWindow.Add_UnChecked({ $EnablePerDayMW.IsEnabled = $false; $MWAutomaticRebootCheckBox.IsEnabled = $False;  $CMUAutoRebootIntervalTextBox_MW.IsEnabled = $False; $CMUAutoRebootIntervalSlider_MW.IsEnabled = $False; $NoMWAutomaticRebootCheckBox.IsEnabled = $true; $CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $true; $CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $true; $MWStartTime.IsEnabled = $false; $MWEndTime.IsEnabled = $false; $MWDays.IsEnabled = $false; $StartTimeHelpText.Visibility = "Hidden"; $StopTimeHelpText.Visibility = "Hidden"; $MWAutomaticRebootCheckBox.IsEnabled = $false })
+$EnableMaintenanceWindow.Add_Checked({ $EnablePerDayMW.IsEnabled = $true; $MWAutomaticRebootCheckBox.IsEnabled = $True;  $CMUAutoRebootIntervalTextBox_MW.IsEnabled = $true; $CMUAutoRebootIntervalSlider_MW.IsEnabled = $True; $NoMWAutomaticRebootCheckBox.IsEnabled = $false; $CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $false; $CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $false; $MWStartTime.IsEnabled = $true; $MWEndTime.IsEnabled = $true; $MWDays.IsEnabled = $true; $StartTimeHelpText.Visibility = "Visible"; $StopTimeHelpText.Visibility = "Visible" })
+$EnableMaintenanceWindow.Add_UnChecked({ $EnablePerDayMW.IsEnabled = $false; $MWAutomaticRebootCheckBox.IsEnabled = $False;  $CMUAutoRebootIntervalTextBox_MW.IsEnabled = $False; $CMUAutoRebootIntervalSlider_MW.IsEnabled = $False; $NoMWAutomaticRebootCheckBox.IsEnabled = $true; $CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $true; $CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $true; $MWStartTime.IsEnabled = $false; $MWEndTime.IsEnabled = $false; $MWDays.IsEnabled = $false; $StartTimeHelpText.Visibility = "Hidden"; $StopTimeHelpText.Visibility = "Hidden"})
 
 
 $EnablePerDayMW.Add_UnChecked({
@@ -471,7 +471,7 @@ $EnablePerDayMW.Add_UnChecked({
 	$PerDaySunday.Visibility = "Hidden"
 	$MWPerDaySundayStartTime.Visibility = "Hidden"
 	$MWPerDaySundayEndTime.Visibility = "Hidden"
-	$MWSimpleDaysText.Visibility = "Visible"; $MWSimpleEndText.Visibility = "Visible"; $MWSimpleStartText.Visibility = "Visible"; $MWAutomaticRebootCheckBox.Visibility = "Visible";  $CMUAutoRebootIntervalTextBox_MW.Visibility = "Visible"; $CMUAutoRebootIntervalSlider_MW.Visibility = "Visible"; $NoMWAutomaticRebootCheckBox.IsEnabled = $false; $CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $false; $CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $false; $MWStartTime.Visibility = "Visible"; $MWEndTime.Visibility = "Visible"; $MWDays.Visibility = "Visible"; $StartTimeHelpText.Visibility = "Visible"; $StopTimeHelpText.Visibility = "Visible"; $MWAutomaticRebootCheckBox.Visibility = "Visible"
+	$MWSimpleDaysText.Visibility = "Visible"; $MWSimpleEndText.Visibility = "Visible"; $MWSimpleStartText.Visibility = "Visible"; $MWStartTime.Visibility = "Visible"; $MWEndTime.Visibility = "Visible"; $MWDays.Visibility = "Visible"; $StartTimeHelpText.Visibility = "Visible"; $StopTimeHelpText.Visibility = "Visible"
 })
 
 $EnablePerDayMW.Add_Checked({
@@ -499,7 +499,7 @@ $EnablePerDayMW.Add_Checked({
 	$PerDaySunday.Visibility = "Visible"
 	$MWPerDaySundayStartTime.Visibility = "Visible"
 	$MWPerDaySundayEndTime.Visibility = "Visible"
-	$MWSimpleDaysText.Visibility = "Hidden"; $MWSimpleEndText.Visibility = "Hidden"; $MWSimpleStartText.Visibility = "Hidden"; $MWAutomaticRebootCheckBox.Visibility = "Hidden";  $CMUAutoRebootIntervalTextBox_MW.Visibility = "Hidden"; $CMUAutoRebootIntervalSlider_MW.Visibility = "Hidden"; $NoMWAutomaticRebootCheckBox.IsEnabled = $false; $CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $false; $CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $false; $MWStartTime.Visibility = "Hidden"; $MWEndTime.Visibility = "Hidden"; $MWDays.Visibility = "Hidden"; $StartTimeHelpText.Visibility = "Hidden"; $StopTimeHelpText.Visibility = "Hidden"; $MWAutomaticRebootCheckBox.Visibility = "Hidden"
+	$MWSimpleDaysText.Visibility = "Hidden"; $MWSimpleEndText.Visibility = "Hidden"; $MWSimpleStartText.Visibility = "Hidden"; $MWStartTime.Visibility = "Hidden"; $MWEndTime.Visibility = "Hidden"; $MWDays.Visibility = "Hidden"; $StartTimeHelpText.Visibility = "Hidden"; $StopTimeHelpText.Visibility = "Hidden"
 })
 
 
@@ -594,10 +594,13 @@ $RebootNotificationCheckBox.Add_Checked({
 	})
 
 
-$CMUCategories_SelectAll.Add_Checked({ $CMUCategories_SecurityUpdates.IsEnabled = $False; $CMUCategories_Application.IsEnabled = $False;  $CMUCategories_Connectors.IsEnabled = $False; $CMUCategories_CriticalUpdates.IsEnabled = $false; $CMUCategories_DefinitionUpdates.IsEnabled = $false; $CMUCategories_DeveloperKits.IsEnabled = $false; $CMUCategories_Guidance.IsEnabled = $false; $CMUCategories_FeaturePacks.IsEnabled = $false; $CMUCategories_ServicePacks.IsEnabled = $false; $CMUCategories_Tools.IsEnabled = $false; $CMUCategories_UpdateRollups.IsEnabled = $false; $CMUCategories_Updates.IsEnabled = $false })
-$CMUCategories_SelectAll.Add_UnChecked({ $CMUCategories_SecurityUpdates.IsEnabled = $true; $CMUCategories_Application.IsEnabled = $True;  $CMUCategories_Connectors.IsEnabled = $True; $CMUCategories_CriticalUpdates.IsEnabled = $True; $CMUCategories_DefinitionUpdates.IsEnabled = $True; $CMUCategories_DeveloperKits.IsEnabled = $True; $CMUCategories_Guidance.IsEnabled = $True; $CMUCategories_FeaturePacks.IsEnabled = $True; $CMUCategories_ServicePacks.IsEnabled = $True; $CMUCategories_Tools.IsEnabled = $True; $CMUCategories_UpdateRollups.IsEnabled = $True; $CMUCategories_Updates.IsEnabled = $True })
-
-
+$CMUCategories_SelectAll.Add_Checked({ $CMUCategories_Defender.IsEnabled = $False; $CMUCategories_W10LTSB.IsEnabled = $False; $CMUCategories_W10.IsEnabled = $False; $CMUCategories_W11.IsEnabled = $False; $CMUCategories_W101903later.IsEnabled = $False;  $CMUCategories_SecurityUpdates.IsEnabled = $False; $CMUCategories_Application.IsEnabled = $False;  $CMUCategories_Connectors.IsEnabled = $False; $CMUCategories_CriticalUpdates.IsEnabled = $false; $CMUCategories_DefinitionUpdates.IsEnabled = $false; $CMUCategories_DeveloperKits.IsEnabled = $false; $CMUCategories_Guidance.IsEnabled = $false; $CMUCategories_FeaturePacks.IsEnabled = $false; $CMUCategories_ServicePacks.IsEnabled = $false; $CMUCategories_Tools.IsEnabled = $false; $CMUCategories_UpdateRollups.IsEnabled = $false; $CMUCategories_Updates.IsEnabled = $false })
+$CMUCategories_SelectAll.Add_UnChecked({ $CMUCategories_Defender.IsEnabled = $True; $CMUCategories_W10LTSB.IsEnabled = $True; $CMUCategories_W10.IsEnabled = $True; $CMUCategories_W11.IsEnabled = $True; $CMUCategories_W101903later.IsEnabled = $True; $CMUCategories_SecurityUpdates.IsEnabled = $true; $CMUCategories_Application.IsEnabled = $True;  $CMUCategories_Connectors.IsEnabled = $True; $CMUCategories_CriticalUpdates.IsEnabled = $True; $CMUCategories_DefinitionUpdates.IsEnabled = $True; $CMUCategories_DeveloperKits.IsEnabled = $True; $CMUCategories_Guidance.IsEnabled = $True; $CMUCategories_FeaturePacks.IsEnabled = $True; $CMUCategories_ServicePacks.IsEnabled = $True; $CMUCategories_Tools.IsEnabled = $True; $CMUCategories_UpdateRollups.IsEnabled = $True; $CMUCategories_Updates.IsEnabled = $True })
+$CMUCategories_Defender.IsEnabled = $False; 
+$CMUCategories_W101903later.IsEnabled = $False; 
+$CMUCategories_W11.IsEnabled = $False; 
+$CMUCategories_W10LTSB.IsEnabled = $False; 
+$CMUCategories_W10.IsEnabled = $False; 
 
 #-------------------------------------------------------------#
 #----Delivery Optimization------------------------------------#
