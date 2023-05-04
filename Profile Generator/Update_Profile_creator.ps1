@@ -331,7 +331,7 @@ $GenerateButton.Add_Click({
 					$CUScriptParams["ToolUpdateSource"] = $ToolUpdateSource.SelectionBoxItem
 					$CUScriptParams["DirectDownload"] = $DirectDownload.IsChecked
 					$CUScriptParams["EnablemaintenanceWindow"] = $EnablemaintenanceWindow.IsChecked
-					$CUProfileParams["EnablePerDayMW"] = $EnablePerDayMW.IsChecked
+					$CUScriptParams["EnablePerDayMW"] = $EnablePerDayMW.IsChecked
 					if($EnablePerDayMW.IsChecked)
 					{
 						$CUScriptParams["MWPerDayMondayStartTime"] = $MWPerDayMondayStartTime.text

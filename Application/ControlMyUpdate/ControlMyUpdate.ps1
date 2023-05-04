@@ -15,7 +15,7 @@
 
 ##########################################################################################
 # Name: ControlMyUpdate.ps1
-# Version: 2.1.3
+# Version: 2.2
 # Date: 18.05.2021
 # Created by: Grischa Ernst gernst@vmware.com
 # Contributor: Camille Debay
@@ -128,12 +128,15 @@
 #
 # 2.2   - Bugfixes: 
 #           - Reboot notification loop if user is no admin user
+#           - Connection test can now be disabled
 #       - New Features:
 #           - Optional Prompt for end users if MW is configured
-#           - Search specific categories
+#           - Search only specific categories
 #           - Disable Driver downloads
+#           - Per Day Maintenance Windows
 #       - Improvements: 
 #           - NotificationInterval - The time between the end user notification is now configurable 
+#           - Notification Message is now based on the registry -> customizable for the admin
 # 2.1.3 - added option for connection test (enabled/disabled)
 #       - connection test will only run before Windows Update search is triggered 
 #       - Added the option to force a reboot if no user is logged on (for non MW devices)
@@ -226,100 +229,147 @@ function Test-MaintenanceWindow {
     $CurrentHour = Get-Date -Format HH 
     $CurrentMinute = Get-Date -Format mm
 
-    #Get start time
-    $MWStartHour = $Settings.MWStartTime.Substring(0, 2)
-    $MWStartMinute = $Settings.MWStartTime.Remove(0, 3)
-    Write-Log -LogLevel Debug -LogMessage "Start Time: Hour: $($MWStartHour) / Minute: $($MWStartMinute)"
-    
-    #Get stop time
-    $MWStopHour = $Settings.MWStopTime.Substring(0, 2)
-    $MWStopMinute = $Settings.MWStopTime.Remove(0, 3)
-    Write-Log -LogLevel Debug -LogMessage "Stop Time: Hour: $($MWStopHour) / Minute: $($MWStopMinute)"
+    #Per Day MW
+    if ($settings.EnablePerDayMW -eq $true) {
+        Write-Log -LogLevel Debug -LogMessage "Per Day MW enabled"
+        $CurrentDay = Get-Date -Format "dddd"
 
-    #Check if installation day was set - if not, updates will be installed everyday 
-    if ($Settings.MWDay) {
-        if ($Settings.MWDay -like "*,*") {
-            Write-Log -LogLevel Debug -LogMessage "Multiple target day found. $($Settings.MWDay)"
-            $TargetDay = $Settings.MWDay.Split(",")
+        if ($settings.EnablePerDayMW -eq $true) {
+            $StartTime = Get-ItemPropertyValue -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings  -Name "MWPerDay$($Currentday)StartTime"
+            $EndTime = Get-ItemPropertyValue -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings  -Name "MWPerDay$($Currentday)EndTime"        
+        }
+
+
+        #Get start time
+        $MWStartHour = $StartTime.Substring(0, 2)
+        $MWStartMinute = $StartTime.Remove(0, 3)
+        
+        #Get stop time
+        $MWStopHour = $EndTime.Substring(0, 2)
+        $MWStopMinute = $EndTime.Remove(0, 3)
+        
+        Clear-Variable IsInMaintenanceWindow -Force -ErrorAction SilentlyContinue
+        [Boolean] $IsInMaintenanceWindow = $false
+
+        if ($CurrentHour -ge $MWStartHour -and $CurrentHour -le $MWStopHour) {
+            Write-Log -LogLevel Debug -LogMessage  "Current Hour within maintenance window timeframe"
+            if ((($CurrentHour -eq $MWStartHour -and $CurrentMinute -gt $MWStartMinute) -and ($CurrentHour -eq $MWStopHour -and $CurrentMinute -lt $MWStopMinute))) {
+                Write-Log -LogLevel Debug -LogMessage "Same Start and Stop hour, using minutes to check Maintenance Windows"
+                $IsInMaintenanceWindow = $true
+            }
+            elseif ($CurrentHour -ge $MWStartHour -and $CurrentHour -lt $MWStopHour) {
+                Write-Log -LogLevel Debug -LogMessage "Checking if time is between start and stop hour"
+                $IsInMaintenanceWindow = $true
+            }
+            elseif (($CurrentHour -ge $MWStartHour -and $CurrentHour -eq $MWStopHour) -and $CurrentMinute -lt $MWStopMinute) {
+                Write-Log -LogLevel Debug -LogMessage  "CHecking Maintenance Windows within the last hour"
+                $IsInMaintenanceWindow = $true
+            }
         }
         else {
-            Write-Log -LogLevel Debug -LogMessage "1 Target day found $($Settings.MWDay)"
-            $TargetDay = $Settings.MWDay
+            Write-Log -LogLevel Debug -LogMessage  "Current time not within defined maintenance window"
+            $IsInMaintenanceWindow = $false
         }
-    }
-    else {
-        Write-Log -LogLevel Debug -LogMessage "Everyday as target day"
-        $TargetDay = $CurrentDay
-    }
-
-    Write-Log -LogLevel Debug -LogMessage "TargetDay: $($TargetDay)"
-
-    #Check if current time is in Maintenance Window
-    Clear-Variable IsInMaintenanceWindow -Force -ErrorAction SilentlyContinue
-    $CurrentDayIsInMW = $false
-
-    [Boolean] $IsInMaintenanceWindow = $false
-    foreach ($MWDay in $TargetDay) {
-        Write-Log -LogLevel Debug -LogMessage "processing: $($MWDay)"  
-        if ( $CurrentDay -eq $MWDay ) {
-            Write-Log -LogLevel Debug -LogMessage "Current day defined in maintenance window"
-            $CurrentDayIsInMW = $true
-        }   
-        
-        if ($CurrentDayIsInMW -eq $true) {
-            if (($CurrentDay -eq ($TargetDay[$TargetDay.Count - 1])) -and ($TargetDay.Count -gt 1)) {
-                $CurrentDayIsLastDay = $True
-            }
-            else { $CurrentDayIsLastDay = $False }
             
-            Write-Log -LogLevel Trace -LogMessage "If current day in Maintenance Window: True"
-            if ($MWStopHour -lt $MWStartHour) {
-                Write-Log -LogLevel Trace -LogMessage "If Checking Stop Hour is smaller than Start Hour. Over midnight MW."
-                if ($CurrentHour -ge $MWStartHour -or $CurrentHour -le $MWStopHour) { 
-                    Write-Log -LogLevel Debug -LogMessage "Checking Maintenance Windows timeframe"
-                    if ($CurrentHour -ge $MWStartHour -and $CurrentMinute -ge $MWStartMinute) {                       
-                        Write-Log -LogLevel Trace -LogMessage "Stop Hour at 24"
-                        $MWStopHour = "24"
-                        $MWStopMinute = "00"
-                    }
+    }
+    
+    #Simple MW
+    else {
+        #Get start time
+        $MWStartHour = $Settings.MWStartTime.Substring(0, 2)
+        $MWStartMinute = $Settings.MWStartTime.Remove(0, 3)
+        Write-Log -LogLevel Debug -LogMessage "Start Time: Hour: $($MWStartHour) / Minute: $($MWStartMinute)"
+        
+        #Get stop time
+        $MWStopHour = $Settings.MWStopTime.Substring(0, 2)
+        $MWStopMinute = $Settings.MWStopTime.Remove(0, 3)
+        Write-Log -LogLevel Debug -LogMessage "Stop Time: Hour: $($MWStopHour) / Minute: $($MWStopMinute)"
+
+        #Check if installation day was set - if not, updates will be installed everyday 
+        if ($Settings.MWDay) {
+            if ($Settings.MWDay -like "*,*") {
+                Write-Log -LogLevel Debug -LogMessage "Multiple target day found. $($Settings.MWDay)"
+                $TargetDay = $Settings.MWDay.Split(",")
+            }
+            else {
+                Write-Log -LogLevel Debug -LogMessage "1 Target day found $($Settings.MWDay)"
+                $TargetDay = $Settings.MWDay
+            }
+        }
+        else {
+            Write-Log -LogLevel Debug -LogMessage "Everyday as target day"
+            $TargetDay = $CurrentDay
+        }
+
+        Write-Log -LogLevel Debug -LogMessage "TargetDay: $($TargetDay)"
+
+        #Check if current time is in Maintenance Window
+        Clear-Variable IsInMaintenanceWindow -Force -ErrorAction SilentlyContinue
+        $CurrentDayIsInMW = $false
+
+        [Boolean] $IsInMaintenanceWindow = $false
+        foreach ($MWDay in $TargetDay) {
+            Write-Log -LogLevel Debug -LogMessage "processing: $($MWDay)"  
+            if ( $CurrentDay -eq $MWDay ) {
+                Write-Log -LogLevel Debug -LogMessage "Current day defined in maintenance window"
+                $CurrentDayIsInMW = $true
+            }   
+            
+            if ($CurrentDayIsInMW -eq $true) {
+                if (($CurrentDay -eq ($TargetDay[$TargetDay.Count - 1])) -and ($TargetDay.Count -gt 1)) {
+                    $CurrentDayIsLastDay = $True
+                }
+                else { $CurrentDayIsLastDay = $False }
+                
+                Write-Log -LogLevel Trace -LogMessage "If current day in Maintenance Window: True"
+                if ($MWStopHour -lt $MWStartHour) {
+                    Write-Log -LogLevel Trace -LogMessage "If Checking Stop Hour is smaller than Start Hour. Over midnight MW."
                     if ($CurrentHour -ge $MWStartHour -or $CurrentHour -le $MWStopHour) { 
-                        if ($CurrentHour -le $MWStopHour -and $CurrentMinute -le $MWStopMinute) {                            
-                            Write-Log -LogLevel Trace -LogMessage "Stop Hour at 0"
-                            $MWStopHour = "00"
+                        Write-Log -LogLevel Debug -LogMessage "Checking Maintenance Windows timeframe"
+                        if ($CurrentHour -ge $MWStartHour -and $CurrentMinute -ge $MWStartMinute) {                       
+                            Write-Log -LogLevel Trace -LogMessage "Stop Hour at 24"
+                            $MWStopHour = "24"
                             $MWStopMinute = "00"
                         }
+                        if ($CurrentHour -ge $MWStartHour -or $CurrentHour -le $MWStopHour) { 
+                            if ($CurrentHour -le $MWStopHour -and $CurrentMinute -le $MWStopMinute) {                            
+                                Write-Log -LogLevel Trace -LogMessage "Stop Hour at 0"
+                                $MWStopHour = "00"
+                                $MWStopMinute = "00"
+                            }
+                        }
+                    }
+                    if ($CurrentDayIsLastDay -eq $true) {
+                        $MWStartHour = "00"
+                        $MWStartMinute = "00"
+                    }
+
+                }
+
+                if ($CurrentHour -ge $MWStartHour -and $CurrentHour -le $MWStopHour) {
+                    Write-Log -LogLevel Debug -LogMessage "Current Hour within maintenance window timeframe"
+                    if ((($CurrentHour -eq $MWStartHour -and $CurrentMinute -gt $MWStartMinute) -and ($CurrentHour -eq $MWStopHour -and $CurrentMinute -lt $MWStopMinute))) {
+                        Write-Log -LogLevel Debug -LogMessage "Same Start and Stop hour, using minutes to check Maintenance Windows"
+                        $IsInMaintenanceWindow = $true
+                    }
+                    elseif ($CurrentHour -ge $MWStartHour -and $CurrentHour -lt $MWStopHour) {
+                        Write-Log -LogLevel Debug -LogMessage "Checking if time is between start and stop hour"
+                        $IsInMaintenanceWindow = $true
+                    }
+                    elseif (($CurrentHour -ge $MWStartHour -and $CurrentHour -eq $MWStopHour) -and $CurrentMinute -lt $MWStopMinute) {
+                        Write-Log -LogLevel Debug -LogMessage "CHecking Maintenance Windows within the last hour"
+                        $IsInMaintenanceWindow = $true
                     }
                 }
-                if ($CurrentDayIsLastDay -eq $true) {
-                    $MWStartHour = "00"
-                    $MWStartMinute = "00"
-                }
-
-            }
-
-            if ($CurrentHour -ge $MWStartHour -and $CurrentHour -le $MWStopHour) {
-                Write-Log -LogLevel Debug -LogMessage "Current Hour within maintenance window timeframe"
-                if ((($CurrentHour -eq $MWStartHour -and $CurrentMinute -gt $MWStartMinute) -and ($CurrentHour -eq $MWStopHour -and $CurrentMinute -lt $MWStopMinute))) {
-                    Write-Log -LogLevel Debug -LogMessage "Same Start and Stop hour, using minutes to check Maintenance Windows"
-                    $IsInMaintenanceWindow = $true
-                }
-                elseif ($CurrentHour -ge $MWStartHour -and $CurrentHour -lt $MWStopHour) {
-                    Write-Log -LogLevel Debug -LogMessage "Checking if time is between start and stop hour"
-                    $IsInMaintenanceWindow = $true
-                }
-                elseif (($CurrentHour -ge $MWStartHour -and $CurrentHour -eq $MWStopHour) -and $CurrentMinute -lt $MWStopMinute) {
-                    Write-Log -LogLevel Debug -LogMessage "CHecking Maintenance Windows within the last hour"
-                    $IsInMaintenanceWindow = $true
+                else {
+                    Write-Log -LogLevel Debug -LogMessage "Current time not within defined maintenance window"
+                    $IsInMaintenanceWindow = $false
                 }
             }
             else {
                 Write-Log -LogLevel Debug -LogMessage "Current time not within defined maintenance window"
                 $IsInMaintenanceWindow = $false
             }
-        }
-        else {
-            Write-Log -LogLevel Debug -LogMessage "Current time not within defined maintenance window"
-            $IsInMaintenanceWindow = $false
         }
     }
     Write-Log -LogLevel Debug -LogMessage "IsInMaintenanceWindow: $($IsInMaintenanceWindow)"
@@ -483,37 +533,31 @@ function Search-AllUpdates {
         $HiddenFilter = "IsHidden = 0"
         $updates = ($updateSearcher.Search($SearchFilter))
     }
-    if($settings.UpdateCategories -ne "All")
-    {
+    if ($settings.UpdateCategories -ne "All") {
         $CategorySettings = $settings.UpdateCategories.Split(" ")
            
-        foreach($Category in $CategorySettings)
-        {
-           if($CategoryFilter)
-           {
+        foreach ($Category in $CategorySettings) {
+            if ($CategoryFilter) {
                 $CategoryFilter = "$($CategoryFilter) AND CategoryIDs contains '$($Category)'"
-           }
-           else{$CategoryFilter = "CategoryIDs contains '$($Category)'"}
+            }
+            else { $CategoryFilter = "CategoryIDs contains '$($Category)'" }
         }
     }
-    if($settings.InstallDrivers -eq $False)
-    {
+    if ($settings.InstallDrivers -eq $False) {
         $TypeFilter = "Type != 'Driver'"
     }
     
-    if(($TypeFilter -and $CategoryFilter) -or ($TypeFilter -and $CategoryFilter -and $HiddenFilter) -or ($HiddenFilter -and $CategoryFilter) -or ($HiddenFilter -and $TypeFilter))
-    {
-        if($HiddenFilter -and $CategoryFilter -and !$TypeFilter){$SearchFilter = "$($HiddenFilter) AND $($CategoryFilter)"}
-        elseif($HiddenFilter -and $CategoryFilter -and $TypeFilter){$SearchFilter = "$($HiddenFilter) AND $($CategoryFilter) AND $($TypeFilter)"}
-        elseif(!$HiddenFilter -and $CategoryFilter -and $TypeFilter){$SearchFilter = "$($TypeFilter) AND $($CategoryFilter)"}
-        elseif($HiddenFilter -and !$CategoryFilter -and $TypeFilter){$SearchFilter = "$($HiddenFilter) AND $($TypeFilter)"}
+    if (($TypeFilter -and $CategoryFilter) -or ($TypeFilter -and $CategoryFilter -and $HiddenFilter) -or ($HiddenFilter -and $CategoryFilter) -or ($HiddenFilter -and $TypeFilter)) {
+        if ($HiddenFilter -and $CategoryFilter -and !$TypeFilter) { $SearchFilter = "$($HiddenFilter) AND $($CategoryFilter)" }
+        elseif ($HiddenFilter -and $CategoryFilter -and $TypeFilter) { $SearchFilter = "$($HiddenFilter) AND $($CategoryFilter) AND $($TypeFilter)" }
+        elseif (!$HiddenFilter -and $CategoryFilter -and $TypeFilter) { $SearchFilter = "$($TypeFilter) AND $($CategoryFilter)" }
+        elseif ($HiddenFilter -and !$CategoryFilter -and $TypeFilter) { $SearchFilter = "$($HiddenFilter) AND $($TypeFilter)" }
     }
-    elseif($TypeFilter){$SearchFilter = "$TypeFilter"}
-    elseif($HiddenFilter){$SearchFilter = "$HiddenFilter"}
-    elseif($CategoryFilter){$SearchFilter = "$CategoryFilter"}
+    elseif ($TypeFilter) { $SearchFilter = "$TypeFilter" }
+    elseif ($HiddenFilter) { $SearchFilter = "$HiddenFilter" }
+    elseif ($CategoryFilter) { $SearchFilter = "$CategoryFilter" }
     
-    if($SearchFilter)
-    {
+    if ($SearchFilter) {
         $updates = ($updateSearcher.Search($SearchFilter))
     }
     else {
@@ -1098,13 +1142,13 @@ if ($RegistryTest -eq $true) {
         else { $retrycount = $settings.retrycount }
         
         
-            if ($Settings.AutomaticReboot -eq "True") {
-                [bool]$Reboot = $True
-            }
-            elseif ($settings.ForceRebootOutsideOfMW -eq "True") {
-                [bool]$Reboot = $True
-            }
-            else { [bool]$Reboot = $False }           
+        if ($Settings.AutomaticReboot -eq "True") {
+            [bool]$Reboot = $True
+        }
+        elseif ($settings.ForceRebootOutsideOfMW -eq "True") {
+            [bool]$Reboot = $True
+        }
+        else { [bool]$Reboot = $False }           
                
     }
     else {
@@ -1118,16 +1162,16 @@ else {
 }   
 
 #Registry mapping - to make sure bool is bool
-if($settings.DirectDownload -eq "True"){[bool]$DirectDownload = $true} else{[bool]$DirectDownload = $false}
-if($Settings.ForceRebootOutsideOfMW -eq "True"){[bool]$ForceRebootOutsideOfMW = $true} else{[bool]$ForceRebootOutsideOfMW = $false}
-if($Settings.NotifyEnduserOutsideOfMW -eq "True"){[bool]$NotifyEnduserOutsideOfMW = $true} else{[bool]$NotifyEnduserOutsideOfMW = $false}
-if($Settings.RunConnectionTests -eq "True"){[bool]$RunConnectionTests = $true} else{[bool]$RunConnectionTests = $false}
-if($Settings.ForceRebootwithNoUser -eq "True"){[bool]$ForceRebootwithNoUser = $true} else{[bool]$ForceRebootwithNoUser = $false}
-if($Settings.ReportOnly -eq "True"){[bool]$ReportOnly = $true} else{[bool]$ReportOnly = $false}
-if($Settings.NotifyUser -eq "True"){[bool]$NotifyUser = $true} else{[bool]$NotifyUser = $false}
-if($Settings.MaintenanceWindow -eq "True"){[bool]$MaintenanceWindow = $true} else{[bool]$MaintenanceWindow = $false}
-if($Settings.UninstallKBs -eq "True"){[bool]$UninstallKBs = $true} else{[bool]$UninstallKBs = $false}
-if($Settings.AutomaticReboot -eq "True"){[bool]$AutomaticReboot = $true} else{[bool]$AutomaticReboot = $false}
+if ($settings.DirectDownload -eq "True") { [bool]$DirectDownload = $true } else { [bool]$DirectDownload = $false }
+if ($Settings.ForceRebootOutsideOfMW -eq "True") { [bool]$ForceRebootOutsideOfMW = $true } else { [bool]$ForceRebootOutsideOfMW = $false }
+if ($Settings.NotifyEnduserOutsideOfMW -eq "True") { [bool]$NotifyEnduserOutsideOfMW = $true } else { [bool]$NotifyEnduserOutsideOfMW = $false }
+if ($Settings.RunConnectionTests -eq "True") { [bool]$RunConnectionTests = $true } else { [bool]$RunConnectionTests = $false }
+if ($Settings.ForceRebootwithNoUser -eq "True") { [bool]$ForceRebootwithNoUser = $true } else { [bool]$ForceRebootwithNoUser = $false }
+if ($Settings.ReportOnly -eq "True") { [bool]$ReportOnly = $true } else { [bool]$ReportOnly = $false }
+if ($Settings.NotifyUser -eq "True") { [bool]$NotifyUser = $true } else { [bool]$NotifyUser = $false }
+if ($Settings.MaintenanceWindow -eq "True") { [bool]$MaintenanceWindow = $true } else { [bool]$MaintenanceWindow = $false }
+if ($Settings.UninstallKBs -eq "True") { [bool]$UninstallKBs = $true } else { [bool]$UninstallKBs = $false }
+if ($Settings.AutomaticReboot -eq "True") { [bool]$AutomaticReboot = $true } else { [bool]$AutomaticReboot = $false }
 
 
 #Create Status registry keys
@@ -1228,7 +1272,10 @@ $Component = "UPDATE SCAN"
 #Get last scan time 
 if (!$Settings.NextScanTime) {
     Write-Log -LogLevel Info -LogMessage "Testing connectivity"
-    Test-UpdateConnectivity | Out-Null
+    if($RunConnectionTests -eq $true)
+    {
+        Test-UpdateConnectivity | Out-Null
+    }
 
     Write-Log -LogLevel Info -LogMessage "Script First Run - Searching for updates"
     $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date)
@@ -1241,7 +1288,11 @@ else {
 
     if ($CurrentTime -ge $NextScanTime -or (($MaintenanceWindow -eq $true) -and [bool](Test-MaintenanceWindow) -eq $true)) {
         Write-Log -LogLevel Info -LogMessage "Testing connectivity"
-        Test-UpdateConnectivity | Out-Null
+        
+        if($RunConnectionTests -eq $true)
+        {
+            Test-UpdateConnectivity | Out-Null
+        }
 
         Write-Log -LogLevel Info -LogMessage "Scan Interval reached - Searching for updates"
         $AllUpdates = New-WindowsUpdateScan -LastScanTime (Get-Date $Settings.LastScanTime)
@@ -1431,7 +1482,7 @@ if ($RebootRequired -eq $true) {
         }
         elseif ($RebootNotification -eq $True) {
             $LastNotificationTime = Get-Date (Get-ItemPropertyValue -Path "$($RegistryRootPath)\Status" -Name "RebootNotificationDate") -Format s
-            $IntervalTimerTemp = (Get-Date).AddHours(-$($Settings.NotificationInterval))
+            $IntervalTimerTemp = (Get-Date).AddHours( - $($Settings.NotificationInterval))
             $IntervalTimer = Get-Date ($IntervalTimerTemp) -format s
             if ($LastNotificationTime -le $IntervalTimer) {
                 $NotificationDate = Get-Date -Format s   
