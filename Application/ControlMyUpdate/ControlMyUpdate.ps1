@@ -1271,9 +1271,10 @@ if (($settings.HiddenUpdates) -or ($settings.UnHiddenUpdates)) {
 $Component = "UPDATE SCAN"
 #Get last scan time 
 if (!$Settings.NextScanTime) {
-    Write-Log -LogLevel Info -LogMessage "Testing connectivity"
+
     if($RunConnectionTests -eq $true)
     {
+        Write-Log -LogLevel Info -LogMessage "Testing connectivity"
         Test-UpdateConnectivity | Out-Null
     }
 
@@ -1287,10 +1288,10 @@ else {
     Write-Log -LogLevel Debug -LogMessage "NextScanTime: $($NextScanTime)"
 
     if ($CurrentTime -ge $NextScanTime -or (($MaintenanceWindow -eq $true) -and [bool](Test-MaintenanceWindow) -eq $true)) {
-        Write-Log -LogLevel Info -LogMessage "Testing connectivity"
         
         if($RunConnectionTests -eq $true)
         {
+            Write-Log -LogLevel Info -LogMessage "Testing connectivity"
             Test-UpdateConnectivity | Out-Null
         }
 
@@ -1410,6 +1411,7 @@ if ( ($AllAvailableUpdates.Count -gt 0) -and ($ReportOnly -ne "True") ) {
     }
 }
 
+
 $Component = "REBOOT CHECK"
 #Check if  Reboot pending   
 $RebootRequired = Test-PendingReboot -AutomaticReboot $false
@@ -1421,7 +1423,7 @@ if ($RebootRequired -eq $true) {
     Write-Log -LogLevel Trace -LogMessage "RebootRequired: True"
     New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "PendingReboot" -Value "True" -Force | Out-Null
 
-    if ( $NotifyUser -eq $True -or $NotifyEnduserOutsideOfMW -eq $true) {
+    if ($NotifyUser -eq $True) {
         Write-Log -LogLevel Info -LogMessage "Notifying User of pending reboot"
         $RebootNotification = Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootNotificationCreated' -ErrorAction Ignore 
         New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "True" -Force | Out-Null   
@@ -1443,7 +1445,7 @@ if ($RebootRequired -eq $true) {
                 
                 $RebootDetectionDate = Get-Date (Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)
         
-                if ($RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.NoMWAutoRebootInterval)) -and ($Settings.NoMWAutoRebootInterval) -ne 0) {
+                if ($RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.NoMWAutoRebootInterval)) -and ($Settings.NoMWAutoRebootInterval) -ne 0 -and $MaintenanceWindow -eq $false) {
                     Write-Log -LogLevel Info -LogMessage "Force reboot"
 
                     New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
@@ -1465,7 +1467,7 @@ if ($RebootRequired -eq $true) {
                                 
                     if ($RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.MWAutoRebootInterval)) -and ($Settings.MWAutoRebootInterval) -ne 0) {
                         Write-Log -LogLevel Info -LogMessage "Force reboot"
-
+                        
                         New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
                         Test-PendingReboot -AutomaticReboot $Reboot
                         $RebootNotification = $false

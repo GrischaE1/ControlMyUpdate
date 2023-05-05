@@ -291,6 +291,7 @@ function New-CustomUpdateProfile {
         $ScanInterval,
         $ScanRandomization,
         $NotifyUser,
+        $NotificationInterval,
         $ToastTitle,
         $ToastMessage,
         $ToastAdvice,
@@ -459,12 +460,15 @@ function New-CustomUpdateProfile {
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ScanRandomization -PropertyType String -Value $($ScanRandomization);  
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ReportOnly -PropertyType String -Value False;
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name NotifyUser -PropertyType String -Value $($NotifyUser);
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name NotificationInterval -PropertyType String -Value $($NotificationInterval);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastTitle -PropertyType String -Value &quot;$($ToastTitle)&quot;;
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastMessage -PropertyType String -Value &quot;$($ToastMessage)&quot;;
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastAdvice -PropertyType String -Value &quot;$($ToastAdvice)&quot;;
-                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ForceRebootNoMW -PropertyType String -Value $($AutoRebootInterval);
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name NoMWAutomaticReboot -PropertyType String -Value $($NoMWAutomaticReboot);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ForceRebootwithNoUser -PropertyType String -Value $($ForceRebootwithNoUser);
-                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name AutomaticReboot -PropertyType String -Value $($MWAutomaticReboot);
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name NoMWAutoRebootInterval -PropertyType String -Value $($NoMWAutoRebootInterval);
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWAutomaticReboot -PropertyType String -Value $($MWAutomaticReboot);
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWAutoRebootInterval -PropertyType String -Value $($MWAutoRebootInterval);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name RunConnectionTests -PropertyType String -Value $($RunConnectionTests);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name RetryCount -PropertyType String -Value $($RetryCount);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name UpdateCategories -PropertyType String -Value &quot;$($UpdateCategories)&quot;;
@@ -523,6 +527,7 @@ function New-CustomUpdateScript {
         $ScanInterval,
         $ScanRandomization,
         $NotifyUser,
+        $NotificationInterval,
         $ToastTitle,
         $ToastMessage,
         $ToastAdvice,
@@ -676,12 +681,15 @@ function New-CustomUpdateScript {
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ScanRandomization -PropertyType String -Value $($ScanRandomization)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ReportOnly -PropertyType String -Value False
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name NotifyUser -PropertyType String -Value $($NotifyUser)
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name NotificationInterval -PropertyType String -Value $($NotificationInterval)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastTitle -PropertyType String -Value "$($ToastTitle)"
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastAdvice -PropertyType String -Value "$($ToastAdvice)"
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastMessage -PropertyType String -Value "$($ToastMessage)"
-                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ForceRebootNoMW -PropertyType String -Value $($AutoRebootInterval)
-                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ForceRebootwithNoUser -PropertyType String -Value $($ForceRebootwithNoUser)
-                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name AutomaticReboot -PropertyType String -Value $($MWAutomaticReboot)
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name NoMWAutomaticReboot -PropertyType String -Value "$($NoMWAutomaticReboot)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ForceRebootwithNoUser -PropertyType String -Value "$($ForceRebootwithNoUser)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name NoMWAutoRebootInterval -PropertyType String -Value "$($NoMWAutoRebootInterval)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWAutomaticReboot -PropertyType String -Value "$($MWAutomaticReboot)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWAutoRebootInterval -PropertyType String -Value "$($MWAutoRebootInterval)"
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name RunConnectionTests -PropertyType String -Value $($RunConnectionTests)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name RetryCount -PropertyType String -Value $($RetryCount)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name UpdateCategories -PropertyType String -Value "$($UpdateCategories)"
