@@ -235,8 +235,8 @@ function Test-MaintenanceWindow {
         $CurrentDay = Get-Date -Format "dddd"
 
         if ($settings.EnablePerDayMW -eq $true) {
-            $StartTime = Get-ItemPropertyValue -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings  -Name "MWPerDay$($Currentday)StartTime"
-            $EndTime = Get-ItemPropertyValue -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings  -Name "MWPerDay$($Currentday)EndTime"        
+            $StartTime = Get-ItemPropertyValue -Path"$($RegistryRootPath)\Settings"  -Name "MWPerDay$($Currentday)StartTime"
+            $EndTime = Get-ItemPropertyValue -Path "$($RegistryRootPath)\Settings"  -Name "MWPerDay$($Currentday)EndTime"        
         }
 
 
@@ -1088,6 +1088,20 @@ Write-Log -LogLevel Info -LogMessage "------------------------------------------
 Write-Log -LogLevel Info -LogMessage "|           ControlMyUpdate - v$($ScriptCurrentVersion)   "
 Write-Log -LogLevel Info -LogMessage "----------------------------------------------------------"
 
+Write-Log -LogLevel Trace -LogMessage "Registry test path root key"
+$32BitRegistryTest = Test-Path $RegistryRootPath
+
+If (!$32BitRegistryTest) {
+    $64BitRegistryTest = Test-Path $64BitRegistryRootPath
+
+    if ($64BitRegistryRootPath) {
+        $RegistryRootPath = $64BitRegistryRootPath
+        $RegistryTest = $64BitRegistryTest
+    }
+}
+else { $RegistryTest = $32BitRegistryTest }
+
+
 if ( $PSBoundParameters.ContainsKey("ScriptLogLevel") ) {
     Write-Log -LogLevel Debug -LogMessage "ScriptLogLevel specified, using value from command line."
 }
@@ -1107,18 +1121,6 @@ Catch {
     Write-Log -LogLevel Trace -LogMessage "Set-Execution for process failed"
 }
 
-Write-Log -LogLevel Trace -LogMessage "Registry test path root key"
-$32BitRegistryTest = Test-Path $RegistryRootPath
-
-If (!$32BitRegistryTest) {
-    $64BitRegistryTest = Test-Path $64BitRegistryRootPath
-
-    if ($64BitRegistryRootPath) {
-        $RegistryRootPath = $64BitRegistryRootPath
-        $RegistryTest = $64BitRegistryTest
-    }
-}
-else { $RegistryTest = $32BitRegistryTest }
 
 
 if ($RegistryTest -eq $true) {
