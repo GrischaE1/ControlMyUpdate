@@ -128,6 +128,7 @@ Else {
 
 [xml]$Toast = @"
 <toast scenario="$Scenario">
+	<audio silent="true"/>
     <visual>
     <binding template="ToastGeneric">
         <image placement="hero" src="$HeroImage"/>
