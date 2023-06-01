@@ -298,6 +298,7 @@ function New-CustomUpdateProfile {
         $MWAutomaticReboot,
         $AutoRebootInterval,
         $NoMWAutomaticReboot,
+        $MWBlockRebootWithUser,
         $NoMWAutoRebootInterval,
         $MWAutoRebootInterval,
         $ForceRebootwithNoUser,
@@ -383,7 +384,7 @@ function New-CustomUpdateProfile {
             if ($CMUCategories_DeveloperKits -eq $true) { $UpdateCategories += "E140075D-8433-45C3-AD87-E72345B36078" }
             if ($CMUCategories_Guidance -eq $true) { $UpdateCategories += "9511D615-35B2-47BB-927F-F73D8E9260BB" }
             if ($CMUCategories_ServicePacks -eq $true) { $UpdateCategories += "68C5B0A3-D1A6-4553-AE49-01D3A7827828" }
-            if ($CMUCategories_FeaturePacks -eq $true) { $UpdateCategories += "9511D615-35B2-47BB-927F-F73D8E9260BB" }
+            if ($CMUCategories_FeaturePacks -eq $true) { $UpdateCategories += "B54E7D24-7ADD-428F-8B75-90A396FA584F" }
             if ($CMUCategories_Tools -eq $true) { $UpdateCategories += "B4832BD8-E735-4761-8DAF-37F882276DAB" }
             if ($CMUCategories_UpdateRollups -eq $true) { $UpdateCategories += "28BC880E-0592-4CBF-8F95-C79B17911D5F" }
             if ($CMUCategories_Updates -eq $true) { $UpdateCategories += "CD5FFD1E-E932-4E3A-BF74-18BF0B1BBD83" }
@@ -459,6 +460,7 @@ function New-CustomUpdateProfile {
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ScanInterval -PropertyType String -Value $($ScanInterval);  
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ScanRandomization -PropertyType String -Value $($ScanRandomization);  
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ReportOnly -PropertyType String -Value False;
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWBlockRebootWithUser -PropertyType String -Value $($MWBlockRebootWithUser);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name NotifyUser -PropertyType String -Value $($NotifyUser);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name NotificationInterval -PropertyType String -Value $($NotificationInterval);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastTitle -PropertyType String -Value &quot;$($ToastTitle)&quot;;
@@ -536,6 +538,7 @@ function New-CustomUpdateScript {
         $NoMWAutomaticReboot,
         $NoMWAutoRebootInterval,
         $MWAutoRebootInterval,
+        $MWBlockRebootWithUser,
         $ForceRebootwithNoUser,
         $RunConnectionTests,
         $UninstallKBs,
@@ -609,7 +612,7 @@ function New-CustomUpdateScript {
             if ($CMUCategories_DeveloperKits -eq $true) { $UpdateCategories += "E140075D-8433-45C3-AD87-E72345B36078" }
             if ($CMUCategories_Guidance -eq $true) { $UpdateCategories += "9511D615-35B2-47BB-927F-F73D8E9260BB" }
             if ($CMUCategories_ServicePacks -eq $true) { $UpdateCategories += "68C5B0A3-D1A6-4553-AE49-01D3A7827828" }
-            if ($CMUCategories_FeaturePacks -eq $true) { $UpdateCategories += "9511D615-35B2-47BB-927F-F73D8E9260BB" }
+            if ($CMUCategories_FeaturePacks -eq $true) { $UpdateCategories += "B54E7D24-7ADD-428F-8B75-90A396FA584F" }
             if ($CMUCategories_Tools -eq $true) { $UpdateCategories += "B4832BD8-E735-4761-8DAF-37F882276DAB" }
             if ($CMUCategories_UpdateRollups -eq $true) { $UpdateCategories += "28BC880E-0592-4CBF-8F95-C79B17911D5F" }
             if ($CMUCategories_Updates -eq $true) { $UpdateCategories += "CD5FFD1E-E932-4E3A-BF74-18BF0B1BBD83" }
@@ -687,6 +690,7 @@ function New-CustomUpdateScript {
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastMessage -PropertyType String -Value "$($ToastMessage)"
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name NoMWAutomaticReboot -PropertyType String -Value "$($NoMWAutomaticReboot)"
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ForceRebootwithNoUser -PropertyType String -Value "$($ForceRebootwithNoUser)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWBlockRebootWithUser -PropertyType String -Value "$($MWBlockRebootWithUser)"
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name NoMWAutoRebootInterval -PropertyType String -Value "$($NoMWAutoRebootInterval)"
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWAutomaticReboot -PropertyType String -Value "$($MWAutomaticReboot)"
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWAutoRebootInterval -PropertyType String -Value "$($MWAutoRebootInterval)"

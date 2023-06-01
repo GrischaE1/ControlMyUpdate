@@ -123,12 +123,21 @@
 # NotificationInterval
 #               1-99                            Hours between the Reboot notifications
 #
+# MWBlockRebootWithUser
+#               True                            Will block the reboot during MW if a user is logged in to the device
+#               False                           Will execute the reboot during MW if a user is logged in
+#
 ##########################################################################################
 #                                    Changelog 
 #
+# 2.2.1 - Bugfixes:
+#           - GUID for FeaturePacks fixed
+#       - New Features:
+#           - Block reboot during MW if an user is logged in to the system
 # 2.2   - Bugfixes: 
 #           - Reboot notification loop if user is no admin user
 #           - Connection test can now be disabled
+#           - removed the notification sound
 #       - New Features:
 #           - Optional Prompt for end users if MW is configured
 #           - Search only specific categories
@@ -1174,6 +1183,7 @@ if ($Settings.NotifyUser -eq "True") { [bool]$NotifyUser = $true } else { [bool]
 if ($Settings.MaintenanceWindow -eq "True") { [bool]$MaintenanceWindow = $true } else { [bool]$MaintenanceWindow = $false }
 if ($Settings.UninstallKBs -eq "True") { [bool]$UninstallKBs = $true } else { [bool]$UninstallKBs = $false }
 if ($Settings.NoMWAutomaticReboot -eq "True") { [bool]$NoMWAutomaticReboot = $true } else { [bool]$NoMWAutomaticReboot = $false }
+if ($Settings.MWBlockRebootWithUser -eq "True") { [bool]$MWBlockRebootWithUser = $true } else { [bool]$MWBlockRebootWithUser = $false }
 
 
 #Create Status registry keys
@@ -1229,7 +1239,11 @@ if ($settings.EmergencyKB) {
 #restart the device if pending reboot and in MW
 if ($MaintenanceWindow -eq $True) {
     if (Test-MaintenanceWindow -eq $true) {
-        Test-PendingReboot -AutomaticReboot $Reboot
+        if (((Get-Process explorer -ErrorAction SilentlyContinue) -and $($MWBlockRebootWithUser) -eq $true)) {
+            #reboot the device if pending reboot and no user is logged in
+            Test-PendingReboot -AutomaticReboot $false
+        }
+        else{Test-PendingReboot -AutomaticReboot $Reboot}        
     }
 }
 #Check if Force Reboot With No User is enabled an if NO user is currently logged in
