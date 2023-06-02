@@ -130,6 +130,8 @@
 ##########################################################################################
 #                                    Changelog 
 #
+# 2.2.2 - Bugfixes:
+#           - Block reboot during MW with user logged in
 # 2.2.1 - Bugfixes:
 #           - GUID for FeaturePacks fixed
 #       - New Features:
@@ -182,7 +184,7 @@ param(
     [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Verbosity of logging. Default: Info")][ValidateSet("Info", "Debug", "Trace")][String] $ScriptLogLevel = "Info"
 )
 
-$ScriptCurrentVersion = "2.2"
+$ScriptCurrentVersion = "2.2.2"
 
 if ($ScriptVersion.IsPresent) {
     Return $ScriptCurrentVersion
