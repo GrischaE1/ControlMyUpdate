@@ -1379,7 +1379,11 @@ if ( ($AllAvailableUpdates.Count -gt 0) -and ($ReportOnly -ne "True") ) {
 
         if ((Test-MaintenanceWindow) -eq $true) {
             Write-Log -LogLevel Debug -LogMessage "Device in maintenance window"
-            Test-PendingReboot -AutomaticReboot $Reboot | Out-Null
+            if (((Get-Process explorer -ErrorAction SilentlyContinue) -and $($MWBlockRebootWithUser) -eq $true)) {
+                #reboot the device if pending reboot and no user is logged in
+                Test-PendingReboot -AutomaticReboot $false
+            }
+            else{Test-PendingReboot -AutomaticReboot $Reboot}        
 
             Write-Log -LogLevel Debug -LogMessage "Trigger update download"
             Save-WindowsUpdate -DownloadUpdateList $NotDownloadedUpdates
@@ -1399,7 +1403,11 @@ if ( ($AllAvailableUpdates.Count -gt 0) -and ($ReportOnly -ne "True") ) {
 
             if ((Test-MaintenanceWindow) -eq $true) {
                 Write-Log -LogLevel Debug -LogMessage "Device in MW. Reboot processing."
-                Test-PendingReboot -AutomaticReboot $Reboot | Out-Null
+                if (((Get-Process explorer -ErrorAction SilentlyContinue) -and $($MWBlockRebootWithUser) -eq $true)) {
+                    #reboot the device if pending reboot and no user is logged in
+                    Test-PendingReboot -AutomaticReboot $false
+                }
+                else{Test-PendingReboot -AutomaticReboot $Reboot}        
             }
             else {
                 Write-Log -LogLevel Debug -LogMessage "Device outside maintenance window. Skipping reboot"
