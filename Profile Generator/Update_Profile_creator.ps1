@@ -303,6 +303,9 @@ $GenerateButton.Add_Click({
 					$CUProfileParams["UninstallKBs"] = $UninstallKBsCheckBox.IsChecked
 					$CUProfileParams["RunConnectionTests"] = $RunConnectionTests.IsChecked
 					$CUProfileParams["RetryCount"] = $RetryCountSlider.Value
+					$CUProfileParams["MWForceRebootOnlyDuringMW"] = $MWForceRebootOnlyDuringMW.IsChecked
+					$CUProfileParams["CMUAutoRebootIntervalSlider_OnlyMW"] = $CMUAutoRebootIntervalSlider_OnlyMW.Value
+					$CUProfileParams["CMUAutoRebootIntervalTextBox_OnlyMW"] = $CMUAutoRebootIntervalTextBox_OnlyMW.Value
 					$CUProfileParams["CMUCategories_SelectAll"] = $CMUCategories_SelectAll.IsChecked
 					$CUProfileParams["CMUCategories_Application"] = $CMUCategories_Application.IsChecked
 					$CUProfileParams["CMUCategories_Connectors"] = $CMUCategories_Connectors.IsChecked
@@ -378,6 +381,9 @@ $GenerateButton.Add_Click({
 					$CUScriptParams["UninstallKBs"] = $UninstallKBsCheckBox.IsChecked
 					$CUScriptParams["RunConnectionTests"] = $RunConnectionTests.IsChecked
 					$CUScriptParams["RetryCount"] = $RetryCountSlider.Value
+					$CUScriptParams["MWForceRebootOnlyDuringMW"] = $MWForceRebootOnlyDuringMW.IsChecked
+					$CUScriptParams["CMUAutoRebootIntervalSlider_OnlyMW"] = $CMUAutoRebootIntervalSlider_OnlyMW.Value
+					$CUScriptParams["CMUAutoRebootIntervalTextBox_OnlyMW"] = $CMUAutoRebootIntervalTextBox_OnlyMW.Value
 					$CUScriptParams["CMUCategories_SelectAll"] = $CMUCategories_SelectAll.IsChecked
 					$CUScriptParams["CMUCategories_Application"] = $CMUCategories_Application.IsChecked
 					$CUScriptParams["CMUCategories_Connectors"] = $CMUCategories_Connectors.IsChecked
@@ -448,8 +454,8 @@ $GenerateButton.Add_Click({
 
 $GenerateCustomScriptProfile.Add_Click( { $MenuNavigation.SelectedItem = $TABGenerate })
 
-$EnableMaintenanceWindow.Add_Checked({ $EnablePerDayMW.IsEnabled = $true; $MWBlockRebootWithUser.IsEnabled = $True; $MWAutomaticRebootCheckBox.IsEnabled = $True;  $CMUAutoRebootIntervalTextBox_MW.IsEnabled = $true; $CMUAutoRebootIntervalSlider_MW.IsEnabled = $True; $NoMWAutomaticRebootCheckBox.IsEnabled = $false; $CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $false; $CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $false; $MWStartTime.IsEnabled = $true; $MWEndTime.IsEnabled = $true; $MWDays.IsEnabled = $true; $StartTimeHelpText.Visibility = "Visible"; $StopTimeHelpText.Visibility = "Visible" })
-$EnableMaintenanceWindow.Add_UnChecked({ $EnablePerDayMW.IsEnabled = $false; $MWBlockRebootWithUser.IsEnabled = $True; $MWAutomaticRebootCheckBox.IsEnabled = $False;  $CMUAutoRebootIntervalTextBox_MW.IsEnabled = $False; $CMUAutoRebootIntervalSlider_MW.IsEnabled = $False; $NoMWAutomaticRebootCheckBox.IsEnabled = $true; $CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $true; $CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $true; $MWStartTime.IsEnabled = $false; $MWEndTime.IsEnabled = $false; $MWDays.IsEnabled = $false; $StartTimeHelpText.Visibility = "Hidden"; $StopTimeHelpText.Visibility = "Hidden"})
+$EnableMaintenanceWindow.Add_Checked({ $MWForceRebootOnlyDuringMW.IsEnabled = $true; $CMUAutoRebootIntervalSlider_OnlyMW.IsEnabled = $true; $CMUAutoRebootIntervalTextBox_OnlyMW.IsEnabled = $true; $EnablePerDayMW.IsEnabled = $true; $MWBlockRebootWithUser.IsEnabled = $True; $MWAutomaticRebootCheckBox.IsEnabled = $True;  $CMUAutoRebootIntervalTextBox_MW.IsEnabled = $true; $CMUAutoRebootIntervalSlider_MW.IsEnabled = $True; $NoMWAutomaticRebootCheckBox.IsEnabled = $false; $CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $false; $CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $false; $MWStartTime.IsEnabled = $true; $MWEndTime.IsEnabled = $true; $MWDays.IsEnabled = $true; $StartTimeHelpText.Visibility = "Visible"; $StopTimeHelpText.Visibility = "Visible" })
+$EnableMaintenanceWindow.Add_UnChecked({ $MWForceRebootOnlyDuringMW.IsEnabled = $false; $CMUAutoRebootIntervalSlider_OnlyMW.IsEnabled = $false; $CMUAutoRebootIntervalTextBox_OnlyMW.IsEnabled = $false; $EnablePerDayMW.IsEnabled = $false; $MWBlockRebootWithUser.IsEnabled = $True; $MWAutomaticRebootCheckBox.IsEnabled = $False;  $CMUAutoRebootIntervalTextBox_MW.IsEnabled = $False; $CMUAutoRebootIntervalSlider_MW.IsEnabled = $False; $NoMWAutomaticRebootCheckBox.IsEnabled = $true; $CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $true; $CMUAutoRebootIntervalTextBox_NoMW.IsEnabled = $true; $MWStartTime.IsEnabled = $false; $MWEndTime.IsEnabled = $false; $MWDays.IsEnabled = $false; $StartTimeHelpText.Visibility = "Hidden"; $StopTimeHelpText.Visibility = "Hidden"})
 
 
 $EnablePerDayMW.Add_UnChecked({
@@ -509,6 +515,18 @@ $EnablePerDayMW.Add_Checked({
 })
 
 
+$MWForceRebootOnlyDuringMW.Add_Checked({
+
+	$CMUAutoRebootIntervalSlider_OnlyMW.IsEnabled = $true
+	$CMUAutoRebootIntervalTextBox_OnlyMW.IsEnabled = $true
+})
+
+$MWForceRebootOnlyDuringMW.Add_UnChecked({
+
+	$CMUAutoRebootIntervalSlider_OnlyMW.IsEnabled = $false
+	$CMUAutoRebootIntervalTextBox_OnlyMW.IsEnabled = $false
+})
+
 
 $NoMWAutomaticRebootCheckBox.Add_Checked({
 
@@ -526,12 +544,18 @@ $MWAutomaticRebootCheckBox.Add_Checked({
 
 		$CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $true
 		$CMUAutoRebootIntervalSlider_MW.IsEnabled = $true
+		$CMUAutoRebootIntervalSlider_OnlyMW.IsEnabled = $true
+		$CMUAutoRebootIntervalTextBox_OnlyMW.IsEnabled = $true	
+		$MWForceRebootOnlyDuringMW.IsEnabled = $true
 	})
 
 $MWAutomaticRebootCheckBox.Add_UnChecked({
 
 		$CMUAutoRebootIntervalSlider_NoMW.IsEnabled = $false
 		$CMUAutoRebootIntervalSlider_MW.IsEnabled = $false
+		$CMUAutoRebootIntervalSlider_OnlyMW.IsEnabled = $false
+		$CMUAutoRebootIntervalTextBox_OnlyMW.IsEnabled = $false
+		$MWForceRebootOnlyDuringMW.IsEnabled = $False
 	})
 
 $ReportOnly.Add_Checked({

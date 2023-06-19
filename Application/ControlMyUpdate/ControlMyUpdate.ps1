@@ -117,8 +117,9 @@
 #               True                            Will force the reboot outside of the MW after Deadline is reached - only if no user is logged in
 #               False                           Will wait for the next MW to reboot the device
 #
-# MWAutomaticRebootInterval
-#               1-30                            Days till the device gets forced rebooted outside of the MW
+# MWAutoRebootInterval
+#               1-28                            Days till the device gets forced rebooted outside of the MW
+#               0                               Disabled
 #
 # NotificationInterval
 #               1-99                            Hours between the Reboot notifications
@@ -127,9 +128,19 @@
 #               True                            Will block the reboot during MW if a user is logged in to the device
 #               False                           Will execute the reboot during MW if a user is logged in
 #
+# MWForceRebootOnlyDuringMW
+#               True                            Will only reboot the device during MW - will ignore logged in user sessions
+#               False                           Will not reboot during MW if a use is logged on
+#
+# CMUAutoRebootInterval_OnlyMW
+#               1-28                            Days till the device gets forced rebooted inside of the MW
+#               0                               Disabled
+#
 ##########################################################################################
 #                                    Changelog 
 #
+# 2.2.3 - New Feature
+#           - Forced reboot only during configured MW
 # 2.2.2 - Bugfixes:
 #           - Block reboot during MW with user logged in
 # 2.2.1 - Bugfixes:
@@ -184,7 +195,7 @@ param(
     [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Verbosity of logging. Default: Info")][ValidateSet("Info", "Debug", "Trace")][String] $ScriptLogLevel = "Info"
 )
 
-$ScriptCurrentVersion = "2.2.2"
+$ScriptCurrentVersion = "2.2.3"
 
 if ($ScriptVersion.IsPresent) {
     Return $ScriptCurrentVersion
@@ -1186,6 +1197,8 @@ if ($Settings.MaintenanceWindow -eq "True") { [bool]$MaintenanceWindow = $true }
 if ($Settings.UninstallKBs -eq "True") { [bool]$UninstallKBs = $true } else { [bool]$UninstallKBs = $false }
 if ($Settings.NoMWAutomaticReboot -eq "True") { [bool]$NoMWAutomaticReboot = $true } else { [bool]$NoMWAutomaticReboot = $false }
 if ($Settings.MWBlockRebootWithUser -eq "True") { [bool]$MWBlockRebootWithUser = $true } else { [bool]$MWBlockRebootWithUser = $false }
+if ($Settings.MWForceRebootOnlyDuringMW -eq "True") { [bool]$MWForceRebootOnlyDuringMW = $true } else { [bool]$MWForceRebootOnlyDuringMW = $false }
+
 
 
 #Create Status registry keys
@@ -1243,9 +1256,11 @@ if ($MaintenanceWindow -eq $True) {
     if (Test-MaintenanceWindow -eq $true) {
         if (((Get-Process explorer -ErrorAction SilentlyContinue) -and $($MWBlockRebootWithUser) -eq $true)) {
             #reboot the device if pending reboot and no user is logged in
+            
+            
             Test-PendingReboot -AutomaticReboot $false
         }
-        else{Test-PendingReboot -AutomaticReboot $Reboot}        
+        else { Test-PendingReboot -AutomaticReboot $Reboot }        
     }
 }
 #Check if Force Reboot With No User is enabled an if NO user is currently logged in
@@ -1290,8 +1305,7 @@ $Component = "UPDATE SCAN"
 #Get last scan time 
 if (!$Settings.NextScanTime) {
 
-    if($RunConnectionTests -eq $true)
-    {
+    if ($RunConnectionTests -eq $true) {
         Write-Log -LogLevel Info -LogMessage "Testing connectivity"
         Test-UpdateConnectivity | Out-Null
     }
@@ -1307,8 +1321,7 @@ else {
 
     if ($CurrentTime -ge $NextScanTime -or (($MaintenanceWindow -eq $true) -and [bool](Test-MaintenanceWindow) -eq $true)) {
         
-        if($RunConnectionTests -eq $true)
-        {
+        if ($RunConnectionTests -eq $true) {
             Write-Log -LogLevel Info -LogMessage "Testing connectivity"
             Test-UpdateConnectivity | Out-Null
         }
@@ -1385,7 +1398,7 @@ if ( ($AllAvailableUpdates.Count -gt 0) -and ($ReportOnly -ne "True") ) {
                 #reboot the device if pending reboot and no user is logged in
                 Test-PendingReboot -AutomaticReboot $false
             }
-            else{Test-PendingReboot -AutomaticReboot $Reboot}        
+            else { Test-PendingReboot -AutomaticReboot $Reboot }        
 
             Write-Log -LogLevel Debug -LogMessage "Trigger update download"
             Save-WindowsUpdate -DownloadUpdateList $NotDownloadedUpdates
@@ -1409,7 +1422,7 @@ if ( ($AllAvailableUpdates.Count -gt 0) -and ($ReportOnly -ne "True") ) {
                     #reboot the device if pending reboot and no user is logged in
                     Test-PendingReboot -AutomaticReboot $false
                 }
-                else{Test-PendingReboot -AutomaticReboot $Reboot}        
+                else { Test-PendingReboot -AutomaticReboot $Reboot }        
             }
             else {
                 Write-Log -LogLevel Debug -LogMessage "Device outside maintenance window. Skipping reboot"
@@ -1491,13 +1504,33 @@ if ($RebootRequired -eq $true) {
                 
                 $RebootDetectionDate = Get-Date (Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)
                                 
-                    if ($RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.MWAutoRebootInterval)) -and ($Settings.MWAutoRebootInterval) -ne 0) {
-                        Write-Log -LogLevel Info -LogMessage "Force reboot"
+                if ($MWForceRebootOnlyDuringMW -eq $false -and $RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.MWAutoRebootInterval)) -and ($Settings.MWAutoRebootInterval) -ne 0) {
+                    Write-Log -LogLevel Info -LogMessage "Force reboot"
                         
-                        New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
-                        Test-PendingReboot -AutomaticReboot $Reboot
-                        $RebootNotification = $false
-                    }
+                    New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
+                    Test-PendingReboot -AutomaticReboot $Reboot
+                    $RebootNotification = $false
+                }
+                
+            }
+        }
+        if (($MaintenanceWindow -eq $true) -and ((Test-MaintenanceWindow) -eq $true) -and ($Reboot -eq $True) -and ($MWAutomaticReboot -eq $true)) {    
+           
+            if (!(Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)) {
+                New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootDetectionDate" -Value (Get-Date -Format s) -Force | Out-Null   
+            }
+            else {
+                
+                $RebootDetectionDate = Get-Date (Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)
+                                
+                if ($MWForceRebootOnlyDuringMW -eq $true -and $RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.CMUAutoRebootInterval_OnlyMW)) -and ($Settings.CMUAutoRebootInterval_OnlyMW) -ne 0) {
+                    Write-Log -LogLevel Info -LogMessage "Force reboot"
+                        
+                    New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
+                    Test-PendingReboot -AutomaticReboot $Reboot
+                    $RebootNotification = $false
+                        
+                }
                 
             }
         }

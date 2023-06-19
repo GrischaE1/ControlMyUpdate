@@ -396,11 +396,19 @@
 								<CheckBox IsEnabled = "false" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,503,0,0" Name="MWAutomaticRebootCheckBox" />
 
 								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Force Reboot after x days (Outside of the MW)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,530,0,0" />
-								<Slider IsEnabled = "false" Value="3" Minimum="1" Maximum="28" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,530,0,0" Name="CMUAutoRebootIntervalSlider_MW" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
+								<Slider IsEnabled = "false" Value="0" Minimum="0" Maximum="28" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,530,0,0" Name="CMUAutoRebootIntervalSlider_MW" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
 								<TextBox IsEnabled = "false" Text="{Binding ElementName=CMUAutoRebootIntervalSlider_MW, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,530,0,0" Name="CMUAutoRebootIntervalTextBox_MW" />
 
 								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Block Restart during MW if User is logged on" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,560,0,0" />
 								<CheckBox IsEnabled = "false" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,563,0,0" Name="MWBlockRebootWithUser" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Only force reboot during MW" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,590,0,0" />
+								<CheckBox IsEnabled = "false" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Content="" Margin="350,593,0,0" Name="MWForceRebootOnlyDuringMW" />
+
+								<TextBlock HorizontalAlignment="left" VerticalAlignment="Top" TextWrapping="Wrap" Text="Force Reboot after x days (Inside of the MW)" FontSize="14" FontWeight="Normal" Height="21" Foreground="#ffffff" Margin="24,620,0,0" />
+								<Slider IsEnabled = "false" Value="0" Minimum="0" Maximum="28" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="350,620,0,0" Name="CMUAutoRebootIntervalSlider_OnlyMW" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
+								<TextBox IsEnabled = "false" Text="{Binding ElementName=CMUAutoRebootIntervalSlider_OnlyMW, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="21" Margin="570,620,0,0" Name="CMUAutoRebootIntervalTextBox_OnlyMW" />
+
 
 								<Button Content="Next" HorizontalAlignment="right" VerticalAlignment="bottom" Width="200" Name="CMUNextTab3" Height="38" />
 								<Button Content="Previous" HorizontalAlignment="left" VerticalAlignment="bottom" Width="200" Name="CMUPreviousTab3" Height="38" />

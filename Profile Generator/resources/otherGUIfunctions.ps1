@@ -305,6 +305,9 @@ function New-CustomUpdateProfile {
         $RunConnectionTests,
         $UninstallKBs,
         $RetryCount,
+        $MWForceRebootOnlyDuringMW,
+        $CMUAutoRebootIntervalSlider_OnlyMW,
+        $CMUAutoRebootIntervalTextBox_OnlyMW,
         $CMUCategories_SelectAll,
         $CMUCategories_Application,
         $CMUCategories_Connectors,
@@ -463,6 +466,8 @@ function New-CustomUpdateProfile {
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWBlockRebootWithUser -PropertyType String -Value $($MWBlockRebootWithUser);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name NotifyUser -PropertyType String -Value $($NotifyUser);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name NotificationInterval -PropertyType String -Value $($NotificationInterval);
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWForceRebootOnlyDuringMW -PropertyType String -Value $($MWForceRebootOnlyDuringMW);
+                    New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name CMUAutoRebootInterval_OnlyMW -PropertyType String -Value $($CMUAutoRebootIntervalTextBox_OnlyMW);
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastTitle -PropertyType String -Value &quot;$($ToastTitle)&quot;;
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastMessage -PropertyType String -Value &quot;$($ToastMessage)&quot;;
                     New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastAdvice -PropertyType String -Value &quot;$($ToastAdvice)&quot;;
@@ -543,6 +548,9 @@ function New-CustomUpdateScript {
         $RunConnectionTests,
         $UninstallKBs,
         $RetryCount,
+        $MWForceRebootOnlyDuringMW,
+        $CMUAutoRebootIntervalSlider_OnlyMW,
+        $CMUAutoRebootIntervalTextBox_OnlyMW,
         $CMUCategories_SelectAll,
         $CMUCategories_Application,
         $CMUCategories_Connectors,
@@ -688,6 +696,8 @@ function New-CustomUpdateScript {
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastTitle -PropertyType String -Value "$($ToastTitle)"
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastAdvice -PropertyType String -Value "$($ToastAdvice)"
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ToastMessage -PropertyType String -Value "$($ToastMessage)"
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWForceRebootOnlyDuringMW -PropertyType String -Value $($MWForceRebootOnlyDuringMW)
+                  New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name CMUAutoRebootInterval_OnlyMW -PropertyType String -Value $($CMUAutoRebootIntervalTextBox_OnlyMW)
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name NoMWAutomaticReboot -PropertyType String -Value "$($NoMWAutomaticReboot)"
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name ForceRebootwithNoUser -PropertyType String -Value "$($ForceRebootwithNoUser)"
                   New-ItemProperty -Path HKLM:\SOFTWARE\ControlMyUpdate\Settings -Name MWBlockRebootWithUser -PropertyType String -Value "$($MWBlockRebootWithUser)"
