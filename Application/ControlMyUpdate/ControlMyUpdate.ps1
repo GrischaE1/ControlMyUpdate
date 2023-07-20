@@ -139,6 +139,7 @@
 ##########################################################################################
 #                                    Changelog 
 #
+# 2.2.4 - Bugfixing Update Categories
 # 2.2.3 - New Feature
 #           - Forced reboot only during configured MW
 # 2.2.2 - Bugfixes:
@@ -195,7 +196,7 @@ param(
     [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Verbosity of logging. Default: Info")][ValidateSet("Info", "Debug", "Trace")][String] $ScriptLogLevel = "Info"
 )
 
-$ScriptCurrentVersion = "2.2.3"
+$ScriptCurrentVersion = "2.2.4"
 
 if ($ScriptVersion.IsPresent) {
     Return $ScriptCurrentVersion
@@ -556,7 +557,7 @@ function Search-AllUpdates {
         $updates = ($updateSearcher.Search($SearchFilter))
     }
     if ($settings.UpdateCategories -ne "All") {
-        $CategorySettings = $settings.UpdateCategories.Split(" ")
+        $CategorySettings = $settings.UpdateCategories.Split(",")
            
         foreach ($Category in $CategorySettings) {
             if ($CategoryFilter) {
@@ -579,6 +580,8 @@ function Search-AllUpdates {
     elseif ($HiddenFilter) { $SearchFilter = "$HiddenFilter" }
     elseif ($CategoryFilter) { $SearchFilter = "$CategoryFilter" }
     
+    Write-Log -Loglevel Info -LogMessage "Search Filter: $($SearchFilter)"
+
     if ($SearchFilter) {
         $updates = ($updateSearcher.Search($SearchFilter))
     }
@@ -602,9 +605,12 @@ function Search-AllUpdates {
     foreach ($item in $Updates.Updates) {
         if ($item.IsDownloaded -eq $false -and $item.IsInstalled -eq $False) {
             $Status = "Available"
+            Write-Log -LogLevel Info -LogMessage "KB$($item.KBArticleIDs) $($Status)"
             Write-UpdateStatus -CurrentUpdate "KB$($item.KBArticleIDs)" -Status $Status -UpdateTitle ($item.title) -UpdateCategory ($item.Categories._NewEnum.name) -UpdateID ($item.identity._NewEnum) | Out-Null
         }
-        else { Write-UpdateStatus -CurrentUpdate "KB$($item.KBArticleIDs)" -UpdateTitle ($item.title) -UpdateCategory ($item.Categories._NewEnum.name) -UpdateID ($item.identity._NewEnum) | Out-Null }
+        else {
+            Write-Log -LogLevel Debug -LogMessage "KB$($item.KBArticleIDs) $($Status)"
+            Write-UpdateStatus -CurrentUpdate "KB$($item.KBArticleIDs)" -UpdateTitle ($item.title) -UpdateCategory ($item.Categories._NewEnum.name) -UpdateID ($item.identity._NewEnum) | Out-Null }
 
         Clear-Variable Status -Force -ErrorAction SilentlyContinue
         
@@ -714,19 +720,19 @@ function Update-InstallationStatus {
 
         if ($KBCheck) {
             Write-UpdateStatus -CurrentUpdate "$($DetectedKBs)" -Status "Installation Status : Installed" -StatusChange $True
-            # Write-Log -LogLevel Info -LogMessage "Status Change for $($DetectedKBs) - now Installed"
+            Write-Log -LogLevel Info -LogMessage "Status Change for $($DetectedKBs) - now Installed"
         }
         elseif ($AvailableKBCheck) {
             Write-UpdateStatus -CurrentUpdate "$($DetectedKBs)" -Status "Installation Status : Pending Installation" -StatusChange $True
-            # Write-Log -LogLevel Info -LogMessage "Status Change for $($DetectedKBs) - now pending for installation"
+            Write-Log -LogLevel Info -LogMessage "Status Change for $($DetectedKBs) - now pending for installation"
         }
         elseif (!$KBCheck -and !$AvailableKBCheck -and $RegKey.property -notcontains "Installation Status : Installed" ) {
             Write-UpdateStatus -CurrentUpdate "$($DetectedKBs)" -Status "Installation Status : Not Applicable" -StatusChange $True
-            # Write-Log -LogLevel Info -LogMessage "Status Change for $($DetectedKBs) - not applicable anymore"
+            Write-Log -LogLevel Info -LogMessage "Status Change for $($DetectedKBs) - not applicable anymore"
         }
         elseif (!$KBCheck -and !$AvailableKBCheck -and $RegKey.property -contains "Installation Status : Installed" ) {
             Write-UpdateStatus -CurrentUpdate "$($DetectedKBs)" -Status "Installation Status : Uninstalled" -StatusChange $True
-            # Write-Log -LogLevel Info -LogMessage "Status Change for $($DetectedKBs) - Uninstalled"
+            Write-Log -LogLevel Info -LogMessage "Status Change for $($DetectedKBs) - Uninstalled"
         }
 
 

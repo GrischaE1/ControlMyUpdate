@@ -321,7 +321,12 @@ function New-CustomUpdateProfile {
         $CMUCategories_UpdateRollups,
         $CMUCategories_Updates,
         $CMUCategories_SecurityUpdates,
-        $CMUCategories_Drivers
+        $CMUCategories_Drivers,
+        $CMUCategories_Defender,
+        $CMUCategories_W101903later,
+        $CMUCategories_W11,
+        $CMUCategories_W10LTSB,
+        $CMUCategories_W10
     )
 
     #Generate GUID'S
@@ -399,6 +404,17 @@ function New-CustomUpdateProfile {
             if ($CMUCategories_W10 -eq $true) { $UpdateCategories += "a3c2375d-0c8a-42f9-bce0-28333e198407" }
         }
         else { $UpdateCategories = "All" }
+
+        if ($UpdateCategories.count -ge 1 -and $UpdateCategories -ne "All") {
+            [string]$selectedCategory = $UpdateCategories[0]
+            ForEach ($Category in $UpdateCategories) {
+                if ($Category -ne $UpdateCategories[0]) {
+                    [string]$selectedCategory = "$selectedCategory,$Category"
+                }
+            }
+            Clear-Variable UpdateCategories
+            $UpdateCategories = $selectedCategory
+        }
 
         if (!$BlockedKBs) { $BlockedKBs = '&quot;&quot;' }
         if (!$EmergencyKB) { $EmergencyKB = '&quot;&quot;' }
@@ -564,7 +580,12 @@ function New-CustomUpdateScript {
         $CMUCategories_UpdateRollups,
         $CMUCategories_Updates,
         $CMUCategories_SecurityUpdates,
-        $CMUCategories_Drivers
+        $CMUCategories_Drivers,
+        $CMUCategories_Defender,
+        $CMUCategories_W101903later,
+        $CMUCategories_W11,
+        $CMUCategories_W10LTSB,
+        $CMUCategories_W10
     )
 
     if ($ReportOnly) {
@@ -632,6 +653,17 @@ function New-CustomUpdateScript {
             if ($CMUCategories_W10 -eq $true) { $UpdateCategories += "a3c2375d-0c8a-42f9-bce0-28333e198407" }
         }
         else { $UpdateCategories = "All" }
+
+        if ($UpdateCategories.count -ge 1 -and $UpdateCategories -ne "All") {
+            [string]$selectedCategory = $UpdateCategories[0]
+            ForEach ($Category in $UpdateCategories) {
+                if ($Category -ne $UpdateCategories[0]) {
+                    [string]$selectedCategory = "$selectedCategory,$Category"
+                }
+            }
+            Clear-Variable UpdateCategories
+            $UpdateCategories = $selectedCategory
+        }
 
         if (!$BlockedKBs) { $BlockedKBs = '""' }
         if (!$EmergencyKB) { $EmergencyKB = '""' }

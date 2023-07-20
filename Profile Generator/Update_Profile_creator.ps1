@@ -318,8 +318,13 @@ $GenerateButton.Add_Click({
 					$CUProfileParams["CMUCategories_Tools"] = $CMUCategories_Tools.IsChecked
 					$CUProfileParams["CMUCategories_UpdateRollups"] = $CMUCategories_UpdateRollups.IsChecked
 					$CUProfileParams["CMUCategories_Updates"] = $CMUCategories_Updates.IsChecked
-					$CUProfileParams["CMUCategories_SecurityUpdates"] = $CMUCategories_Updates.IsChecked
+					$CUProfileParams["CMUCategories_SecurityUpdates"] = $CMUCategories_SecurityUpdates.IsChecked
 					$CUProfileParams["CMUCategories_Drivers"] = $CMUCategories_Drivers.IsChecked
+					$CUProfileParams["CMUCategories_Defender"] = $CMUCategories_Defender.IsChecked
+					$CUProfileParams["CMUCategories_W101903later"] = $CMUCategories_W101903later.IsChecked
+					$CUProfileParams["CMUCategories_W11"] = $CMUCategories_W11.IsChecked
+					$CUProfileParams["CMUCategories_W10LTSB"] = $CMUCategories_W10LTSB.IsChecked
+					$CUProfileParams["CMUCategories_W10"] = $CMUCategories_W10.IsChecked
 
 				}
 
@@ -396,8 +401,13 @@ $GenerateButton.Add_Click({
 					$CUScriptParams["CMUCategories_Tools"] = $CMUCategories_Tools.IsChecked
 					$CUScriptParams["CMUCategories_UpdateRollups"] = $CMUCategories_UpdateRollups.IsChecked
 					$CUScriptParams["CMUCategories_Updates"] = $CMUCategories_Updates.IsChecked
-					$CUScriptParams["CMUCategories_SecurityUpdates"] = $CMUCategories_Updates.IsChecked
+					$CUScriptParams["CMUCategories_SecurityUpdates"] = $CMUCategories_SecurityUpdates.IsChecked
 					$CUScriptParams["CMUCategories_Drivers"] = $CMUCategories_Drivers.IsChecked
+					$CUScriptParams["CMUCategories_Defender"] = $CMUCategories_Defender.IsChecked
+					$CUScriptParams["CMUCategories_W101903later"] = $CMUCategories_W101903later.IsChecked
+					$CUScriptParams["CMUCategories_W11"] = $CMUCategories_W11.IsChecked
+					$CUScriptParams["CMUCategories_W10LTSB"] = $CMUCategories_W10LTSB.IsChecked
+					$CUScriptParams["CMUCategories_W10"] = $CMUCategories_W10.IsChecked
 				}
 
 				New-CustomUpdateScript @CUScriptParams
