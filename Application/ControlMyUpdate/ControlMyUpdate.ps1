@@ -139,6 +139,7 @@
 ##########################################################################################
 #                                    Changelog 
 #
+# 2.2.5 - Bugfixing Update Categories (OR instead of AND if selected more than one category)
 # 2.2.4 - Bugfixing Update Categories
 # 2.2.3 - New Feature
 #           - Forced reboot only during configured MW
@@ -196,7 +197,7 @@ param(
     [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Verbosity of logging. Default: Info")][ValidateSet("Info", "Debug", "Trace")][String] $ScriptLogLevel = "Info"
 )
 
-$ScriptCurrentVersion = "2.2.4"
+$ScriptCurrentVersion = "2.2.5"
 
 if ($ScriptVersion.IsPresent) {
     Return $ScriptCurrentVersion
@@ -561,7 +562,7 @@ function Search-AllUpdates {
            
         foreach ($Category in $CategorySettings) {
             if ($CategoryFilter) {
-                $CategoryFilter = "$($CategoryFilter) AND CategoryIDs contains '$($Category)'"
+                $CategoryFilter = "$($CategoryFilter) OR CategoryIDs contains '$($Category)'"
             }
             else { $CategoryFilter = "CategoryIDs contains '$($Category)'" }
         }
