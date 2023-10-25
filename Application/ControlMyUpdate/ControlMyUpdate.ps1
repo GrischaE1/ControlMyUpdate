@@ -77,9 +77,6 @@
 #                 True                           Will use the normal Windows Update method to install, but will create registry entries for tracking update installation
 #                 False                          Script will run as normal
 #
-# NotifyUser
-#                 True                           Will generate a toast notification
-#                 False                          Will not notify the end-user 
 #
 # EmergencyKB
 #                 e.g. KB12345                   This update will be installed even if the device is outside of the maintenance window and if the device is outside of the scan interval
@@ -89,6 +86,58 @@
 # Retry count     
 #                 0-99                           Configure how often updates getting downloaded and installed if an error appears 
 #
+# RunConnectionTests
+#               True                            Device will try to reach all URLs in the ConnectionCheck.csv file
+#               False                           No connection tests
+#
+# UninstallKBs
+#               True                            KB's that are blocked will also be uninstalled - if already installed
+#               False                           KB's will only be blocked and will stay installed if already installed
+#
+
+##########################################################################################
+# Reboot settings in version 2.3 and above: 
+# NoReboot 
+#               True                            Device will not reboot
+#               False                           Device will reboot if required
+#
+# ForceRebootWithNoUser
+#               True                            For devices without maintenance window, the device will reboot ASAP if no user is logged on
+#               False                           No automatic reboot if no user is logged on
+#
+# BlockRebootWithUser = True
+#               True                            Will block all reboots if a user is logged in to the device - will ignore the user session if Grace Period End is reached
+#               False                           Will reboot the device regardless of an open user session
+#
+# MWAutomaticReboot
+#               True                            Will force the reboot outside of the MW after Deadline is reached - only if no user is logged in
+#               False                           Will wait for the next MW to reboot the device
+#
+# RebootGracePeriod
+#               0-30                            Device will wait till x days are reached to force the reboot - independent of the current user session
+#
+# ForceReboot
+#               True                            Force Reboot after x days
+#               False                           Do not force the reboot after x days 
+
+##########################################################################################
+# Notification settings in version 2.3 and above: 
+#
+# NotifyUser
+#                 True                           Will generate a toast notification
+#                 False                          Will not notify the end-user 
+#
+# NotificationInterval
+#                 1-99                            Hours between the Reboot notifications
+#
+# ForceRebootNotificationOnly
+#                 True                          Only show the  last notification before the device gets rebooted
+#                 False                        Either show all notifications - if NotifyUser = True; or no notifications - if NotifyUser = False
+
+##########################################################################################
+# Removed Settings: 
+#
+
 # NoMWAutomaticReboot
 #               True                            Will reboot the device automatic if a pending reboot is detected and device is in MW
 #               False                           Will not reboot the device automatic during the MW
@@ -97,32 +146,16 @@
 #               1-24                            If no MW is configured the device will force a reboot after X days - only possible if "NotifyUser" is set to true
 #               0                               Disabled
 #
-# RunConnectionTests
-#               True                            Device will try to reach all URLs in the ConnectionCheck.csv file
-#               False                           No connection tests
-#
-# ForceRebootWithNoUser
-#               True                            For devices without maintenance window, the device will reboot ASAP if no user is logged on
-#               False                           No automatic reboot if no user is logged on
-#
-# UninstallKBs
-#               True                            KB's that are blocked will also be uninstalled - if already installed
-#               False                           KB's will only be blocked and will stay installed if already installed
-#
 # NotifyEnduserOutsideOfMW
 #               True                            Will show the reboot notification if a user is logged on to the device and the device has a MW configured
 #               False                           Will not show any notification
 #
-# MWAutomaticReboot
-#               True                            Will force the reboot outside of the MW after Deadline is reached - only if no user is logged in
-#               False                           Will wait for the next MW to reboot the device
 #
 # MWAutoRebootInterval
 #               1-28                            Days till the device gets forced rebooted outside of the MW
 #               0                               Disabled
 #
-# NotificationInterval
-#               1-99                            Hours between the Reboot notifications
+
 #
 # MWBlockRebootWithUser
 #               True                            Will block the reboot during MW if a user is logged in to the device
@@ -139,6 +172,7 @@
 ##########################################################################################
 #                                    Changelog 
 #
+# 2.3   - Re-desing of reboot handler
 # 2.2.5 - Bugfixing Update Categories (OR instead of AND if selected more than one category)
 # 2.2.4 - Bugfixing Update Categories
 # 2.2.3 - New Feature
@@ -197,7 +231,7 @@ param(
     [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Verbosity of logging. Default: Info")][ValidateSet("Info", "Debug", "Trace")][String] $ScriptLogLevel = "Info"
 )
 
-$ScriptCurrentVersion = "2.2.5"
+$ScriptCurrentVersion = "2.3"
 
 if ($ScriptVersion.IsPresent) {
     Return $ScriptCurrentVersion
@@ -242,6 +276,7 @@ Function Write-Log {
         Remove-Variable -Name LogMessage, LogLevel, Log -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
     }    
 }
+
 function Test-MaintenanceWindow {
     $Component = "TEST MAINTENANCE WINDOW"
     Write-Log -LogLevel Trace -LogMessage "Function: Test-MaintenanceWindow: Start"
@@ -255,7 +290,7 @@ function Test-MaintenanceWindow {
 
     #Per Day MW
     if ($settings.EnablePerDayMW -eq $true) {
-        Write-Log -LogLevel Debug -LogMessage "Per Day MW enabled"
+        Write-Log -LogLevel Info -LogMessage "Per Day MW enabled"
         $CurrentDay = Get-Date -Format "dddd"
 
         if ($settings.EnablePerDayMW -eq $true) {
@@ -276,22 +311,22 @@ function Test-MaintenanceWindow {
         [Boolean] $IsInMaintenanceWindow = $false
 
         if ($CurrentHour -ge $MWStartHour -and $CurrentHour -le $MWStopHour) {
-            Write-Log -LogLevel Debug -LogMessage  "Current Hour within maintenance window timeframe"
+            Write-Log -LogLevel Info -LogMessage  "Current Hour within maintenance window timeframe"
             if ((($CurrentHour -eq $MWStartHour -and $CurrentMinute -gt $MWStartMinute) -and ($CurrentHour -eq $MWStopHour -and $CurrentMinute -lt $MWStopMinute))) {
-                Write-Log -LogLevel Debug -LogMessage "Same Start and Stop hour, using minutes to check Maintenance Windows"
+                Write-Log -LogLevel Info -LogMessage "Same Start and Stop hour, using minutes to check Maintenance Windows"
                 $IsInMaintenanceWindow = $true
             }
             elseif ($CurrentHour -ge $MWStartHour -and $CurrentHour -lt $MWStopHour) {
-                Write-Log -LogLevel Debug -LogMessage "Checking if time is between start and stop hour"
+                Write-Log -LogLevel Info -LogMessage "Checking if time is between start and stop hour"
                 $IsInMaintenanceWindow = $true
             }
             elseif (($CurrentHour -ge $MWStartHour -and $CurrentHour -eq $MWStopHour) -and $CurrentMinute -lt $MWStopMinute) {
-                Write-Log -LogLevel Debug -LogMessage  "CHecking Maintenance Windows within the last hour"
+                Write-Log -LogLevel Info -LogMessage  "CHecking Maintenance Windows within the last hour"
                 $IsInMaintenanceWindow = $true
             }
         }
         else {
-            Write-Log -LogLevel Debug -LogMessage  "Current time not within defined maintenance window"
+            Write-Log -LogLevel Info -LogMessage  "Current time not within defined maintenance window"
             $IsInMaintenanceWindow = $false
         }
             
@@ -302,30 +337,30 @@ function Test-MaintenanceWindow {
         #Get start time
         $MWStartHour = $Settings.MWStartTime.Substring(0, 2)
         $MWStartMinute = $Settings.MWStartTime.Remove(0, 3)
-        Write-Log -LogLevel Debug -LogMessage "Start Time: Hour: $($MWStartHour) / Minute: $($MWStartMinute)"
+        Write-Log -LogLevel Info -LogMessage "Start Time: Hour: $($MWStartHour) / Minute: $($MWStartMinute)"
         
         #Get stop time
         $MWStopHour = $Settings.MWStopTime.Substring(0, 2)
         $MWStopMinute = $Settings.MWStopTime.Remove(0, 3)
-        Write-Log -LogLevel Debug -LogMessage "Stop Time: Hour: $($MWStopHour) / Minute: $($MWStopMinute)"
+        Write-Log -LogLevel Info -LogMessage "Stop Time: Hour: $($MWStopHour) / Minute: $($MWStopMinute)"
 
         #Check if installation day was set - if not, updates will be installed everyday 
         if ($Settings.MWDay) {
             if ($Settings.MWDay -like "*,*") {
-                Write-Log -LogLevel Debug -LogMessage "Multiple target day found. $($Settings.MWDay)"
+                Write-Log -LogLevel Info -LogMessage "Multiple target day found. $($Settings.MWDay)"
                 $TargetDay = $Settings.MWDay.Split(",")
             }
             else {
-                Write-Log -LogLevel Debug -LogMessage "1 Target day found $($Settings.MWDay)"
+                Write-Log -LogLevel Info -LogMessage "1 Target day found $($Settings.MWDay)"
                 $TargetDay = $Settings.MWDay
             }
         }
         else {
-            Write-Log -LogLevel Debug -LogMessage "Everyday as target day"
+            Write-Log -LogLevel Info -LogMessage "Everyday as target day"
             $TargetDay = $CurrentDay
         }
 
-        Write-Log -LogLevel Debug -LogMessage "TargetDay: $($TargetDay)"
+        Write-Log -LogLevel Info -LogMessage "TargetDay: $($TargetDay)"
 
         #Check if current time is in Maintenance Window
         Clear-Variable IsInMaintenanceWindow -Force -ErrorAction SilentlyContinue
@@ -333,9 +368,9 @@ function Test-MaintenanceWindow {
 
         [Boolean] $IsInMaintenanceWindow = $false
         foreach ($MWDay in $TargetDay) {
-            Write-Log -LogLevel Debug -LogMessage "processing: $($MWDay)"  
+            Write-Log -LogLevel Info -LogMessage "processing: $($MWDay)"  
             if ( $CurrentDay -eq $MWDay ) {
-                Write-Log -LogLevel Debug -LogMessage "Current day defined in maintenance window"
+                Write-Log -LogLevel Info -LogMessage "Current day defined in maintenance window"
                 $CurrentDayIsInMW = $true
             }   
             
@@ -345,19 +380,19 @@ function Test-MaintenanceWindow {
                 }
                 else { $CurrentDayIsLastDay = $False }
                 
-                Write-Log -LogLevel Trace -LogMessage "If current day in Maintenance Window: True"
+                Write-Log -LogLevel Info -LogMessage "If current day in Maintenance Window: True"
                 if ($MWStopHour -lt $MWStartHour) {
-                    Write-Log -LogLevel Trace -LogMessage "If Checking Stop Hour is smaller than Start Hour. Over midnight MW."
+                    Write-Log -LogLevel Info -LogMessage "If Checking Stop Hour is smaller than Start Hour. Over midnight MW."
                     if ($CurrentHour -ge $MWStartHour -or $CurrentHour -le $MWStopHour) { 
-                        Write-Log -LogLevel Debug -LogMessage "Checking Maintenance Windows timeframe"
+                        Write-Log -LogLevel Info -LogMessage "Checking Maintenance Windows timeframe"
                         if ($CurrentHour -ge $MWStartHour -and $CurrentMinute -ge $MWStartMinute) {                       
-                            Write-Log -LogLevel Trace -LogMessage "Stop Hour at 24"
+                            Write-Log -LogLevel Info -LogMessage "Stop Hour at 24"
                             $MWStopHour = "24"
                             $MWStopMinute = "00"
                         }
                         if ($CurrentHour -ge $MWStartHour -or $CurrentHour -le $MWStopHour) { 
                             if ($CurrentHour -le $MWStopHour -and $CurrentMinute -le $MWStopMinute) {                            
-                                Write-Log -LogLevel Trace -LogMessage "Stop Hour at 0"
+                                Write-Log -LogLevel Info -LogMessage "Stop Hour at 0"
                                 $MWStopHour = "00"
                                 $MWStopMinute = "00"
                             }
@@ -371,32 +406,32 @@ function Test-MaintenanceWindow {
                 }
 
                 if ($CurrentHour -ge $MWStartHour -and $CurrentHour -le $MWStopHour) {
-                    Write-Log -LogLevel Debug -LogMessage "Current Hour within maintenance window timeframe"
+                    Write-Log -LogLevel Info -LogMessage "Current Hour within maintenance window timeframe"
                     if ((($CurrentHour -eq $MWStartHour -and $CurrentMinute -gt $MWStartMinute) -and ($CurrentHour -eq $MWStopHour -and $CurrentMinute -lt $MWStopMinute))) {
-                        Write-Log -LogLevel Debug -LogMessage "Same Start and Stop hour, using minutes to check Maintenance Windows"
+                        Write-Log -LogLevel Info -LogMessage "Same Start and Stop hour, using minutes to check Maintenance Windows"
                         $IsInMaintenanceWindow = $true
                     }
                     elseif ($CurrentHour -ge $MWStartHour -and $CurrentHour -lt $MWStopHour) {
-                        Write-Log -LogLevel Debug -LogMessage "Checking if time is between start and stop hour"
+                        Write-Log -LogLevel Info -LogMessage "Checking if time is between start and stop hour"
                         $IsInMaintenanceWindow = $true
                     }
                     elseif (($CurrentHour -ge $MWStartHour -and $CurrentHour -eq $MWStopHour) -and $CurrentMinute -lt $MWStopMinute) {
-                        Write-Log -LogLevel Debug -LogMessage "CHecking Maintenance Windows within the last hour"
+                        Write-Log -LogLevel Info -LogMessage "CHecking Maintenance Windows within the last hour"
                         $IsInMaintenanceWindow = $true
                     }
                 }
                 else {
-                    Write-Log -LogLevel Debug -LogMessage "Current time not within defined maintenance window"
+                    Write-Log -LogLevel Info -LogMessage "Current time not within defined maintenance window"
                     $IsInMaintenanceWindow = $false
                 }
             }
             else {
-                Write-Log -LogLevel Debug -LogMessage "Current time not within defined maintenance window"
+                Write-Log -LogLevel Info -LogMessage "Current time not within defined maintenance window"
                 $IsInMaintenanceWindow = $false
             }
         }
     }
-    Write-Log -LogLevel Debug -LogMessage "IsInMaintenanceWindow: $($IsInMaintenanceWindow)"
+    Write-Log -LogLevel Info -LogMessage "IsInMaintenanceWindow: $($IsInMaintenanceWindow)"
     
     if ($IsInMaintenanceWindow -eq $true) { Write-Log -LogLevel Info -LogMessage "Device is in maintenance window" }
     if ($IsInMaintenanceWindow -eq $false) { Write-Log -LogLevel Info -logMessage "Device is outside of the maintenance window" }
@@ -405,27 +440,187 @@ function Test-MaintenanceWindow {
     return $IsInMaintenanceWindow
 }
 
+function Start-RebootNotification {
+    param(
+        [Parameter(Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Grace Period for user deferral restarts")][bool]$ForceRebootNotification = $false
+    )
+
+    $Component = "REBOOT NOTIFICATION"
+    Write-Log -LogLevel Trace -LogMessage "Function: Start-RebootNotification : Start"
+
+    if ($ForceRebootNotification -eq $true) {
+        Write-Log -LogLevel Info -LogMessage "Start forced Reboot Notification to reboot"
+        Start-ScheduledTask -TaskName "Control My Update - Reboot Notification" 
+    }
+    elseif ($NotifyUser -eq $true) {
+        Write-Log -LogLevel Info -LogMessage "Start Pending Reboot Notification"
+        
+        $RebootNotificationCreated = Get-ItemPropertyValue -Path "$($RegistryRootPath)\Status" -Name "RebootNotificationCreated" -ErrorAction SilentlyContinue
+
+        if (!($RebootNotificationCreated)) { 
+            $NotificationDate = Get-Date -Format s    
+            Write-Log -LogLevel Info -LogMessage "Create first end user notification"                
+            Start-ScheduledTask -TaskName "Control My Update - Reboot Notification" 
+            New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootNotificationCreated" -Value "True" -Force | Out-Null    
+            New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootNotificationDate" -Value $NotificationDate -Force | Out-Null   
+        }
+        elseif ($RebootNotificationCreated -eq $True) {
+            $LastNotificationTime = Get-Date (Get-ItemPropertyValue -Path "$($RegistryRootPath)\Status" -Name "RebootNotificationDate") -Format s
+            $IntervalTimerTemp = (Get-Date).AddHours( - $($Settings.NotificationInterval))
+            $IntervalTimer = Get-Date ($IntervalTimerTemp) -format s
+            if ($LastNotificationTime -le $IntervalTimer) {
+                $NotificationDate = Get-Date -Format s   
+                Write-Log -LogLevel Info -LogMessage "Create Notification since interval is reached"
+                Start-ScheduledTask -TaskName "Control My Update - Reboot Notification" 
+                New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootNotificationDate" -Value $NotificationDate -Force | Out-Null  
+            }
+        }
+        
+    }
+
+    Write-Log -LogLevel Trace -LogMessage "Function:  Start-RebootNotification : End"
+}
+
+function Test-GracePeriod {
+
+    $Component = "TEST GRACE PERIOD"
+    Write-Log -LogLevel Trace -LogMessage "Function: Test-GracePeriod: Start"
+
+    if ($RebootGracePeriod -eq '0') {
+        New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
+        $GracePeriodEnd = $true
+    }
+    elseif ($RebootGracePeriod -ne '0') {
+        if (!(Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)) {
+            New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootDetectionDate" -Value (Get-Date -Format s) -Force | Out-Null   
+            New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "True" -Force | Out-Null   
+            
+            $GracePeriodEnd = $false
+        }
+        else {
+            
+            $RebootDetectionDate = Get-Date (Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)
+    
+            if ($RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.RebootGracePeriod))) {
+                Write-Log -LogLevel Info -LogMessage "Force reboot notification"
+
+                New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
+               
+                $GracePeriodEnd = $true
+            }
+            else { $GracePeriodEnd = $false }
+        }
+    }
+
+    Write-Log -LogLevel Info -LogMessage "Device Grace Period for reboot ended: $($GracePeriodEnd)"
+    
+
+    Write-Log -LogLevel Trace -LogMessage "Function: Test-GracePeriod: End"
+    Return $GracePeriodEnd
+}
+
+function Start-RebootExecution {
+    $Component = "START REBOOT EXECUTION"
+    Write-Log -LogLevel Trace -LogMessage "Function: Start-RebootExecution: Start"
+
+    $NoReboot = $False
+
+    if ($NoReboot -eq $true) {
+        $DoReboot = $False
+    }
+    else {
+        New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "PendingReboot" -Value "True" -Force | Out-Null
+
+        #Check Maintenance Window use cases
+        If ($MaintenanceWindow -eq $true) {
+            if ((Test-GracePeriod -eq $false) -and ($MWAutomaticReboot -eq $True) -and $MaintenanceWindow -eq $True -and (Test-MaintenanceWindow -eq $True)) {
+                Write-Log -LogLevel Info -LogMessage "Pending Reboot - Device in MW - with Automatic Reboot enabled and no grace period"
+
+                #reboot the device if pending reboot and no user is logged in
+                if ((!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($BlockRebootWithUser) -eq $true)) {          
+                    Write-Log -LogLevel Info -LogMessage "No User logged in - Block Reboot with User session enabled"      
+                    $DoReboot = $true
+                }
+                #Do not reboot the device if pending reboot and user is logged in
+                elseif (((Get-Process explorer -ErrorAction SilentlyContinue) -and $($BlockRebootWithUser) -eq $true)) {    
+                    Write-Log -LogLevel Info -LogMessage "User logged in - Block Reboot with User session disabled"                 
+                    $DoReboot = $false
+                }
+                #Reboot the device regardless if a user is logged in or not
+                elseif ($BlockRebootWithUser -eq $false) {        
+                    Write-Log -LogLevel Info -LogMessage "Block Reboot with User session disabled - ignore user session"             
+                    $DoReboot = $true
+                }
+            }
+            #Force Reboot the device after x days if the device is in MW
+            elseif ((Test-GracePeriod -eq $true) -and $MaintenanceWindow -eq $True -and (Test-MaintenanceWindow -eq $True) -and $ForceReboot -eq $false) {
+                Write-Log -LogLevel Info -LogMessage "Device is in MW - with Grace Period end reached"     
+                $DoReboot = $true
+            }
+            #Force Reboot the device after x days regardless of the device is in MW or not
+            elseif ((Test-GracePeriod -eq $true) -and $MaintenanceWindow -eq $True -and $ForceReboot -eq $true) {
+                Write-Log -LogLevel Info -LogMessage "Device is in MW - with Grace Period end reached"  
+                $DoReboot = $true
+            }
+        }
+        else {
+        
+            Write-Log -LogLevel Info -LogMessage "Device has no MW configured"  
+            #reboot the device if pending reboot and no user is logged in
+            if ((!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($BlockRebootWithUser) -eq $true) -and (Test-GracePeriod -eq $true)) {                
+                $DoReboot = $true
+            }
+            #reboot the device if pending reboot and  user is logged in
+            if (((Get-Process explorer -ErrorAction SilentlyContinue) -and $($BlockRebootWithUser) -eq $false) -and (Test-GracePeriod -eq $true)) {                
+                $DoReboot = $true
+            }
+        }
+
+    }
+
+    #execute reboot
+    if ($DoReboot -eq $true) {
+        Write-Log -LogLevel Info -LogMessage "Automatic reboot activated. Running shutdown command"
+        Start-RebootNotification -ForceRebootNotification $true
+        #shutdown.exe /r /f /t 120
+        New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null 
+    }
+    else {
+        Write-Log -LogLevel Info -LogMessage "Automatic reboot NOT triggered."
+        Start-RebootNotification -ForceRebootNotification $False
+    }
+
+    Write-Log -LogLevel Trace -LogMessage "Function: Start-RebootExecution: End"
+
+}
+
 function Test-PendingReboot {
     param(
         [Parameter(Mandatory = $False, ValueFromPipeline = $false, HelpMessage = "Enable Automatic Reboot")][bool]$AutomaticReboot = $false
     )
     $Component = "TEST PENDING REBOOT"
     Write-Log -LogLevel Trace -LogMessage "Function: Test-PendingReboot: Start"
-    Write-Log -LogLevel Debug -LogMessage "AutomaticReboot: $($AutomaticReboot)"
+    Write-Log -LogLevel Info -LogMessage "AutomaticReboot: $($AutomaticReboot)"
 
     $PendingRestart = $false
     if (Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending" -EA Ignore) { $PendingRestart = $true }
     if (Get-Item "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired" -EA Ignore) { $PendingRestart = $true }
     if ((New-Object -ComObject Microsoft.Update.SystemInfo).RebootRequired -eq $true) { $PendingRestart = $true }
 
-    Write-Log -LogLevel Debug -LogMessage "PendingRestart: $($PendingRestart)"
+    Write-Log -LogLevel Info -LogMessage "PendingRestart: $($PendingRestart)"
 
     if ($PendingRestart -eq $true) {
-        Write-Log -LogLevel Info -LogMessage "Pending Restart - Device require reboot"
+        if (!(Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)) {
+            New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootDetectionDate" -Value (Get-Date -Format s) -Force | Out-Null   
+        }
+        else { $RebootDetectionDate = Get-Date (Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate') -Format s }
 
-        if ($AutomaticReboot -eq $true) {
-            Write-Log -LogLevel Debug -LogMessage "Automatic reboot activated. Running shutdown command"
-            shutdown.exe /r /f /t 120
+        Start-RebootExecution
+        Write-Log -LogLevel Info -LogMessage "Pending Restart - Device require reboot"
+    } 
+    else {
+        if ((Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)) {
+            Remove-ItemProperty -Path "$($RegistryRootPath)\Status" -Name "RebootDetectionDate" -Force | Out-Null   
         }
     }
     
@@ -611,7 +806,8 @@ function Search-AllUpdates {
         }
         else {
             Write-Log -LogLevel Debug -LogMessage "KB$($item.KBArticleIDs) $($Status)"
-            Write-UpdateStatus -CurrentUpdate "KB$($item.KBArticleIDs)" -UpdateTitle ($item.title) -UpdateCategory ($item.Categories._NewEnum.name) -UpdateID ($item.identity._NewEnum) | Out-Null }
+            Write-UpdateStatus -CurrentUpdate "KB$($item.KBArticleIDs)" -UpdateTitle ($item.title) -UpdateCategory ($item.Categories._NewEnum.name) -UpdateID ($item.identity._NewEnum) | Out-Null 
+        }
 
         Clear-Variable Status -Force -ErrorAction SilentlyContinue
         
@@ -1261,19 +1457,13 @@ if ($settings.EmergencyKB) {
 #restart the device if pending reboot and in MW
 if ($MaintenanceWindow -eq $True) {
     if (Test-MaintenanceWindow -eq $true) {
-        if (((Get-Process explorer -ErrorAction SilentlyContinue) -and $($MWBlockRebootWithUser) -eq $true)) {
-            #reboot the device if pending reboot and no user is logged in
-            
-            
-            Test-PendingReboot -AutomaticReboot $false
-        }
-        else { Test-PendingReboot -AutomaticReboot $Reboot }        
+        Test-PendingReboot -AutomaticReboot $Reboot      
     }
 }
 #Check if Force Reboot With No User is enabled an if NO user is currently logged in
 if (!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($ForceRebootwithNoUser) -eq $true) {
     #reboot the device if pending reboot and no user is logged in
-    Test-PendingReboot -AutomaticReboot $true
+    Test-PendingReboot 
 }
 
 
@@ -1401,11 +1591,7 @@ if ( ($AllAvailableUpdates.Count -gt 0) -and ($ReportOnly -ne "True") ) {
 
         if ((Test-MaintenanceWindow) -eq $true) {
             Write-Log -LogLevel Debug -LogMessage "Device in maintenance window"
-            if (((Get-Process explorer -ErrorAction SilentlyContinue) -and $($MWBlockRebootWithUser) -eq $true)) {
-                #reboot the device if pending reboot and no user is logged in
-                Test-PendingReboot -AutomaticReboot $false
-            }
-            else { Test-PendingReboot -AutomaticReboot $Reboot }        
+            Test-PendingReboot       
 
             Write-Log -LogLevel Debug -LogMessage "Trigger update download"
             Save-WindowsUpdate -DownloadUpdateList $NotDownloadedUpdates
@@ -1425,11 +1611,7 @@ if ( ($AllAvailableUpdates.Count -gt 0) -and ($ReportOnly -ne "True") ) {
 
             if ((Test-MaintenanceWindow) -eq $true) {
                 Write-Log -LogLevel Debug -LogMessage "Device in MW. Reboot processing."
-                if (((Get-Process explorer -ErrorAction SilentlyContinue) -and $($MWBlockRebootWithUser) -eq $true)) {
-                    #reboot the device if pending reboot and no user is logged in
-                    Test-PendingReboot -AutomaticReboot $false
-                }
-                else { Test-PendingReboot -AutomaticReboot $Reboot }        
+                Test-PendingReboot    
             }
             else {
                 Write-Log -LogLevel Debug -LogMessage "Device outside maintenance window. Skipping reboot"
@@ -1460,122 +1642,8 @@ if ( ($AllAvailableUpdates.Count -gt 0) -and ($ReportOnly -ne "True") ) {
 
 $Component = "REBOOT CHECK"
 #Check if  Reboot pending   
-$RebootRequired = Test-PendingReboot -AutomaticReboot $false
+$RebootRequired = Test-PendingReboot 
 Write-Log -LogLevel Info -LogMessage "RebootRequired: $($RebootRequired)"
-
-#$Settings = Get-ItemProperty -Path "$($RegistryRootPath)\Settings" -ErrorAction SilentlyContinue
-
-if ($RebootRequired -eq $true) {
-    Write-Log -LogLevel Trace -LogMessage "RebootRequired: True"
-    New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "PendingReboot" -Value "True" -Force | Out-Null
-
-    if ($NotifyUser -eq $True) {
-        Write-Log -LogLevel Info -LogMessage "Notifying User of pending reboot"
-        $RebootNotification = Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootNotificationCreated' -ErrorAction Ignore 
-        New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "True" -Force | Out-Null   
-
-
-        #Maintenance Window enabled - no restart 
-        if (($MaintenanceWindow -eq $true) -and ((Test-MaintenanceWindow) -eq $true) -and ($Reboot -eq $True)) {  
-            Write-Log -LogLevel Info -LogMessage "Force reboot"
-            New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
-            Start-ScheduledTask -TaskName "Control My Update - Reboot Notification" 
-            Test-PendingReboot -AutomaticReboot $Reboot        
-        }
-
-        else {
-            if (!(Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)) {
-                New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootDetectionDate" -Value (Get-Date -Format s) -Force | Out-Null   
-            }
-            else {
-                
-                $RebootDetectionDate = Get-Date (Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)
-        
-                if ($RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.NoMWAutoRebootInterval)) -and ($Settings.NoMWAutoRebootInterval) -ne 0 -and $MaintenanceWindow -eq $false) {
-                    Write-Log -LogLevel Info -LogMessage "Force reboot"
-
-                    New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
-                    Test-PendingReboot -AutomaticReboot $Reboot
-                    $RebootNotification = $false
-                }
-            }
-        }
-
-        #Maintenance Window enabled - force restart enabled
-        if (($MaintenanceWindow -eq $true) -and ((Test-MaintenanceWindow) -eq $false) -and ($Reboot -eq $True) -and ($MWAutomaticReboot -eq $true)) {    
-           
-            if (!(Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)) {
-                New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootDetectionDate" -Value (Get-Date -Format s) -Force | Out-Null   
-            }
-            else {
-                
-                $RebootDetectionDate = Get-Date (Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)
-                                
-                if ($MWForceRebootOnlyDuringMW -eq $false -and $RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.MWAutoRebootInterval)) -and ($Settings.MWAutoRebootInterval) -ne 0) {
-                    Write-Log -LogLevel Info -LogMessage "Force reboot"
-                        
-                    New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
-                    Test-PendingReboot -AutomaticReboot $Reboot
-                    $RebootNotification = $false
-                }
-                
-            }
-        }
-        if (($MaintenanceWindow -eq $true) -and ((Test-MaintenanceWindow) -eq $true) -and ($Reboot -eq $True) -and ($MWAutomaticReboot -eq $true)) {    
-           
-            if (!(Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)) {
-                New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootDetectionDate" -Value (Get-Date -Format s) -Force | Out-Null   
-            }
-            else {
-                
-                $RebootDetectionDate = Get-Date (Get-ItemPropertyValue "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)
-                                
-                if ($MWForceRebootOnlyDuringMW -eq $true -and $RebootDetectionDate -le (Get-Date).AddDays( - ($Settings.CMUAutoRebootInterval_OnlyMW)) -and ($Settings.CMUAutoRebootInterval_OnlyMW) -ne 0) {
-                    Write-Log -LogLevel Info -LogMessage "Force reboot"
-                        
-                    New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
-                    Test-PendingReboot -AutomaticReboot $Reboot
-                    $RebootNotification = $false
-                        
-                }
-                
-            }
-        }
-
-        if ($RebootNotification -eq $False -or !($RebootNotification)) { 
-            $NotificationDate = Get-Date -Format s    
-            Write-Log -LogLevel Info -LogMessage "Create first end user notification"                
-            Start-ScheduledTask -TaskName "Control My Update - Reboot Notification" 
-            New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootNotificationCreated" -Value "True" -Force | Out-Null    
-            New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootNotificationDate" -Value $NotificationDate -Force | Out-Null   
-        }
-        elseif ($RebootNotification -eq $True) {
-            $LastNotificationTime = Get-Date (Get-ItemPropertyValue -Path "$($RegistryRootPath)\Status" -Name "RebootNotificationDate") -Format s
-            $IntervalTimerTemp = (Get-Date).AddHours( - $($Settings.NotificationInterval))
-            $IntervalTimer = Get-Date ($IntervalTimerTemp) -format s
-            if ($LastNotificationTime -le $IntervalTimer) {
-                $NotificationDate = Get-Date -Format s   
-                Write-Log -LogLevel Info -LogMessage "Create Notification since interval is reached"
-                Start-ScheduledTask -TaskName "Control My Update - Reboot Notification" 
-                New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootNotificationDate" -Value $NotificationDate -Force | Out-Null  
-            }
-        }
-    }
-}
-else {
-    Write-Log -LogLevel Trace -LogMessage "RebootRequired: False"
-    New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "PendingReboot" -Value "False" -Force | Out-Null
-    if ( $NotifyUser -eq $True) {
-        New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootNotificationCreated" -Value "False" -Force | Out-Null
-    }
-
-    if ((Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)) {
-        Remove-ItemProperty -Path "$($RegistryRootPath)\Status" -Name "RebootDetectionDate" -Force | Out-Null  
-    }
-    if ((Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'ShowDismissButton' -ErrorAction Ignore)) {
-        Remove-ItemProperty -Path "$($RegistryRootPath)\Status" -Name "ShowDismissButton" -Force | Out-Null     
-    } 
-}
 
 
 $Component = "UPDATE STATISTICS"
