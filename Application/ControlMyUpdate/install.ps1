@@ -62,3 +62,4 @@ Copy-Item "$PSScriptRoot\ControlMyUpdate.ps1" -Destination $InstallDir -Force
 Copy-Item "$PSScriptRoot\ConnectionCheck.csv" -Destination $InstallDir -Force
 Copy-Item "$PSScriptRoot\HiddenPowerShell.vbs" -Destination $InstallDir -Force
 Copy-Item "$PSScriptRoot\Reboot_Notification.ps1" -Destination $InstallDir -Force
+Copy-Item "$PSScriptRoot\RestartScript.cmd" -Destination $InstallDir -Force
