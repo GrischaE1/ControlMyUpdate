@@ -486,11 +486,11 @@ function Test-GracePeriod {
     $Component = "TEST GRACE PERIOD"
     Write-Log -LogLevel Trace -LogMessage "Function: Test-GracePeriod: Start"
 
-    if ($RebootGracePeriod -eq '0') {
+    if ($Settings.RebootGracePeriod -eq '0') {
         New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null   
         $GracePeriodEnd = $true
     }
-    elseif ($RebootGracePeriod -ne '0') {
+    elseif ($Settings.RebootGracePeriod -ne '0') {
         if (!(Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)) {
             New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "RebootDetectionDate" -Value (Get-Date -Format s) -Force | Out-Null   
             New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "True" -Force | Out-Null   
@@ -570,6 +570,9 @@ function Start-RebootExecution {
             if ((!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($BlockRebootWithUser) -eq $true) -and (Test-GracePeriod -eq $true)) {                
                 $DoReboot = $true
             }
+            if (((Get-Process explorer -ErrorAction SilentlyContinue) -and $($BlockRebootWithUser) -eq $true) -and (Test-GracePeriod -eq $true)) {                
+                $DoReboot = $False
+            }
             #reboot the device if pending reboot and  user is logged in
             if (((Get-Process explorer -ErrorAction SilentlyContinue) -and $($BlockRebootWithUser) -eq $false) -and (Test-GracePeriod -eq $true)) {                
                 $DoReboot = $true
@@ -582,7 +585,7 @@ function Start-RebootExecution {
     if ($DoReboot -eq $true) {
         Write-Log -LogLevel Info -LogMessage "Automatic reboot activated. Running shutdown command"
         Start-RebootNotification -ForceRebootNotification $true
-        #shutdown.exe /r /f /t 120
+        shutdown.exe /r /f /t 120
         New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "False" -Force | Out-Null 
     }
     else {
@@ -601,6 +604,8 @@ function Test-PendingReboot {
     $Component = "TEST PENDING REBOOT"
     Write-Log -LogLevel Trace -LogMessage "Function: Test-PendingReboot: Start"
     Write-Log -LogLevel Info -LogMessage "AutomaticReboot: $($AutomaticReboot)"
+
+    New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "True" -Force | Out-Null 
 
     $PendingRestart = $false
     if (Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending" -EA Ignore) { $PendingRestart = $true }
@@ -1401,6 +1406,11 @@ if ($Settings.UninstallKBs -eq "True") { [bool]$UninstallKBs = $true } else { [b
 if ($Settings.NoMWAutomaticReboot -eq "True") { [bool]$NoMWAutomaticReboot = $true } else { [bool]$NoMWAutomaticReboot = $false }
 if ($Settings.MWBlockRebootWithUser -eq "True") { [bool]$MWBlockRebootWithUser = $true } else { [bool]$MWBlockRebootWithUser = $false }
 if ($Settings.MWForceRebootOnlyDuringMW -eq "True") { [bool]$MWForceRebootOnlyDuringMW = $true } else { [bool]$MWForceRebootOnlyDuringMW = $false }
+if ($Settings.BlockRebootWithUser -eq "True") { [bool]$BlockRebootWithUser = $true } else { [bool]$BlockRebootWithUser = $false }
+if ($Settings.ForceRebootNotification -eq "True") { [bool]$ForceRebootNotification = $true } else { [bool]$ForceRebootNotification = $false }
+if ($Settings.ForceReboot -eq "True") { [bool]$ForceReboot = $true } else { [bool]$ForceReboot = $false }
+if ($Settings.ForceRebootwithNoUser -eq "True") { [bool]$ForceRebootwithNoUser = $true } else { [bool]$ForceRebootwithNoUser = $false }
+
 
 
 
