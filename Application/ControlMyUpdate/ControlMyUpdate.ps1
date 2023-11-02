@@ -533,9 +533,7 @@ function Start-RebootExecution {
     else {
         
         #Reboot the device if no user is logged in
-        if ((!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($ForceRebootwithNoUser) -eq $true)) {                
-            $DoReboot = $true
-        }
+
 
         #Check Maintenance Window use cases
         If ($MaintenanceWindow -eq $true) {
@@ -568,6 +566,9 @@ function Start-RebootExecution {
                 Write-Log -LogLevel Info -LogMessage "Device is in MW - with Grace Period end reached"  
                 $DoReboot = $true
             }
+            if ((!(Get-Process explorer -ErrorAction SilentlyContinue) -and $MaintenanceWindow -eq $True -and (Test-MaintenanceWindow -eq $True) -and $($ForceRebootwithNoUser) -eq $true)) {                
+                $DoReboot = $true
+            }
         }
         else {
         
@@ -581,6 +582,9 @@ function Start-RebootExecution {
             }
             #reboot the device if pending reboot and  user is logged in
             elseif (((Get-Process explorer -ErrorAction SilentlyContinue) -and $($BlockRebootWithUser) -eq $false) -and (Test-GracePeriod -eq $true)) {                
+                $DoReboot = $true
+            }
+            if ((!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($ForceRebootwithNoUser) -eq $true)) {                
                 $DoReboot = $true
             }
         }
