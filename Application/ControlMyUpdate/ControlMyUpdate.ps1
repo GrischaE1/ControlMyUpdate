@@ -105,7 +105,7 @@
 #               True                            For devices without maintenance window, the device will reboot ASAP if no user is logged on
 #               False                           No automatic reboot if no user is logged on
 #
-# BlockRebootWithUser = True
+# BlockRebootWithUser 
 #               True                            Will block all reboots if a user is logged in to the device - will ignore the user session if Grace Period End is reached
 #               False                           Will reboot the device regardless of an open user session
 #
@@ -532,6 +532,10 @@ function Start-RebootExecution {
     }
     else {
         
+        #Reboot the device if no user is logged in
+        if ((!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($ForceRebootwithNoUser) -eq $true)) {                
+            $DoReboot = $true
+        }
 
         #Check Maintenance Window use cases
         If ($MaintenanceWindow -eq $true) {
@@ -564,10 +568,6 @@ function Start-RebootExecution {
                 Write-Log -LogLevel Info -LogMessage "Device is in MW - with Grace Period end reached"  
                 $DoReboot = $true
             }
-            #Reboot the device if no user is logged in and force reboot is true
-            elseif ((!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($ForceRebootwithNoUser) -eq $true)) {                
-                $DoReboot = $true
-            }
         }
         else {
         
@@ -581,10 +581,6 @@ function Start-RebootExecution {
             }
             #reboot the device if pending reboot and  user is logged in
             elseif (((Get-Process explorer -ErrorAction SilentlyContinue) -and $($BlockRebootWithUser) -eq $false) -and (Test-GracePeriod -eq $true)) {                
-                $DoReboot = $true
-            }
-            #Reboot the device if no user is logged in and force reboot is true
-            elseif ((!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($ForceRebootwithNoUser) -eq $true)) {                
                 $DoReboot = $true
             }
         }
