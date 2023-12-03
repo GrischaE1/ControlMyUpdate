@@ -537,7 +537,9 @@ function Start-RebootExecution {
 
         #Check Maintenance Window use cases
         If ($MaintenanceWindow -eq $true) {
-            if ((Test-GracePeriod -eq $false) -and ($MWAutomaticReboot -eq $True) -and $MaintenanceWindow -eq $True -and (Test-MaintenanceWindow -eq $True)) {
+            [bool]$DeviceInMaintenanceWindow = Test-MaintenanceWindow
+
+            if (($GracePeriodResult -eq $false) -and ($MWAutomaticReboot -eq $True) -and ($MaintenanceWindow -eq $True) -and ($DeviceInMaintenanceWindow -eq $True)) {
                 Write-Log -LogLevel Info -LogMessage "Pending Reboot - Device in MW - with Automatic Reboot enabled and no grace period"
 
                 #reboot the device if pending reboot and no user is logged in
@@ -557,16 +559,18 @@ function Start-RebootExecution {
                 }
             }
             #Force Reboot the device after x days if the device is in MW
-            elseif ((Test-GracePeriod -eq $true) -and $MaintenanceWindow -eq $True -and (Test-MaintenanceWindow -eq $True) -and $ForceReboot -eq $false) {
+            elseif (($GracePeriodResult -eq $true) -and $MaintenanceWindow -eq $True -and ($DeviceInMaintenanceWindow -eq $True) -and $ForceReboot -eq $false) {
                 Write-Log -LogLevel Info -LogMessage "Device is in MW - with Grace Period end reached"     
                 $DoReboot = $true
             }
             #Force Reboot the device after x days regardless of the device is in MW or not
-            elseif ((Test-GracePeriod -eq $true) -and $MaintenanceWindow -eq $True -and $ForceReboot -eq $true) {
+            elseif (($GracePeriodResult -eq $true) -and $MaintenanceWindow -eq $True -and $ForceReboot -eq $true) {
                 Write-Log -LogLevel Info -LogMessage "Device is in MW - with Grace Period end reached"  
                 $DoReboot = $true
             }
-            if ((!(Get-Process explorer -ErrorAction SilentlyContinue) -and $MaintenanceWindow -eq $True -and (Test-MaintenanceWindow -eq $True) -and $($ForceRebootwithNoUser) -eq $true)) {                
+            if ((!(Get-Process explorer -ErrorAction SilentlyContinue) -and $MaintenanceWindow -eq $True -and ($DeviceInMaintenanceWindow -eq $True) -and $($ForceRebootwithNoUser) -eq $true)) {                
+                #reboot the device if pending reboot and no user is logged in
+                Write-Log -LogLevel Info -LogMessage "No User logged in - Force Reboot"  
                 $DoReboot = $true
             }
         }
@@ -574,17 +578,21 @@ function Start-RebootExecution {
         
             Write-Log -LogLevel Info -LogMessage "Device has no MW configured"  
             #reboot the device if pending reboot and no user is logged in
-            if ((!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($BlockRebootWithUser) -eq $true) -and (Test-GracePeriod -eq $true)) {                
+            if ((!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($BlockRebootWithUser) -eq $true) -and ($GracePeriodResult -eq $true)) {                
+                Write-Log -LogLevel Info -LogMessage "No User logged in and grace period ended - Force Reboot" 
                 $DoReboot = $true
             }
-            elseif (((Get-Process explorer -ErrorAction SilentlyContinue) -and $($BlockRebootWithUser) -eq $true) -and (Test-GracePeriod -eq $true)) {                
+            elseif (((Get-Process explorer -ErrorAction SilentlyContinue) -and $($BlockRebootWithUser) -eq $true) -and ($GracePeriodResult -eq $true)) {                
+                Write-Log -LogLevel Info -LogMessage "User logged in and grace period ended - No Force Reboot due to BlockRebootWithUser configuration" 
                 $DoReboot = $False
             }
             #reboot the device if pending reboot and  user is logged in
-            elseif (((Get-Process explorer -ErrorAction SilentlyContinue) -and $($BlockRebootWithUser) -eq $false) -and (Test-GracePeriod -eq $true)) {                
+            elseif (((Get-Process explorer -ErrorAction SilentlyContinue) -and $($BlockRebootWithUser) -eq $false) -and ($GracePeriodResult -eq $true)) {                
+                Write-Log -LogLevel Info -LogMessage "User logged in and grace period ended - Force Reboot"              
                 $DoReboot = $true
             }
-            if ((!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($ForceRebootwithNoUser) -eq $true)) {                
+            if ((!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($ForceRebootwithNoUser) -eq $true)) {        
+                Write-Log -LogLevel Info -LogMessage "No User logged in - Force Reboot"               
                 $DoReboot = $true
             }
         }
@@ -1483,7 +1491,10 @@ if ($MaintenanceWindow -eq $True) {
 #Check if Force Reboot With No User is enabled an if NO user is currently logged in
 if (!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($ForceRebootwithNoUser) -eq $true) {
     #reboot the device if pending reboot and no user is logged in
-    Test-PendingReboot 
+    if (Test-PendingReboot -eq $true) {
+
+    }
+    
 }
 
 
