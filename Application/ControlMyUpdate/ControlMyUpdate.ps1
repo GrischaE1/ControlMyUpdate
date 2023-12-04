@@ -532,8 +532,7 @@ function Start-RebootExecution {
     }
     else {
         
-        #Reboot the device if no user is logged in
-
+        $GracePeriodResult = Test-GracePeriod
 
         #Check Maintenance Window use cases
         If ($MaintenanceWindow -eq $true) {
