@@ -532,7 +532,7 @@ function Start-RebootExecution {
     }
     else {
         
-        $GracePeriodResult = Test-GracePeriod
+        [bool]$GracePeriodResult = Test-GracePeriod
 
         #Check Maintenance Window use cases
         If ($MaintenanceWindow -eq $true) {
