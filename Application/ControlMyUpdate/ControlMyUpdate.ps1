@@ -15,7 +15,7 @@
 
 ##########################################################################################
 # Name: ControlMyUpdate.ps1
-# Version: 2.2
+# Version: 2.3
 # Date: 18.05.2021
 # Created by: Grischa Ernst gernst@vmware.com
 # Contributor: Camille Debay
@@ -532,7 +532,7 @@ function Start-RebootExecution {
     }
     else {
         
-        $GracePeriodResult = Test-GracePeriod
+        [bool]$GracePeriodResult = Test-GracePeriod
 
         #Check Maintenance Window use cases
         If ($MaintenanceWindow -eq $true) {
