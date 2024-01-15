@@ -784,7 +784,7 @@ function Search-AllUpdates {
             else { $CategoryFilter = "CategoryIDs contains '$($Category)'" }
         }
     }
-    if ($settings.InstallDrivers -eq $False) {
+    if ($InstallDrivers -eq $False) {
         $TypeFilter = "Type != 'Driver'"
     }
     
@@ -1427,6 +1427,7 @@ if ($Settings.BlockRebootWithUser -eq "True") { [bool]$BlockRebootWithUser = $tr
 if ($Settings.ForceRebootNotification -eq "True") { [bool]$ForceRebootNotification = $true } else { [bool]$ForceRebootNotification = $false }
 if ($Settings.ForceReboot -eq "True") { [bool]$ForceReboot = $true } else { [bool]$ForceReboot = $false }
 if ($Settings.ForceRebootwithNoUser -eq "True") { [bool]$ForceRebootwithNoUser = $true } else { [bool]$ForceRebootwithNoUser = $false }
+if ($Settings.InstallDrivers -eq "True") { [bool]$InstallDrivers = $true } else { [bool]$InstallDrivers = $false }
 
 
 
