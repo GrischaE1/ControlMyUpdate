@@ -790,7 +790,7 @@ function Search-AllUpdates {
     
     if (($TypeFilter -and $CategoryFilter) -or ($TypeFilter -and $CategoryFilter -and $HiddenFilter) -or ($HiddenFilter -and $CategoryFilter) -or ($HiddenFilter -and $TypeFilter)) {
         if ($HiddenFilter -and $CategoryFilter -and !$TypeFilter) { $SearchFilter = "$($HiddenFilter) AND $($CategoryFilter)" }
-        elseif ($HiddenFilter -and $CategoryFilter -and $TypeFilter) { $SearchFilter = "$($HiddenFilter) AND $($CategoryFilter) AND $($TypeFilter)" }
+        elseif ($HiddenFilter -and $CategoryFilter -and $TypeFilter) { $SearchFilter = "$($HiddenFilter) AND $($TypeFilter) AND $($CategoryFilter)" }
         elseif (!$HiddenFilter -and $CategoryFilter -and $TypeFilter) { $SearchFilter = "$($TypeFilter) AND $($CategoryFilter)" }
         elseif ($HiddenFilter -and !$CategoryFilter -and $TypeFilter) { $SearchFilter = "$($HiddenFilter) AND $($TypeFilter)" }
     }
