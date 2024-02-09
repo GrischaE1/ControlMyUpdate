@@ -31,6 +31,7 @@
 #
 # Caution
 # 1. Please use the GUI version 2.0 or higher with the script version 2.0 or higher.
+# 2. Be aware that the GUI was not updated with the changes in Version 2.3 - please change the restart settings manually
 #
 ###################################
 # Registry values:
