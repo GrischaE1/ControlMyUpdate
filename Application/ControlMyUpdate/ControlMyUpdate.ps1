@@ -15,7 +15,7 @@
 
 ##########################################################################################
 # Name: ControlMyUpdate.ps1
-# Version: 2.3
+# Version: 2.3.1
 # Date: 18.05.2021
 # Created by: Grischa Ernst gernst@vmware.com
 # Contributor: Camille Debay
@@ -173,6 +173,7 @@
 ##########################################################################################
 #                                    Changelog 
 #
+# 2.3.1 - Fixed pending reboot registry status
 # 2.3   - Re-desing of reboot handler
 # 2.2.5 - Bugfixing Update Categories (OR instead of AND if selected more than one category)
 # 2.2.4 - Bugfixing Update Categories
@@ -232,7 +233,7 @@ param(
     [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Verbosity of logging. Default: Info")][ValidateSet("Info", "Debug", "Trace")][String] $ScriptLogLevel = "Info"
 )
 
-$ScriptCurrentVersion = "2.3"
+$ScriptCurrentVersion = "2.3.1"
 
 if ($ScriptVersion.IsPresent) {
     Return $ScriptCurrentVersion
