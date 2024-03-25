@@ -645,8 +645,8 @@ function Test-PendingReboot {
     else {
         if ((Get-ItemProperty "$($RegistryRootPath)\Status" -Name 'RebootDetectionDate' -ErrorAction Ignore)) {
             Remove-ItemProperty -Path "$($RegistryRootPath)\Status" -Name "RebootDetectionDate" -Force | Out-Null   
-	    New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "PendingReboot" -Value "False" -Force | Out-Null
         }
+	New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "PendingReboot" -Value "False" -Force | Out-Null
     }
     
     Write-Log -LogLevel Trace -LogMessage "Function: Test-PendingReboot: End"
