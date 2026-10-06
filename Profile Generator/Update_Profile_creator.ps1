@@ -15,7 +15,11 @@
 
 ##########################################################################################
 # Name: Update_Profile_Creator.ps1
-# Version: 2.1.1
+# Version: 2.1.1  (DEPRECATED in v3.0)
+#
+# DEPRECATED: Superseded by "ControlMyUpdate-ProfileGenerator.html" - a single-file, offline generator
+#             that emits the full v3.0 engine setting surface. This WPF GUI predates the v2.3 reboot model
+#             and no longer matches the engine. Kept for reference only.
 # Date: 25.02.2022
 # Created by: Grischa Ernst gernst@vmware.com
 #
