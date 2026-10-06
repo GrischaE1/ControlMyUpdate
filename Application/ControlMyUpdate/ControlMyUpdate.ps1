@@ -15,8 +15,8 @@
 
 ##########################################################################################
 # Name: ControlMyUpdate.ps1
-# Version: 2.3.1
-# Date: 18.05.2021
+# Version: 3.0
+# Date: 18.07.2026
 # Created by: Grischa Ernst gernst@vmware.com
 # Contributor: Camille Debay
 #
@@ -173,6 +173,13 @@
 ##########################################################################################
 #                                    Changelog 
 #
+# 3.0   - Maintenance & efficiency release. Fixes: NoReboot now honoured (was hard-coded off);
+#         post-install status recorded against the correct KB; 32/64-bit registry hive detection fixed;
+#         redundant online update scan removed; malformed pending-reboot check corrected.
+#         Improvements: installed-update list (WMI/DISM) cached per run; Get-WmiObject -> Get-CimInstance;
+#         buffered logging; data-driven Delivery Optimization statistics. Removed dead settings
+#         (NoMWAutomaticReboot, MWBlockRebootWithUser, MWForceRebootOnlyDuringMW, NotifyEnduserOutsideOfMW,
+#         and the legacy *AutoRebootInterval values). New HTML Profile Generator replaces the WPF GUI.
 # 2.3.1 - Fixed pending reboot registry status
 # 2.3   - Re-desing of reboot handler
 # 2.2.5 - Bugfixing Update Categories (OR instead of AND if selected more than one category)
@@ -227,13 +234,15 @@
 ##########################################################################################
 #                                    Param 
 #
+#Requires -Version 5.1
+
 param(
     [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Path for logs")][String] $LogPath,
     [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Output Version of the script")][Switch] $ScriptVersion,
     [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Verbosity of logging. Default: Info")][ValidateSet("Info", "Debug", "Trace")][String] $ScriptLogLevel = "Info"
 )
 
-$ScriptCurrentVersion = "2.3.1"
+$ScriptCurrentVersion = "3.0"
 
 if ($ScriptVersion.IsPresent) {
     Return $ScriptCurrentVersion
@@ -251,15 +260,14 @@ Function Write-Log {
 
     Process {
         if ($LogEnabled) {
-            $Time = Get-Date -Format "HH:mm:ss.ffffff"
-            $Date = Get-Date -Format "MM-dd-yyyy"
- 
-            if ($ErrorMessage -ne $null) { $Type = 3 }
-            if ($Component -eq $null) { $Component = " " }
+            $Now = Get-Date
+            $Time = $Now.ToString("HH:mm:ss.ffffff")
+            $Date = $Now.ToString("MM-dd-yyyy")
+
+            if ($null -eq $Component) { $Component = " " }
 
             switch ($LogLevel) {
                 "Info" { [int]$Type = 1 }
-                "Warning" { [int]$Type = 2 }
                 "Error" { [int]$Type = 3 }
                 "Debug" { [int]$Type = 4 }
                 "Trace" { [int]$Type = 5 }
@@ -273,7 +281,7 @@ Function Write-Log {
                 "Error" { $Log = "<![LOG[$LogMessage $ErrorMessage" + "]LOG]!><time=`"$Time`" date=`"$Date`" component=`"$Component`" context=`"`" type=`"$Type`" thread=`"$thread`" >" }
             }
                 
-            if ($log) { $Log | Out-File -Append -Encoding UTF8 -FilePath $LogPath }
+            if ($log) { [System.IO.File]::AppendAllText($LogPath, "$Log`r`n", [System.Text.Encoding]::UTF8) }
         }
         Remove-Variable -Name LogMessage, LogLevel, Log -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
     }    
@@ -525,8 +533,6 @@ function Start-RebootExecution {
     $Component = "START REBOOT EXECUTION"
     Write-Log -LogLevel Trace -LogMessage "Function: Start-RebootExecution: Start"
 
-    $NoReboot = $False
-
     New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "PendingReboot" -Value "True" -Force | Out-Null
 
     if ($NoReboot -eq $true) {
@@ -617,12 +623,8 @@ function Start-RebootExecution {
 }
 
 function Test-PendingReboot {
-    param(
-        [Parameter(Mandatory = $False, ValueFromPipeline = $false, HelpMessage = "Enable Automatic Reboot")][bool]$AutomaticReboot = $false
-    )
     $Component = "TEST PENDING REBOOT"
     Write-Log -LogLevel Trace -LogMessage "Function: Test-PendingReboot: Start"
-    Write-Log -LogLevel Info -LogMessage "AutomaticReboot: $($AutomaticReboot)"
 
     New-ItemProperty -Path "$($RegistryRootPath)\Status" -PropertyType "String" -Name "ShowDismissButton" -Value "True" -Force | Out-Null 
 
@@ -713,18 +715,25 @@ function Get-InstalledWindowsUpdates {
         $UpdateCollection += $KBName
     }  
 
-    #Get Windows Updates from WMI
-    $WMIKBs = Get-WmiObject win32_quickfixengineering |  Select-Object HotFixID -ExpandProperty HotFixID
-    Write-log -LogLevel Debug -LogMessage "WMI KB List: $($WMIKBs)"
-   
-    
-    #Get Windows Updates from DISM
-    $RegExKB = "KB(\d+)"
-    $DISMKBList = dism /online /get-packages | findstr KB   
-    $DISMKBNumbers = [regex]::Matches($DISMKBList, $RegExKB).Value
-    Write-log -LogLevel Debug -LogMessage "DISM KB:$($DISMKBNumbers)"
+    #Get the machine-installed KBs from CIM/DISM once per run (cache invalidated after an install)
+    if ($null -eq $script:BaselineInstalledKBs) {
+        #Get Windows Updates from CIM
+        $WMIKBs = Get-CimInstance -ClassName Win32_QuickFixEngineering | Select-Object -ExpandProperty HotFixID
+        Write-log -LogLevel Debug -LogMessage "WMI KB List: $($WMIKBs)"
 
-    $InstalledKBs = ($UpdateCollection + $WMIKBs + $DISMKBNumbers) | Sort-Object -Unique
+        #Get Windows Updates from DISM
+        $RegExKB = "KB(\d+)"
+        $DISMKBList = dism /online /get-packages | findstr KB
+        $DISMKBNumbers = [regex]::Matches($DISMKBList, $RegExKB).Value
+        Write-log -LogLevel Debug -LogMessage "DISM KB:$($DISMKBNumbers)"
+
+        $script:BaselineInstalledKBs = @($WMIKBs) + @($DISMKBNumbers)
+    }
+    else {
+        Write-log -LogLevel Debug -LogMessage "Using cached CIM/DISM installed KB list"
+    }
+
+    $InstalledKBs = ($UpdateCollection + $script:BaselineInstalledKBs) | Sort-Object -Unique
 
     Write-Log -LogLevel Info -LogMessage "Following updates are installed: $($InstalledKBs)"
     Write-Log -LogLevel Trace -LogMessage "Function: Get-InstalledWindowsUpdates: End"
@@ -775,7 +784,6 @@ function Search-AllUpdates {
      
     if ( $IgnoreHideStatus ) {
         $HiddenFilter = "IsHidden = 0"
-        $updates = ($updateSearcher.Search($SearchFilter))
     }
     if ($settings.UpdateCategories -ne "All") {
         $CategorySettings = $settings.UpdateCategories.Split(",")
@@ -1123,41 +1131,33 @@ function Update-DeliveryOptimizationStats {
     }
 
 
-    #Overall
-    Write-Log -LogLevel Debug -LogMessage "Writing Total Download/Upload MB Statistics"
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Total Downloaded MB" -Value "$($TotalDownloaded)" -Force | Out-Null
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Total Uploaded MB" -Value "$($TotalUploaded)" -Force | Out-Null
-
-    #Total Percentage 
-    Write-Log -LogLevel Debug -LogMessage "Writing Percentage Statistics"
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Total Peer Download Percentage" -Value "$($DownloadedFromPeersPercentage)" -Force | Out-Null
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Total HTTP Download Percentage" -Value "$($DownloadedFromHTTPPercentage)" -Force | Out-Null
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Total Cache Host Download Percentage" -Value "$($DownloadedFromCacheServerPercentage)" -Force | Out-Null
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Total Group Peers Download Percentage" -Value "$($DownloadedFromGroupPeersPercentage)" -Force | Out-Null
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Total Internet Download Percentage" -Value "$($DownloadedFromInternetPercentage)" -Force | Out-Null
-
-
-    #Total MB
-    Write-Log -LogLevel Debug -LogMessage "Writing Total MB Statistics"
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Total Peer Download MB" -Value "$($DownloadedFromPeers)" -Force | Out-Null
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Total HTTP Download MB" -Value "$($DownloadedFromHTTP)" -Force | Out-Null
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Total Cache Host Download MB" -Value "$($DownloadedFromCacheServer)" -Force | Out-Null
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Total Group Peers Download MB" -Value "$($DownloadedGroupPeers)" -Force | Out-Null
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Total Internet Download MB" -Value "$($DownloadedFromInternet)" -Force | Out-Null
-
-    #Monthly MB
-    Write-Log -LogLevel Debug -LogMessage "Writing Monthly MB Statistics"
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Monthly Peer Download MB" -Value "$($MonthDownloadedFromPeers)" -Force | Out-Null
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Monthly HTTP Download MB" -Value "$($MonthDownloadedFromHTTP)" -Force | Out-Null
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Monthly Cache Host Download MB" -Value "$($MonthDownloadedFromCacheHost)" -Force | Out-Null
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Monthly Internet Download MB" -Value "$($MonthDownloadedFromInternet)" -Force | Out-Null
-
-    #Monthly Percentage
-    Write-Log -LogLevel Debug -LogMessage "Writing Monthly Percentage Statistics"
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Monthly Peer Download Percentage" -Value "$($MonthlyPeerDownloadPercentage)" -Force | Out-Null
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Monthly HTTP Download Percentage" -Value "$($MonthlyHTTPDownloadPercentage)" -Force | Out-Null
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Monthly Cache Host Download Percentage" -Value "$($MonthlyCacheHostDownloadPercentage)" -Force | Out-Null
-    New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name "Monthly Internet Download Percentage" -Value "$($MonthlyInternetDownloadPercentage)" -Force | Out-Null
+    #Write all Delivery Optimization statistics to the registry
+    $DOStats = [ordered]@{
+        "Total Downloaded MB"                    = $TotalDownloaded
+        "Total Uploaded MB"                      = $TotalUploaded
+        "Total Peer Download Percentage"         = $DownloadedFromPeersPercentage
+        "Total HTTP Download Percentage"         = $DownloadedFromHTTPPercentage
+        "Total Cache Host Download Percentage"   = $DownloadedFromCacheServerPercentage
+        "Total Group Peers Download Percentage"  = $DownloadedFromGroupPeersPercentage
+        "Total Internet Download Percentage"     = $DownloadedFromInternetPercentage
+        "Total Peer Download MB"                 = $DownloadedFromPeers
+        "Total HTTP Download MB"                 = $DownloadedFromHTTP
+        "Total Cache Host Download MB"           = $DownloadedFromCacheServer
+        "Total Group Peers Download MB"          = $DownloadedGroupPeers
+        "Total Internet Download MB"             = $DownloadedFromInternet
+        "Monthly Peer Download MB"               = $MonthDownloadedFromPeers
+        "Monthly HTTP Download MB"               = $MonthDownloadedFromHTTP
+        "Monthly Cache Host Download MB"         = $MonthDownloadedFromCacheHost
+        "Monthly Internet Download MB"           = $MonthDownloadedFromInternet
+        "Monthly Peer Download Percentage"       = $MonthlyPeerDownloadPercentage
+        "Monthly HTTP Download Percentage"       = $MonthlyHTTPDownloadPercentage
+        "Monthly Cache Host Download Percentage" = $MonthlyCacheHostDownloadPercentage
+        "Monthly Internet Download Percentage"   = $MonthlyInternetDownloadPercentage
+    }
+    Write-Log -LogLevel Debug -LogMessage "Writing Delivery Optimization statistics"
+    foreach ($Stat in $DOStats.GetEnumerator()) {
+        New-ItemProperty -Path "$($RegistryRootPath)\Status\DO" -PropertyType "String" -Name $Stat.Key -Value "$($Stat.Value)" -Force | Out-Null
+    }
 
     Write-Log -LogLevel Trace -LogMessage "Function: Update-DeliveryOptimizationStats: End"
 }
@@ -1264,19 +1264,22 @@ function Install-SpecificWindowsUpdate {
     
         }Until($b -ge $retrycount -or $installResult.ResultCode -eq 2 -or $installResult.ResultCode -eq 7)
 
+        #An install was attempted - invalidate the cached installed-KB baseline so later reads are fresh
+        $script:BaselineInstalledKBs = $null
+
         if ($($installResult.ResultCode) -ne 2) {
             Write-Log -LogLevel Error -LogMessage "Update Status: $($InstallStatus)"
-            Write-UpdateStatus -CurrentUpdate "KB$($Update.KBArticleIDs)" -Status "Installation Status : $($InstallStatus)" -StatusChange $True
+            Write-UpdateStatus -CurrentUpdate "KB$($InstallUpdate.KBArticleIDs)" -Status "Installation Status : $($InstallStatus)" -StatusChange $True
         }
         else {
             Write-Log -LogLevel Info -LogMessage "Update Status: $($InstallStatus)"
             
             if (($installResult.RebootRequired) -eq $True) {
-                Write-UpdateStatus -CurrentUpdate "KB$($Update.KBArticleIDs)" -Status "Installation Status : Reboot required" -StatusChange $True
-                Write-Log -LogLevel Info -LogMessage "KB$($Update.KBArticleIDs) requires reboot"
+                Write-UpdateStatus -CurrentUpdate "KB$($InstallUpdate.KBArticleIDs)" -Status "Installation Status : Reboot required" -StatusChange $True
+                Write-Log -LogLevel Info -LogMessage "KB$($InstallUpdate.KBArticleIDs) requires reboot"
 
             }
-            else { Write-UpdateStatus -CurrentUpdate "KB$($Update.KBArticleIDs)" -Status "Installation Status : $($InstallStatus)" -StatusChange $True }
+            else { Write-UpdateStatus -CurrentUpdate "KB$($InstallUpdate.KBArticleIDs)" -Status "Installation Status : $($InstallStatus)" -StatusChange $True }
         
         }
     }
@@ -1344,7 +1347,7 @@ $32BitRegistryTest = Test-Path $RegistryRootPath
 If (!$32BitRegistryTest) {
     $64BitRegistryTest = Test-Path $64BitRegistryRootPath
 
-    if ($64BitRegistryRootPath) {
+    if ($64BitRegistryTest) {
         $RegistryRootPath = $64BitRegistryRootPath
         $RegistryTest = $64BitRegistryTest
     }
@@ -1394,13 +1397,7 @@ if ($RegistryTest -eq $true) {
         else { $retrycount = $settings.retrycount }
         
         
-        if ($Settings.NoMWAutomaticReboot -eq "True") {
-            [bool]$Reboot = $True
-        }
-        elseif ($settings.MWAutomaticReboot -eq "True") {
-            [bool]$Reboot = $True
-        }
-        else { [bool]$Reboot = $False }           
+        #NOTE: automatic-reboot behaviour is derived from the per-setting flags mapped below           
                
     }
     else {
@@ -1429,8 +1426,8 @@ if ($Settings.MWForceRebootOnlyDuringMW -eq "True") { [bool]$MWForceRebootOnlyDu
 if ($Settings.BlockRebootWithUser -eq "True") { [bool]$BlockRebootWithUser = $true } else { [bool]$BlockRebootWithUser = $false }
 if ($Settings.ForceRebootNotification -eq "True") { [bool]$ForceRebootNotification = $true } else { [bool]$ForceRebootNotification = $false }
 if ($Settings.ForceReboot -eq "True") { [bool]$ForceReboot = $true } else { [bool]$ForceReboot = $false }
-if ($Settings.ForceRebootwithNoUser -eq "True") { [bool]$ForceRebootwithNoUser = $true } else { [bool]$ForceRebootwithNoUser = $false }
 if ($Settings.InstallDrivers -eq "True") { [bool]$InstallDrivers = $true } else { [bool]$InstallDrivers = $false }
+if ($Settings.NoReboot -eq "True") { [bool]$NoReboot = $true } else { [bool]$NoReboot = $false }
 
 
 
@@ -1487,16 +1484,14 @@ if ($settings.EmergencyKB) {
 
 #restart the device if pending reboot and in MW
 if ($MaintenanceWindow -eq $True) {
-    if (Test-MaintenanceWindow -eq $true) {
-        Test-PendingReboot -AutomaticReboot $Reboot      
+    if ((Test-MaintenanceWindow) -eq $true) {
+        Test-PendingReboot | Out-Null      
     }
 }
 #Check if Force Reboot With No User is enabled an if NO user is currently logged in
 if (!(Get-Process explorer -ErrorAction SilentlyContinue) -and $($ForceRebootwithNoUser) -eq $true) {
     #reboot the device if pending reboot and no user is logged in
-    if (Test-PendingReboot -eq $true) {
-
-    }
+    Test-PendingReboot | Out-Null
     
 }
 
